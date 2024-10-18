@@ -1,0 +1,33 @@
+﻿using Catalog.Application.Abstractions.Messaging;
+using Catalog.Domain.Abstractions;
+using Catalog.Domain.Products;
+
+namespace Catalog.Application.Products.DeleteProduct;
+internal sealed class DeleteProductCommandHandler : ICommandHandler<DeleteProductCommand, long>
+{
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public DeleteProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
+    {
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Result<long>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+    {
+        var product = await _productRepository.GetByIdAsync(request.id);
+
+        if (product is null)
+        {
+            return Result.Failure<long>(ProductErrors.NotFound(request.id));
+        }
+
+        _productRepository.Remove(product);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return product.Id;
+
+    }
+}
