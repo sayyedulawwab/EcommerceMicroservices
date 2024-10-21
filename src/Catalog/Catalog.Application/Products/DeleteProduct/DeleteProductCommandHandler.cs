@@ -20,7 +20,7 @@ internal sealed class DeleteProductCommandHandler : ICommandHandler<DeleteProduc
 
         if (product is null)
         {
-            return Result.Failure<long>(ProductErrors.NotFound(request.id));
+            return Result.Failure<long>(ProductErrors.NotFound());
         }
 
         _productRepository.Remove(product);

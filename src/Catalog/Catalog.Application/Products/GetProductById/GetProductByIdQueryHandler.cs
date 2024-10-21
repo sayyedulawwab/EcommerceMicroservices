@@ -17,7 +17,7 @@ internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQ
 
         if (product is null)
         {
-            return Result.Failure<ProductResponse>(ProductErrors.NotFound(request.id));
+            return Result.Failure<ProductResponse>(ProductErrors.NotFound());
         }
 
         var productResponse = new ProductResponse()

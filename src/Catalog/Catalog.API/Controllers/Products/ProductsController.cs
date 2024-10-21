@@ -39,6 +39,11 @@ public class ProductsController : ControllerBase
 
         var result = await _sender.Send(query, cancellationToken);
 
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
         return Ok(result.Value);
     }
 
