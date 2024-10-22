@@ -17,7 +17,9 @@ internal sealed class CartRepository : ICartRepository
 
     public async Task<Domain.Carts.Cart?> GetByUserId(long userId, CancellationToken cancellationToken = default)
     {
-        return await _cacheService.GetAsync<Domain.Carts.Cart>($"cart-{userId}");
+        var cart = await _cacheService.GetAsync<Domain.Carts.Cart>($"cart-{userId}");
+
+        return cart;
     }
 
     public async Task RemoveAsync(Domain.Carts.Cart cart)
