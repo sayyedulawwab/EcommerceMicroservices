@@ -56,7 +56,7 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
                                                 UpdatedOn = product.UpdatedOn,
                                             }).ToList();
 
-        var pagedProducts = await PagedList<ProductResponse>.CreateAsync(productResponse, request.page, request.pageSize, totalRecords);
+        var pagedProducts =  PagedList<ProductResponse>.Create(productResponse, request.page, request.pageSize, totalRecords);
 
         return pagedProducts;
     }

@@ -10,12 +10,14 @@ internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderComma
     private readonly IOrderRepository _orderRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IMessageSession _messageSession;
 
-    public PlaceOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider)
+    public PlaceOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider, IMessageSession messageSession)
     {
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
+        _messageSession = messageSession;
     }
 
     public async Task<Result<long>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
@@ -27,7 +29,7 @@ internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderComma
 
         _orderRepository.Add(order);
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 
         orderItems = request.orderItems
@@ -41,10 +43,21 @@ internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderComma
             ))
             .ToList();
 
-        // Add the order items to the Order
         order.AddOrderItems(orderItems);
 
-        await _unitOfWork.SaveChangesAsync();
+        // publish event
+
+        var orderStockItems = request.orderItems.Select(orderItem => OrderStockItem.Create(orderItem.productId, 
+                                                                                            orderItem.productName, 
+                                                                                            orderItem.priceAmount, 
+                                                                                            orderItem.priceCurrency, 
+                                                                                            orderItem.quantity)
+                                                       ).ToList();
+
+
+        var integrationEvent = OrderPlacedIntegrationEvent.Create(order.Id, orderStockItems);
+        
+        await _messageSession.Publish(integrationEvent, cancellationToken);
 
         return order.Id;
     }

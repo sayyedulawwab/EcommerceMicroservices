@@ -26,6 +26,16 @@ try
     builder.Logging.ClearProviders();
     builder.Host.UseNLog();
 
+    builder.Host.UseNServiceBus(context =>
+    {
+        var endpointConfiguration = new EndpointConfiguration("Catalog");
+
+        endpointConfiguration.UseTransport<LearningTransport>();
+        endpointConfiguration.UsePersistence<LearningPersistence>();
+
+        return endpointConfiguration;
+    });
+
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.

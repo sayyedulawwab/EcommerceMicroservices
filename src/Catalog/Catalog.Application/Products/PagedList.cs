@@ -19,7 +19,7 @@ public class PagedList<T>
     public bool HasPreviousPage => Page > 1;
     public bool HasNextPage => Page * PageSize < TotalCount;
 
-    public static async Task<PagedList<T>> CreateAsync(IEnumerable<T> items, int page, int pageSize, long totalCount)
+    public static PagedList<T> Create(IEnumerable<T> items, int page, int pageSize, long totalCount)
     {
         return new(items, page, pageSize, totalCount);
     }
