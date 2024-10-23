@@ -15,31 +15,31 @@ internal class OrderPlacedIntegrationEventHandler : IHandleMessages<OrderPlacedI
     }
     public async Task Handle(OrderPlacedIntegrationEvent @event, IMessageHandlerContext context)
     {
-        _logger.LogInformation("Placed Order: {orderId}", @event.orderId);
+        _logger.LogInformation("Handling Order Placed Event: {orderId}", @event.orderId);
 
         // check stock
 
-        var hasStock = true;
+        var rejectedOrderStockItems = new List<OrderStockItem>();
 
         foreach (var orderStockItem in @event.orderStockItems)
         {
             var product = await _productRepository.GetByIdAsync(orderStockItem.productId);
 
-            if (product is null)
-            {
-                hasStock = false;
-                break;
-            }
-            else if (product.Quantity < orderStockItem.quantity) 
-            {
-                hasStock = false;
-                break;
-            }
+            var hasStock = product.Quantity >= orderStockItem.quantity;
 
+            if (!hasStock)
+            {
+                rejectedOrderStockItems.Add(orderStockItem);
+            }
+            
         }
 
-  
+        var integrationEvent = rejectedOrderStockItems.Any() ? (IEvent)new OrderStockRejectedIntegrationEvent(@event.orderId) 
+                                                              : new OrderStockConfirmedIntegrationEvent(@event.orderId);
+
 
         // publish stock available event
+
+        await context.Publish(integrationEvent);
     }
 }
