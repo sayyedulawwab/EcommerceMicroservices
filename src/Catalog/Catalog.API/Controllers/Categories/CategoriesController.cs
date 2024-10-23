@@ -1,8 +1,8 @@
-﻿using Catalog.Application.Categories.AddCategory;
-using Catalog.Application.Categories.DeleteCategory;
-using Catalog.Application.Categories.EditCategory;
-using Catalog.Application.Categories.GetAllCategories;
-using Catalog.Application.Categories.GetCategoryById;
+﻿using Catalog.Application.Categories.Commands.AddCategory;
+using Catalog.Application.Categories.Commands.DeleteCategory;
+using Catalog.Application.Categories.Commands.EditCategory;
+using Catalog.Application.Categories.Queries.GetAllCategories;
+using Catalog.Application.Categories.Queries.GetCategoryById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

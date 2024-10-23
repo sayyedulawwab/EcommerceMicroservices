@@ -1,5 +1,7 @@
-﻿using Cart.Application.Carts.GetCartByUserId;
-using Cart.Application.Carts.UpdateCart;
+﻿using Cart.Application.Carts.Commands;
+using Cart.Application.Carts.Commands.RemoveCart;
+using Cart.Application.Carts.Commands.UpdateCart;
+using Cart.Application.Carts.Queries.GetCartByUserId;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

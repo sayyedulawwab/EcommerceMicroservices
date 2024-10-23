@@ -4,6 +4,7 @@ using Ordering.Application;
 using Ordering.Infrastructure;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -27,6 +28,8 @@ builder.Host.UseNServiceBus(context =>
 
     endpointConfiguration.UseTransport<LearningTransport>();
     endpointConfiguration.UsePersistence<LearningPersistence>();
+
+    endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
     return endpointConfiguration;
 });

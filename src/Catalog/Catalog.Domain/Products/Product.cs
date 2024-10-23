@@ -51,4 +51,13 @@ public sealed class Product : Entity<long>
         return product;
     }
 
+    public void RemoveStock(int quantityDesired)
+    {
+
+        int removed = Math.Min(quantityDesired, this.Quantity);
+
+        this.Quantity -= removed;
+
+    }
+
 }

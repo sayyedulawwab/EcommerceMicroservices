@@ -32,6 +32,7 @@ try
 
         endpointConfiguration.UseTransport<LearningTransport>();
         endpointConfiguration.UsePersistence<LearningPersistence>();
+        endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
         return endpointConfiguration;
     });

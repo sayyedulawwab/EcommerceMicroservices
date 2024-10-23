@@ -21,9 +21,7 @@ public sealed class Order : Entity<long>
     public Money TotalPrice { get; private set; }
     public OrderStatus Status { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
-    public DateTime? ShippedOnUtc { get; private set; }
-    public DateTime? DeliveredOnUtc { get; private set; }
-    public DateTime? CancelledOnUtc { get; private set; }
+    public DateTime? UpdatedOnUtc { get; private set; }
     public List<OrderItem> OrderItems { get; private set; } = new List<OrderItem>();
 
 
@@ -78,6 +76,17 @@ public sealed class Order : Entity<long>
 
 
         }
+    }
+
+    public static Order Update(Order order, long userID, Money totalPrice, OrderStatus status, DateTime updatedOn)
+    {
+
+        order.UserId = userID;
+        order.TotalPrice = totalPrice;
+        order.Status = status;
+        order.UpdatedOnUtc = updatedOn;
+
+        return order;
     }
 
 

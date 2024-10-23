@@ -1,9 +1,7 @@
-﻿using Ordering.Application.Orders.GetAllOrders;
-using Ordering.Application.Orders.PlaceOrder;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Ordering.Application.Orders.Commands.PlaceOrder;
+using Ordering.Application.Orders.Queries.GetAllOrders;
 
 namespace Ordering.API.Controllers.Orders;
 [Route("api/orders")]

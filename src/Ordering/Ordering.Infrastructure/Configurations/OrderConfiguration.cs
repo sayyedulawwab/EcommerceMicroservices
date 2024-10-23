@@ -29,9 +29,7 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         });
 
         builder.Property(order => order.CreatedOnUtc);
-        builder.Property(order => order.ShippedOnUtc);
-        builder.Property(order => order.DeliveredOnUtc);
-        builder.Property(order => order.CancelledOnUtc);
+        builder.Property(order => order.UpdatedOnUtc);
 
         //builder.HasOne<User>()
         //    .WithMany()

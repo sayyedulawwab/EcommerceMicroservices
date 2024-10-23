@@ -1,8 +1,8 @@
-﻿using Catalog.Application.Products.AddProduct;
-using Catalog.Application.Products.DeleteProduct;
-using Catalog.Application.Products.EditProduct;
-using Catalog.Application.Products.GetProductById;
-using Catalog.Application.Products.SearchProduct;
+﻿using Catalog.Application.Products.Commands.AddProduct;
+using Catalog.Application.Products.Commands.DeleteProduct;
+using Catalog.Application.Products.Commands.EditProduct;
+using Catalog.Application.Products.Queries.GetProductById;
+using Catalog.Application.Products.Queries.SearchProduct;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

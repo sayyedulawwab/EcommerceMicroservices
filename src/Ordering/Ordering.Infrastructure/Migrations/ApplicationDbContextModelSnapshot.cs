@@ -30,20 +30,14 @@ namespace Ordering.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<DateTime?>("CancelledOnUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("CreatedOnUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeliveredOnUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ShippedOnUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedOnUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");

@@ -27,6 +27,7 @@ builder.Host.UseNServiceBus(context =>
 
     endpointConfiguration.UseTransport<LearningTransport>();
     endpointConfiguration.UsePersistence<LearningPersistence>();
+    endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
     return endpointConfiguration;
 });

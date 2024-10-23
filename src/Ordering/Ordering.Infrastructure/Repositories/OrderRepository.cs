@@ -13,4 +13,13 @@ internal sealed class OrderRepository : Repository<Order>, IOrderRepository
         return await DbContext
             .Set<Order>().Include(order => order.OrderItems).ToListAsync(cancellationToken);
     }
+
+    public override async Task<Order?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    {
+        return await DbContext
+            .Set<Order>()
+            .Where(entity => entity.Id == id)
+            .Include(order => order.OrderItems)
+            .FirstOrDefaultAsync();
+    }
 }
