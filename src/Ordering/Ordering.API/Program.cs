@@ -1,4 +1,6 @@
 using NLog.Web;
+using NServiceBus;
+using NServiceBus.Features;
 using Ordering.API.Extensions;
 using Ordering.Application;
 using Ordering.Infrastructure;
@@ -26,10 +28,16 @@ builder.Host.UseNServiceBus(context =>
 {
     var endpointConfiguration = new EndpointConfiguration("Ordering");
 
-    endpointConfiguration.UseTransport<LearningTransport>();
-    endpointConfiguration.UsePersistence<LearningPersistence>();
+    var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+    transport.UseConventionalRoutingTopology(QueueType.Quorum);
+    transport.ConnectionString("host=localhost;username=guest;password=guest");
 
     endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+
+    endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedLibrary.Events");
+
+    endpointConfiguration.EnableInstallers();
+
 
     return endpointConfiguration;
 });

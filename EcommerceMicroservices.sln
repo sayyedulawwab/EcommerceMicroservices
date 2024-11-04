@@ -27,17 +27,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ordering.API", "src\Orderin
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cart", "Cart", "{BF1E2205-CFA4-414B-9A79-C48EFCBCA106}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart.API", "src\Cart\Cart.API\Cart.API.csproj", "{B35FCEEA-5363-4CBE-8E14-91E2A066C8C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cart.API", "src\Cart\Cart.API\Cart.API.csproj", "{B35FCEEA-5363-4CBE-8E14-91E2A066C8C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart.Domain", "src\Cart\Cart.Domain\Cart.Domain.csproj", "{8730D311-34FD-439D-B582-E54BD900CFC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cart.Domain", "src\Cart\Cart.Domain\Cart.Domain.csproj", "{8730D311-34FD-439D-B582-E54BD900CFC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart.Application", "src\Cart\Cart.Application\Cart.Application.csproj", "{2A157567-6CF4-43C8-857B-7925594CBAD8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cart.Application", "src\Cart\Cart.Application\Cart.Application.csproj", "{2A157567-6CF4-43C8-857B-7925594CBAD8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart.Infrastructure", "src\Cart\Cart.Infrastructure\Cart.Infrastructure.csproj", "{9210CEBE-4C56-408B-8445-1E5C273A066D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cart.Infrastructure", "src\Cart\Cart.Infrastructure\Cart.Infrastructure.csproj", "{9210CEBE-4C56-408B-8445-1E5C273A066D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Payment", "Payment", "{B1D7D342-927D-48E1-977A-6C6F0811A52A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payment.Processor", "src\Payment\Payment.Processor\Payment.Processor.csproj", "{205C12DB-EAB6-43A7-887D-D8CF4357AFA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payment.Processor", "src\Payment\Payment.Processor\Payment.Processor.csproj", "{205C12DB-EAB6-43A7-887D-D8CF4357AFA9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{B95A339E-E066-4037-9269-CC7FD7D5F41F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "src\SharedLibrary\SharedLibrary.csproj", "{B946689E-68BD-4342-822E-B101656E55BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +101,10 @@ Global
 		{205C12DB-EAB6-43A7-887D-D8CF4357AFA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{205C12DB-EAB6-43A7-887D-D8CF4357AFA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{205C12DB-EAB6-43A7-887D-D8CF4357AFA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B946689E-68BD-4342-822E-B101656E55BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B946689E-68BD-4342-822E-B101656E55BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B946689E-68BD-4342-822E-B101656E55BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B946689E-68BD-4342-822E-B101656E55BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +127,8 @@ Global
 		{9210CEBE-4C56-408B-8445-1E5C273A066D} = {BF1E2205-CFA4-414B-9A79-C48EFCBCA106}
 		{B1D7D342-927D-48E1-977A-6C6F0811A52A} = {177BA4F7-AE2C-47A2-98CB-20185EF32322}
 		{205C12DB-EAB6-43A7-887D-D8CF4357AFA9} = {B1D7D342-927D-48E1-977A-6C6F0811A52A}
+		{B95A339E-E066-4037-9269-CC7FD7D5F41F} = {177BA4F7-AE2C-47A2-98CB-20185EF32322}
+		{B946689E-68BD-4342-822E-B101656E55BA} = {B95A339E-E066-4037-9269-CC7FD7D5F41F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A25A3218-2BA2-42E6-BEA2-9D030730EAFC}

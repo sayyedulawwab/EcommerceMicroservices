@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Orders.Commands.UpdateOrderStatus;
 using Ordering.Domain.Orders;
+using SharedLibrary.Events;
 
 namespace Ordering.Application.Orders.Events;
 internal class OrderPaymentSucceededIntegrationEventHandler : IHandleMessages<OrderPaymentSucceededIntegrationEvent>

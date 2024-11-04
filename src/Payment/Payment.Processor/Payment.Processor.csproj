@@ -9,6 +9,11 @@
   <ItemGroup>
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.14" />
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="3.0.0" />
+    <PackageReference Include="NServiceBus.RabbitMQ" Version="9.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\SharedLibrary\SharedLibrary.csproj" />
   </ItemGroup>
 
 </Project>

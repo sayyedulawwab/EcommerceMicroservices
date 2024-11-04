@@ -2,6 +2,7 @@
 using Catalog.Domain.Products;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using SharedLibrary.Events;
 
 namespace Catalog.Application.Products.Events;
 internal class OrderStatusChangedToPaidIntegrationEventHandler : IHandleMessages<OrderStatusChangedToPaidIntegrationEvent>

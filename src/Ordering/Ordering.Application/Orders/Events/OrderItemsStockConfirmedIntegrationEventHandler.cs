@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Orders.Commands.UpdateOrderStatus;
+using SharedLibrary.Events;
 
 namespace Ordering.Application.Orders.Events;
 internal class OrderItemsStockConfirmedIntegrationEventHandler : IHandleMessages<OrderItemsStockConfirmedIntegrationEvent>

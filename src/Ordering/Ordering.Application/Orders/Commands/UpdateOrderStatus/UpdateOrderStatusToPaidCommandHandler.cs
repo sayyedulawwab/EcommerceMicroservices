@@ -3,6 +3,7 @@ using Ordering.Application.Abstractions.Messaging;
 using Ordering.Application.Orders.Events;
 using Ordering.Domain.Abstractions;
 using Ordering.Domain.Orders;
+using SharedLibrary.Events;
 
 namespace Ordering.Application.Orders.Commands.UpdateOrderStatus;
 internal sealed class UpdateOrderStatusToPaidCommandHandler : ICommandHandler<UpdateOrderStatusToPaidCommand, long>

@@ -1,9 +1,9 @@
 ﻿using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Messaging;
-using Ordering.Application.Orders.Events;
 using Ordering.Domain.Abstractions;
 using Ordering.Domain.Orders;
 using Ordering.Domain.Shared;
+using SharedLibrary.Events;
 
 namespace Ordering.Application.Orders.Commands.PlaceOrder;
 internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderCommand, long>
@@ -28,9 +28,7 @@ internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderComma
 
         var order = Order.PlaceOrder(request.userId, orderItems, OrderStatus.Placed, _dateTimeProvider.UtcNow);
 
-        _orderRepository.Add(order);
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+  
 
 
         orderItems = request.orderItems
@@ -45,6 +43,11 @@ internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderComma
             .ToList();
 
         order.AddOrderItems(orderItems);
+
+
+        _orderRepository.Add(order);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // publish event
 

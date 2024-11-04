@@ -1,3 +1,3 @@
-﻿namespace Ordering.Application.Orders.Events;
+﻿namespace SharedLibrary.Events;
 
 public record OrderPaymentSucceededIntegrationEvent(long orderId) : IEvent;

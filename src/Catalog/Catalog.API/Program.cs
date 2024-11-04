@@ -3,6 +3,7 @@ using Catalog.Application;
 using Catalog.Infrastructure;
 using NLog;
 using NLog.Web;
+using NServiceBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +26,14 @@ builder.Host.UseNServiceBus(context =>
 {
     var endpointConfiguration = new EndpointConfiguration("Catalog");
 
-    endpointConfiguration.UseTransport<LearningTransport>();
-    endpointConfiguration.UsePersistence<LearningPersistence>();
+    var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+    transport.UseConventionalRoutingTopology(QueueType.Quorum);
+    transport.ConnectionString("host=localhost;username=guest;password=guest");
     endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+
+    endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedLibrary.Events");
+
+    endpointConfiguration.EnableInstallers();
 
     return endpointConfiguration;
 });

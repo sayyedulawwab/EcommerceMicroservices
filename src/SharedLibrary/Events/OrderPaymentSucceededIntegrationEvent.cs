@@ -1,3 +1,3 @@
-﻿namespace Payment.Processor.Application.Events;
+﻿namespace SharedLibrary.Events;
 
 public record OrderPaymentFailedIntegrationEvent(long orderId) : IEvent;

@@ -4,6 +4,7 @@ using Ordering.Application.Orders.Events;
 using Ordering.Domain.Abstractions;
 using Ordering.Domain.Orders;
 using Ordering.Domain.Shared;
+using SharedLibrary.Events;
 
 namespace Ordering.Application.Orders.Commands.UpdateOrderStatus;
 internal sealed class UpdateOrderStatusToStockConfirmedCommandHandler : ICommandHandler<UpdateOrderStatusToStockConfirmedCommand, long>
