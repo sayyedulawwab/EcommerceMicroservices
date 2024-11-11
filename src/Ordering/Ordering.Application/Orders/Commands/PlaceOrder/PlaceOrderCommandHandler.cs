@@ -24,26 +24,18 @@ internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderComma
     public async Task<Result<long>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
     {
 
-        var orderItems = new List<OrderItem>();
-
-        var order = Order.PlaceOrder(request.userId, orderItems, OrderStatus.Placed, _dateTimeProvider.UtcNow);
-
-  
+        var order = Order.Create(request.userId, OrderStatus.Placed, _dateTimeProvider.UtcNow);
 
 
-        orderItems = request.orderItems
-            .Select(item => OrderItem.Create(
-                order.Id,
+        foreach (var item in request.orderItems)
+        {
+            order.AddOrderItem(order.Id,
                 item.productId,
                 item.productName,
                 new Money(item.priceAmount, Currency.Create(item.priceCurrency)),
                 item.quantity,
-                _dateTimeProvider.UtcNow
-            ))
-            .ToList();
-
-        order.AddOrderItems(orderItems);
-
+                _dateTimeProvider.UtcNow);
+        }
 
         _orderRepository.Add(order);
 

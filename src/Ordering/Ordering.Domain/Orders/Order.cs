@@ -1,5 +1,6 @@
 ﻿using Ordering.Domain.Abstractions;
 using Ordering.Domain.Shared;
+using System.Collections.Generic;
 
 namespace Ordering.Domain.Orders;
 public sealed class Order : Entity<long>
@@ -25,56 +26,33 @@ public sealed class Order : Entity<long>
     public List<OrderItem> OrderItems { get; private set; } = new List<OrderItem>();
 
 
-    public static Order PlaceOrder(long userId, List<OrderItem> orderItems, OrderStatus status, DateTime createdOnUtc)
+    public static Order Create(long userId, OrderStatus status, DateTime createdOnUtc)
     {
         var order = new Order(userId, Money.Zero(), status, createdOnUtc);
-        
-        foreach (var orderItem in orderItems)
-        {
-            order.OrderItems.Add(orderItem);
-
-            if (order.TotalPrice.IsZero())
-            {
-                order.TotalPrice = new Money(orderItem.Price.Amount, orderItem.Price.Currency); 
-            }
-            else
-            {
-                if (order.TotalPrice.Currency != orderItem.Price.Currency)
-                {
-                    throw new InvalidOperationException("Currencies have to be equal");
-                }
-
-                order.TotalPrice += new Money(orderItem.Price.Amount * orderItem.Quantity, orderItem.Price.Currency);
-            }
-
-            
-        }
 
         return order;
     }
 
 
-    public void AddOrderItems(List<OrderItem> orderItems)
+    public void AddOrderItem(long orderId, long productId, string productName, Money price, int quantity, DateTime createdOn)
     {
-        OrderItems.AddRange(orderItems);
 
-        foreach (var orderItem in orderItems)
+        var orderItem = OrderItem.Create(orderId, productId, productName, price, quantity, createdOn);
+      
+        OrderItems.Add(orderItem);
+   
+        if (TotalPrice.IsZero())
         {
-            if (TotalPrice.IsZero())
+            TotalPrice = new Money(orderItem.Price.Amount, orderItem.Price.Currency);
+        }
+        else
+        {
+            if (TotalPrice.Currency != orderItem.Price.Currency)
             {
-                TotalPrice = new Money(orderItem.Price.Amount, orderItem.Price.Currency);
-            }
-            else
-            {
-                if (TotalPrice.Currency != orderItem.Price.Currency)
-                {
-                    throw new InvalidOperationException("Currencies have to be equal");
-                }
-
-                TotalPrice += new Money(orderItem.Price.Amount * orderItem.Quantity, orderItem.Price.Currency);
+                throw new InvalidOperationException("Currencies have to be equal");
             }
 
-
+            TotalPrice += new Money(orderItem.Price.Amount * orderItem.Quantity, orderItem.Price.Currency);
         }
     }
 
