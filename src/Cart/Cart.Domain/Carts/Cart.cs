@@ -51,29 +51,24 @@ public sealed class Cart : Entity<Guid>
         return cart;
     }
 
-
-    public void AddCartItems(List<CartItem> cartItems)
+    public void AddCartItem(Guid cartId, long productId, string productName, Money price, int quantity, DateTime createdOn)
     {
-        CartItems.AddRange(cartItems);
+        var cartItem = CartItem.Create(cartId, productId, productName, price, quantity, createdOn);
 
-        foreach (var cartItem in cartItems)
+        CartItems.Add(cartItem);
+
+        if (TotalPrice.IsZero())
         {
-            if (TotalPrice.IsZero())
+            TotalPrice = new Money(cartItem.Price.Amount, cartItem.Price.Currency);
+        }
+        else
+        {
+            if (TotalPrice.Currency != cartItem.Price.Currency)
             {
-                TotalPrice = new Money(cartItem.Price.Amount, cartItem.Price.Currency);
-            }
-            else
-            {
-                if (TotalPrice.Currency != cartItem.Price.Currency)
-                {
-                    throw new InvalidOperationException("Currencies have to be equal");
-                }
-
-                TotalPrice += new Money(cartItem.Price.Amount * cartItem.Quantity, cartItem.Price.Currency);
+                throw new InvalidOperationException("Currencies have to be equal");
             }
 
+            TotalPrice += new Money(cartItem.Price.Amount * cartItem.Quantity, cartItem.Price.Currency);
         }
     }
-
-
 }

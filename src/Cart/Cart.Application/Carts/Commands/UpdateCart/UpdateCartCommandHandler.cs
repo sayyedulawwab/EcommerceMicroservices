@@ -23,18 +23,16 @@ internal sealed class UpdateCartCommandHandler : ICommandHandler<UpdateCartComma
 
         var cart = Domain.Carts.Cart.Create(request.userId, newCartItems, _dateTimeProvider.UtcNow);
 
-        newCartItems = request.cartItems
-          .Select(item => CartItem.Create(
-              cart.Id,
-              item.productId,
-              item.productName,
-              new Money(item.priceAmount, Currency.Create(item.priceCurrency)),
-              item.quantity,
-              _dateTimeProvider.UtcNow
-          ))
-          .ToList();
 
-        cart.AddCartItems(newCartItems);
+        foreach (var item in request.cartItems)
+        {
+            cart.AddCartItem(cart.Id,
+                item.productId,
+                item.productName,
+                new Money(item.priceAmount, Currency.Create(item.priceCurrency)),
+                item.quantity,
+                _dateTimeProvider.UtcNow);
+        }
 
         await _cartRepository.RemoveAsync(cart);
 
