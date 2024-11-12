@@ -21,8 +21,7 @@ internal sealed class UpdateCartCommandHandler : ICommandHandler<UpdateCartComma
 
         var newCartItems = new List<CartItem>();
 
-        var cart = Domain.Carts.Cart.Create(request.userId, newCartItems, _dateTimeProvider.UtcNow);
-
+        var cart = Domain.Carts.Cart.Create(request.userId, _dateTimeProvider.UtcNow);
 
         foreach (var item in request.cartItems)
         {

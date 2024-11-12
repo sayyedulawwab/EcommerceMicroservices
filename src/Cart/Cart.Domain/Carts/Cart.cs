@@ -23,30 +23,9 @@ public sealed class Cart : Entity<Guid>
     public List<CartItem> CartItems { get; private set; } = new List<CartItem>();
 
 
-    public static Cart Create(long userId, List<CartItem> cartItems, DateTime createdOnUtc)
+    public static Cart Create(long userId, DateTime createdOnUtc)
     {
         var cart = new Cart(Guid.NewGuid(), userId, Money.Zero(), createdOnUtc);
-
-        foreach (var cartItem in cartItems)
-        {
-            cart.CartItems.Add(cartItem);
-
-            if (cart.TotalPrice.IsZero())
-            {
-                cart.TotalPrice = new Money(cartItem.Price.Amount, cartItem.Price.Currency);
-            }
-            else
-            {
-                if (cart.TotalPrice.Currency != cartItem.Price.Currency)
-                {
-                    throw new InvalidOperationException("Currencies have to be equal");
-                }
-
-                cart.TotalPrice += new Money(cartItem.Price.Amount * cartItem.Quantity, cartItem.Price.Currency);
-            }
-
-
-        }
 
         return cart;
     }
