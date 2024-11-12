@@ -41,7 +41,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payment.Processor", "src\Pa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{B95A339E-E066-4037-9269-CC7FD7D5F41F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "src\SharedLibrary\SharedLibrary.csproj", "{B946689E-68BD-4342-822E-B101656E55BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedLibrary", "src\SharedLibrary\SharedLibrary.csproj", "{B946689E-68BD-4342-822E-B101656E55BA}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{3FDCEF08-AFA5-43B4-901A-6EFEE3C7B17D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,6 +107,10 @@ Global
 		{B946689E-68BD-4342-822E-B101656E55BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B946689E-68BD-4342-822E-B101656E55BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B946689E-68BD-4342-822E-B101656E55BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FDCEF08-AFA5-43B4-901A-6EFEE3C7B17D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FDCEF08-AFA5-43B4-901A-6EFEE3C7B17D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FDCEF08-AFA5-43B4-901A-6EFEE3C7B17D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FDCEF08-AFA5-43B4-901A-6EFEE3C7B17D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

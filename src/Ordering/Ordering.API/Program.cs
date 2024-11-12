@@ -30,7 +30,7 @@ builder.Host.UseNServiceBus(context =>
 
     var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
     transport.UseConventionalRoutingTopology(QueueType.Quorum);
-    transport.ConnectionString("host=localhost;username=guest;password=guest");
+    transport.ConnectionString("host=rabbitmq.messagebroker;username=guest;password=guest");
 
     endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 

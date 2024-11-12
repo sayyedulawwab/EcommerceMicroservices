@@ -1,0 +1,101 @@
+services:
+  catalog.api:
+    image: ${DOCKER_REGISTRY-}catalogapi
+    build:
+      context: .
+      dockerfile: src/Catalog/Catalog.API/Dockerfile
+    ports:
+        - "5000:8080"
+        - "5001:8081"
+    depends_on:
+      - mssql.db  
+      - rabbitmq.messagebroker
+    networks:
+        - app-network
+
+  cart.api:
+    image: ${DOCKER_REGISTRY-}cartapi
+    build:
+      context: .
+      dockerfile: src/Cart/Cart.API/Dockerfile
+    ports:
+        - "5002:8080"
+        - "5003:8081"
+    depends_on:
+      - mssql.db  
+      - rabbitmq.messagebroker
+    networks:
+        - app-network
+
+  ordering.api:
+    image: ${DOCKER_REGISTRY-}orderingapi
+    build:
+      context: .
+      dockerfile: src/Ordering/Ordering.API/Dockerfile
+    ports:
+        - "5004:8080"
+        - "5005:8081"
+    depends_on:
+      - mssql.db  
+      - rabbitmq.messagebroker
+      - catalog.api
+    networks:
+        - app-network
+
+
+  payment.processor:
+    image: ${DOCKER_REGISTRY-}paymentprocessor
+    build:
+      context: .
+      dockerfile: src/Payment/Payment.Processor/Dockerfile
+    ports:
+       - "5006:8080"
+       - "5007:8081"
+    depends_on:
+      - rabbitmq.messagebroker
+    networks:
+        - app-network
+
+  caching.redis:
+    image: redis:latest
+    container_name:  caching.redis
+    restart: always
+    ports:
+        - 6379:6379
+    networks:
+        - app-network
+
+  rabbitmq.messagebroker:
+    image: rabbitmq:4.0-management
+    container_name: 'rabbitmq.messagebroker'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+        - app-network
+
+  mssql.db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: 'mssql.db'
+    environment:
+        ACCEPT_EULA: 'Y'
+        MSSQL_SA_PASSWORD: 'Passw0rd'
+        MSSQL_DATA_DIR: /var/opt/mssql/data
+        MSSQL_PID: 'Developer' 
+        MSSQL_TCP_PORT: 1433 
+    ports:
+        - 1433:1433
+    volumes:
+        - ./data:/var/opt/mssql/data
+        - ./log:/var/opt/mssql/log
+        - ./secrets:/var/opt/mssql/secrets
+    networks:
+        - app-network
+
+networks:
+  app-network:
+    driver: bridge
+    
