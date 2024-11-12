@@ -5,7 +5,7 @@ using Cart.Domain.Carts;
 using Cart.Domain.Shared;
 
 namespace Cart.Application.Carts.Commands.RemoveCart;
-internal sealed class RemoveCartCommandHandler : ICommandHandler<RemoveCartCommand, Guid>
+internal sealed class RemoveCartCommandHandler : ICommandHandler<RemoveCartCommand>
 {
     private readonly ICartRepository _cartRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
@@ -16,30 +16,10 @@ internal sealed class RemoveCartCommandHandler : ICommandHandler<RemoveCartComma
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<Result<Guid>> Handle(RemoveCartCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(RemoveCartCommand request, CancellationToken cancellationToken)
     {
+        await _cartRepository.RemoveAsync(request.userId);
 
-        var newCartItems = new List<CartItem>();
-
-        var cart = Domain.Carts.Cart.Create(request.userId, newCartItems, _dateTimeProvider.UtcNow);
-
-        newCartItems = request.cartItems
-          .Select(item => CartItem.Create(
-              cart.Id,
-              item.productId,
-              item.productName,
-              new Money(item.priceAmount, Currency.Create(item.priceCurrency)),
-              item.quantity,
-              _dateTimeProvider.UtcNow
-          ))
-          .ToList();
-
-        cart.AddCartItems(newCartItems);
-
-        await _cartRepository.RemoveAsync(cart);
-
-        await _cartRepository.AddAsync(cart);
-
-        return cart.Id;
+        return Result.Success();
     }
 }

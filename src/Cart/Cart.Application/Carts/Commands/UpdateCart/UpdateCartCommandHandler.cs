@@ -33,7 +33,7 @@ internal sealed class UpdateCartCommandHandler : ICommandHandler<UpdateCartComma
                 _dateTimeProvider.UtcNow);
         }
 
-        await _cartRepository.RemoveAsync(cart);
+        await _cartRepository.RemoveAsync(request.userId);
 
         await _cartRepository.AddAsync(cart);
 

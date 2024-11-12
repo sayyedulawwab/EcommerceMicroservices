@@ -22,8 +22,8 @@ internal sealed class CartRepository : ICartRepository
         return cart;
     }
 
-    public async Task RemoveAsync(Domain.Carts.Cart cart)
+    public async Task RemoveAsync(long userId)
     {
-        await _cacheService.RemoveAsync($"cart-{cart.UserId}");
+        await _cacheService.RemoveAsync($"cart-{userId}");
     }
 }
