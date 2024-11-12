@@ -10,7 +10,7 @@ EXPOSE 8081
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
+
 COPY ["src/Cart/Cart.API/Cart.API.csproj", "src/Cart/Cart.API/"]
 COPY ["src/Cart/Cart.Application/Cart.Application.csproj", "src/Cart/Cart.Application/"]
 COPY ["src/SharedLibrary/SharedLibrary.csproj", "src/SharedLibrary/"]

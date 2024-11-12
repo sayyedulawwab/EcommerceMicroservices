@@ -7,7 +7,8 @@
         "catalog.api": "StartDebugging",
         "cart.api": "StartDebugging",
         "ordering.api": "StartDebugging",
-        "payment.processor": "StartDebugging"
+        "payment.processor": "StartDebugging",
+        "apigateway": "StartDebugging"
       }
     }
   }

@@ -95,6 +95,15 @@ services:
     networks:
         - app-network
 
+  apigateway:
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+    ports:
+        - 7000:8081
+    networks:
+        - app-network
 networks:
   app-network:
     driver: bridge
