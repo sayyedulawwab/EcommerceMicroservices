@@ -18,6 +18,11 @@ internal sealed class DeleteCategoryCommandHandler : ICommandHandler<DeleteCateg
     {
         var category = await _categoryRepository.GetByIdAsync(request.id);
 
+        if (category is null)
+        {
+            return Result.Failure<long>(CategoryErrors.NotFound(request.id));
+        }
+
         _categoryRepository.Remove(category);
 
         await _unitOfWork.SaveChangesAsync();

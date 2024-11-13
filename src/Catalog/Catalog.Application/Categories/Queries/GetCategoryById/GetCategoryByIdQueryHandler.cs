@@ -15,6 +15,11 @@ internal sealed class GetCategoryByIdQueryHandler : IQueryHandler<GetCategoryByI
     {
         var category = await _categoryRepository.GetByIdAsync(request.id, cancellationToken);
 
+        if (category is null)
+        {
+            return Result.Failure<CategoryResponse>(CategoryErrors.NotFound(request.id));
+        }
+
         var categoryResponse = new CategoryResponse()
         {
             Id = category.Id,

@@ -15,6 +15,11 @@ internal sealed class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategor
 
         var categories = await _productCategoryRepository.GetAllAsync();
 
+        if (categories is null)
+        {
+            return Result.Failure<IReadOnlyList<CategoryResponse>>(CategoryErrors.NoCategories);
+        }
+
         var categoriesResponse = categories.Select(cat => new CategoryResponse()
         {
             Id = cat.Id,
