@@ -101,7 +101,8 @@ services:
       context: .
       dockerfile: src/ApiGateway/Dockerfile
     ports:
-        - 7000:8081
+        - 7000:8080
+        - 7001:8081
     networks:
         - app-network
 networks:

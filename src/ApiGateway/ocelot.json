@@ -1,6 +1,7 @@
 {
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:8080"
+    "BaseUrl": "http://localhost:8080",
+    "AllowInvalidCertificates": true
   },
   "Routes": [
     {
