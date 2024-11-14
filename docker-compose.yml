@@ -42,6 +42,20 @@ services:
     networks:
         - app-network
 
+  identity.api:
+    image: ${DOCKER_REGISTRY-}identityapi
+    build:
+        context: .
+        dockerfile: src/Identity/Identity.API/Dockerfile
+    ports:
+        - "5006:8080"
+        - "5007:8081"
+    depends_on:
+        - mssql.db  
+        - rabbitmq.messagebroker
+    networks:
+        - app-network
+
 
   payment.processor:
     image: ${DOCKER_REGISTRY-}paymentprocessor
@@ -49,8 +63,8 @@ services:
       context: .
       dockerfile: src/Payment/Payment.Processor/Dockerfile
     ports:
-       - "5006:8080"
-       - "5007:8081"
+       - "5008:8080"
+       - "5009:8081"
     depends_on:
       - rabbitmq.messagebroker
     networks:
@@ -105,7 +119,10 @@ services:
         - 7001:8081
     networks:
         - app-network
+  
+
 networks:
   app-network:
     driver: bridge
     
+

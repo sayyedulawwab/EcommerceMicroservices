@@ -11,6 +11,7 @@ namespace Catalog.API.Controllers.Categories;
 
 [Route("api/categories")]
 [ApiController]
+[Authorize]
 public class CategoriesController : ControllerBase
 {
     private readonly ISender _sender;

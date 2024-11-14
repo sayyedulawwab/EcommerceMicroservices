@@ -1,5 +1,4 @@
 ﻿using Catalog.Domain.Abstractions;
-using Catalog.Domain.Products.Events;
 using Catalog.Domain.Shared;
 
 namespace Catalog.Domain.Products;
@@ -31,8 +30,6 @@ public sealed class Product : Entity<long>
     public static Product Create(ProductName name, ProductDescription description, Money price, int quantity, long categoryId, DateTime createdOn)
     {
         var product = new Product(name, description, price, quantity, categoryId, createdOn);
-
-        product.RaiseDomainEvent(new ProductCreatedDomainEvent(product.Id));
 
         return product;
     }

@@ -2,8 +2,10 @@
 using Catalog.Domain.Abstractions;
 using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
+using Catalog.Infrastructure.Auth;
 using Catalog.Infrastructure.Clock;
 using Catalog.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +17,7 @@ public static class DependencyInjection
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
+        AddAuthentication(services, configuration);
         AddPersistence(services, configuration);
 
         return services;
@@ -35,5 +38,14 @@ public static class DependencyInjection
         services.AddScoped<IProductRepository, ProductRepository>();
 
     }
-    
+    private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
+
+        services.ConfigureOptions<JwtOptionsSetup>();
+
+        services.ConfigureOptions<JwtBearerOptionsSetup>();
+    }
 }

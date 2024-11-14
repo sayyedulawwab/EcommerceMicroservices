@@ -1,11 +1,14 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.Application.Orders.Commands.PlaceOrder;
 using Ordering.Application.Orders.Queries.GetAllOrders;
+using System.Security.Claims;
 
 namespace Ordering.API.Controllers.Orders;
 [Route("api/orders")]
 [ApiController]
+[Authorize]
 public class OrdersController : ControllerBase
 {
     private readonly ISender _sender;
@@ -32,9 +35,9 @@ public class OrdersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request, CancellationToken cancellationToken)
     {
-        //var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
-        //var userId = Int64.Parse(userIdClaim.Value);
-        var userId = 123;
+        var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
+        var userId = Int64.Parse(userIdClaim.Value);
+      
 
         var orderItems = request.orderItems.Select(item =>
             new OrderItemCommand(item.productId, item.productName, item.priceAmount, item.priceCurrency, item.quantity))

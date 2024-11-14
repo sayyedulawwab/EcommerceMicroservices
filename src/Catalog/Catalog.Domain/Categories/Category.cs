@@ -1,5 +1,4 @@
 ﻿using Catalog.Domain.Abstractions;
-using Catalog.Domain.Categories.Events;
 
 namespace Catalog.Domain.Categories;
 
@@ -24,8 +23,6 @@ public sealed class Category : Entity<long>
     public static Category Create(CategoryName name, CategoryCode code, DateTime createdOn)
     {
         var category = new Category(name, code, createdOn);
-
-        category.RaiseDomainEvent(new CategoryCreatedDomainEvent(category.Id));
 
         return category;
     }

@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.Abstractions.Clock;
 using Ordering.Domain.Abstractions;
 using Ordering.Domain.Orders;
+using Ordering.Infrastructure.Auth;
 using Ordering.Infrastructure.Clock;
 using Ordering.Infrastructure.Repositories;
 
@@ -14,6 +16,7 @@ public static class DependencyInjection
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
+        AddAuthentication(services, configuration);
         AddPersistence(services, configuration);
 
         return services;
@@ -33,5 +36,14 @@ public static class DependencyInjection
         services.AddScoped<IOrderRepository, OrderRepository>();
 
     }
+    private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
 
+        services.ConfigureOptions<JwtOptionsSetup>();
+
+        services.ConfigureOptions<JwtBearerOptionsSetup>();
+    }
 }
