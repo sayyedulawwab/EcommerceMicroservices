@@ -8,12 +8,12 @@ internal sealed class LoginUserQueryHandler : IQueryHandler<LoginUserQuery, Acce
 {
 
     private readonly IUserRepository _userRepository;
-    private readonly IAuthService _authService;
+    private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtService _jwtService;
-    public LoginUserQueryHandler(IUserRepository userRepository, IAuthService authService, IJwtService jwtService)
+    public LoginUserQueryHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtService jwtService)
     {
         _userRepository = userRepository;
-        _authService = authService;
+        _passwordHasher = passwordHasher;
         _jwtService = jwtService;
     }
 
@@ -29,9 +29,9 @@ internal sealed class LoginUserQueryHandler : IQueryHandler<LoginUserQuery, Acce
             return Result.Failure<AccessTokenResponse>(UserErrors.NotFound);
         }
 
-        var hashedPassword = _authService.HashPassword(request.password, user.PasswordSalt);
+        var isPasswordValid = _passwordHasher.Verify(request.password, user.PasswordHash);
 
-        if (hashedPassword != user.PasswordHash)
+        if (!isPasswordValid)
         {
             return Result.Failure<AccessTokenResponse>(UserErrors.InvalidCredentials);
         }

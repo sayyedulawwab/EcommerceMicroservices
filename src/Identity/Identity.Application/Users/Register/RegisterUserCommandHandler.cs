@@ -7,15 +7,15 @@ using Identity.Domain.Users;
 namespace Identity.Application.Users.Register;
 internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, long>
 {
-    private readonly IAuthService _authService;
+    private readonly IPasswordHasher _passwordHasher;
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
 
 
-    public RegisterUserCommandHandler(IAuthService authService, IUserRepository userRepository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider)
+    public RegisterUserCommandHandler(IPasswordHasher passwordHasher, IUserRepository userRepository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider)
     {
-        _authService = authService;
+        _passwordHasher = passwordHasher;
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
@@ -29,15 +29,14 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
             return Result.Failure<long>(UserErrors.AlreadyExists);
         }
 
-        var passwordSalt = _authService.GenerateSalt();
-        var hashedPassword = _authService.HashPassword(request.password, passwordSalt);
+        var passwordSalt = _passwordHasher.GenerateSalt();
+        var hashedPassword = _passwordHasher.Hash(request.password, passwordSalt);
 
         var user = User.Create(
             request.firstName,
             request.lastName,
             request.email, 
-            hashedPassword, 
-            passwordSalt, 
+            hashedPassword,
             false,
             _dateTimeProvider.UtcNow);
 

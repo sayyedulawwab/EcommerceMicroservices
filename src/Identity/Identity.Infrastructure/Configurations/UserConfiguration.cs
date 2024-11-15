@@ -25,7 +25,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
                .HasMaxLength(200);
 
         builder.Property(user => user.PasswordHash);
-        builder.Property(user => user.PasswordSalt);
         builder.Property(user => user.IsAdmin);
     }
 }
