@@ -17,7 +17,6 @@ namespace Ordering.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("ordering")
                 .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -45,7 +44,7 @@ namespace Ordering.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders", "ordering");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Ordering.Domain.Orders.OrderItem", b =>
@@ -79,7 +78,7 @@ namespace Ordering.Infrastructure.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems", "ordering");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Ordering.Domain.Orders.Order", b =>
@@ -100,7 +99,7 @@ namespace Ordering.Infrastructure.Migrations
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Orders", "ordering");
+                            b1.ToTable("Orders");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -134,7 +133,7 @@ namespace Ordering.Infrastructure.Migrations
 
                             b1.HasKey("OrderItemId");
 
-                            b1.ToTable("OrderItems", "ordering");
+                            b1.ToTable("OrderItems");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderItemId");

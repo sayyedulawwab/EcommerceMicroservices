@@ -8,8 +8,6 @@ namespace Catalog.Infrastructure;
 public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 {
     private readonly IPublisher _publisher;
-    public const string SCHEMA = "catalog";
-
 
     public ApplicationDbContext(DbContextOptions options, IPublisher publisher) : base(options)
     {
@@ -21,8 +19,6 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema(SCHEMA);
-
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DependencyInjection).Assembly);
 
         base.OnModelCreating(modelBuilder);

@@ -1,138 +1,137 @@
 services:
+  caching.redis:
+    image: redis:latest
+    container_name: caching.redis
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - app-network
+
+  rabbitmq.messagebroker:
+    image: rabbitmq:4.0-management
+    container_name: "rabbitmq.messagebroker"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+      - app-network
+
+  mssql.db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql.db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Passw0rd"
+      MSSQL_DATA_DIR: /var/opt/mssql/data
+      MSSQL_PID: "Developer"
+      MSSQL_TCP_PORT: 1433
+    ports:
+      - 1433:1433
+    volumes:
+      - ./data:/var/opt/mssql/data
+      - ./log:/var/opt/mssql/log
+      - ./secrets:/var/opt/mssql/secrets
+    networks:
+      - app-network
+
+
+  identity.api:
+    image: ${DOCKER_REGISTRY-}identityapi
+    container_name: identity.api
+    build:
+      context: .
+      dockerfile: src/Identity/Identity.API/Dockerfile
+    ports:
+      - 5006:8080
+      - 5007:8081
+    depends_on:
+      - mssql.db
+      - rabbitmq.messagebroker
+    networks:
+      - app-network
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi
+    container_name: catalog.api
     build:
       context: .
       dockerfile: src/Catalog/Catalog.API/Dockerfile
     ports:
-        - "5000:8080"
-        - "5001:8081"
+      - 5000:8080
+      - 5001:8081
     depends_on:
-      - mssql.db  
+      - mssql.db
       - rabbitmq.messagebroker
-      - identity.api 
     networks:
-        - app-network
+      - app-network
 
   cart.api:
     image: ${DOCKER_REGISTRY-}cartapi
+    container_name: cart.api
     build:
       context: .
       dockerfile: src/Cart/Cart.API/Dockerfile
     ports:
-        - "5002:8080"
-        - "5003:8081"
+      - 5002:8080
+      - 5003:8081
     depends_on:
-      - mssql.db  
+      - mssql.db
       - rabbitmq.messagebroker
-      - caching.redis 
-      - identity.api  
+      - caching.redis
     networks:
-        - app-network
+      - app-network
 
   ordering.api:
     image: ${DOCKER_REGISTRY-}orderingapi
+    container_name: ordering.api
     build:
       context: .
       dockerfile: src/Ordering/Ordering.API/Dockerfile
     ports:
-        - "5004:8080"
-        - "5005:8081"
+      - 5004:8080
+      - 5005:8081
     depends_on:
-      - mssql.db  
+      - mssql.db
       - rabbitmq.messagebroker
-      - catalog.api
-      - identity.api  
     networks:
-        - app-network
-
-  identity.api:
-    image: ${DOCKER_REGISTRY-}identityapi
-    build:
-        context: .
-        dockerfile: src/Identity/Identity.API/Dockerfile
-    ports:
-        - "5006:8080"
-        - "5007:8081"
-    depends_on:
-        - mssql.db  
-        - rabbitmq.messagebroker
-    networks:
-        - app-network
-
+      - app-network
 
   payment.processor:
     image: ${DOCKER_REGISTRY-}paymentprocessor
+    container_name: payment.processor
     build:
       context: .
       dockerfile: src/Payment/Payment.Processor/Dockerfile
     ports:
-       - "5008:8080"
-       - "5009:8081"
+      - 5008:8080
+      - 5009:8081
     depends_on:
+      - mssql.db
       - rabbitmq.messagebroker
     networks:
-        - app-network
-
-  caching.redis:
-    image: redis:latest
-    container_name:  caching.redis
-    restart: always
-    ports:
-        - 6379:6379
-    networks:
-        - app-network
-
-  rabbitmq.messagebroker:
-    image: rabbitmq:4.0-management
-    container_name: 'rabbitmq.messagebroker'
-    ports:
-        - 5672:5672
-        - 15672:15672
-    volumes:
-        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    networks:
-        - app-network
-
-  mssql.db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: 'mssql.db'
-    environment:
-        ACCEPT_EULA: 'Y'
-        MSSQL_SA_PASSWORD: 'Passw0rd'
-        MSSQL_DATA_DIR: /var/opt/mssql/data
-        MSSQL_PID: 'Developer' 
-        MSSQL_TCP_PORT: 1433 
-    ports:
-        - 1433:1433
-    volumes:
-        - ./data:/var/opt/mssql/data
-        - ./log:/var/opt/mssql/log
-        - ./secrets:/var/opt/mssql/secrets
-    networks:
-        - app-network
-    healthcheck:
-        test: ["CMD", "sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Passw0rd", "-Q", "SELECT 1"]
-        interval: 30s
-        timeout: 10s
-        retries: 3  
+      - app-network
 
   apigateway:
     image: ${DOCKER_REGISTRY-}apigateway
+    container_name: apigateway
     build:
       context: .
       dockerfile: src/ApiGateway/Dockerfile
     ports:
-        - 7000:8080
-        - 7001:8081
+      - 7000:8080
+      - 7001:8081
+    depends_on:
+      - identity.api
+      - catalog.api
+      - cart.api
+      - ordering.api
+      - payment.processor
     networks:
-        - app-network
-  
+      - app-network
 
 networks:
   app-network:
     driver: bridge
-
-  
-

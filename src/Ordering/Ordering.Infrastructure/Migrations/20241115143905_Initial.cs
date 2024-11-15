@@ -11,12 +11,8 @@ namespace Ordering.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(
-                name: "ordering");
-
             migrationBuilder.CreateTable(
                 name: "Orders",
-                schema: "ordering",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -35,7 +31,6 @@ namespace Ordering.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "OrderItems",
-                schema: "ordering",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -55,7 +50,6 @@ namespace Ordering.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
-                        principalSchema: "ordering",
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -63,7 +57,6 @@ namespace Ordering.Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
-                schema: "ordering",
                 table: "OrderItems",
                 column: "OrderId");
         }
@@ -72,12 +65,10 @@ namespace Ordering.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OrderItems",
-                schema: "ordering");
+                name: "OrderItems");
 
             migrationBuilder.DropTable(
-                name: "Orders",
-                schema: "ordering");
+                name: "Orders");
         }
     }
 }

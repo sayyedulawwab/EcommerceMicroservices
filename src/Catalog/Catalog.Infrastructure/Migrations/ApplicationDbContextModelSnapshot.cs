@@ -17,7 +17,6 @@ namespace Catalog.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("catalog")
                 .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -49,7 +48,7 @@ namespace Catalog.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", "catalog");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Catalog.Domain.Products.Product", b =>
@@ -84,7 +83,7 @@ namespace Catalog.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products", "catalog");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Catalog.Domain.Products.Product", b =>
@@ -105,7 +104,7 @@ namespace Catalog.Infrastructure.Migrations
 
                             b1.HasKey("ProductId");
 
-                            b1.ToTable("Products", "catalog");
+                            b1.ToTable("Products");
 
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");

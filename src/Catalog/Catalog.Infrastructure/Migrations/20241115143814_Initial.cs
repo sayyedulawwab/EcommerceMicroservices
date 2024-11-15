@@ -11,12 +11,8 @@ namespace Catalog.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(
-                name: "catalog");
-
             migrationBuilder.CreateTable(
                 name: "Categories",
-                schema: "catalog",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -33,7 +29,6 @@ namespace Catalog.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Products",
-                schema: "catalog",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -57,12 +52,10 @@ namespace Catalog.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Categories",
-                schema: "catalog");
+                name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "Products",
-                schema: "catalog");
+                name: "Products");
         }
     }
 }

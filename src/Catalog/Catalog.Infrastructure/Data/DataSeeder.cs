@@ -17,7 +17,7 @@ namespace Catalog.Infrastructure.Data
 
             foreach (var tableName in tableNames)
             {
-                context.Database.ExecuteSqlRaw($"TRUNCATE TABLE {ApplicationDbContext.SCHEMA}.{tableName};");
+                context.Database.ExecuteSqlRaw($"TRUNCATE TABLE {tableName};");
             }
 
             var faker = new Faker();

@@ -28,7 +28,7 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseSqlServer(connectionString, x => x.MigrationsHistoryTable("__EfMigrations", ApplicationDbContext.SCHEMA));
+            options.UseSqlServer(connectionString);
         });
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
