@@ -1,28 +1,31 @@
 services:
-  caching.redis:
+  redis-caching:
     image: redis:latest
-    container_name: caching.redis
+    container_name: redis-caching
     restart: always
     ports:
       - 6379:6379
     networks:
       - app-network
 
-  rabbitmq.messagebroker:
+  rabbitmq-broker:
     image: rabbitmq:4.0-management
-    container_name: "rabbitmq.messagebroker"
+    container_name: rabbitmq-broker
     ports:
       - 5672:5672
       - 15672:15672
     volumes:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     networks:
       - app-network
 
-  mssql.db:
+  mssql-database:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: mssql.db
+    container_name: mssql-database
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "Passw0rd"
@@ -38,10 +41,9 @@ services:
     networks:
       - app-network
 
-
-  identity.api:
+  identity-api:
     image: ${DOCKER_REGISTRY-}identityapi
-    container_name: identity.api
+    container_name: identity-api
     build:
       context: .
       dockerfile: src/Identity/Identity.API/Dockerfile
@@ -49,13 +51,14 @@ services:
       - 5006:8080
       - 5007:8081
     depends_on:
-      - mssql.db
-      - rabbitmq.messagebroker
+      - mssql-database
+      - rabbitmq-broker
     networks:
       - app-network
-  catalog.api:
+
+  catalog-api:
     image: ${DOCKER_REGISTRY-}catalogapi
-    container_name: catalog.api
+    container_name: catalog-api
     build:
       context: .
       dockerfile: src/Catalog/Catalog.API/Dockerfile
@@ -63,14 +66,14 @@ services:
       - 5000:8080
       - 5001:8081
     depends_on:
-      - mssql.db
-      - rabbitmq.messagebroker
+      - mssql-database
+      - rabbitmq-broker
     networks:
       - app-network
 
-  cart.api:
+  cart-api:
     image: ${DOCKER_REGISTRY-}cartapi
-    container_name: cart.api
+    container_name: cart-api
     build:
       context: .
       dockerfile: src/Cart/Cart.API/Dockerfile
@@ -78,15 +81,15 @@ services:
       - 5002:8080
       - 5003:8081
     depends_on:
-      - mssql.db
-      - rabbitmq.messagebroker
-      - caching.redis
+      - mssql-database
+      - rabbitmq-broker
+      - redis-caching
     networks:
       - app-network
 
-  ordering.api:
+  ordering-api:
     image: ${DOCKER_REGISTRY-}orderingapi
-    container_name: ordering.api
+    container_name: ordering-api
     build:
       context: .
       dockerfile: src/Ordering/Ordering.API/Dockerfile
@@ -94,14 +97,14 @@ services:
       - 5004:8080
       - 5005:8081
     depends_on:
-      - mssql.db
-      - rabbitmq.messagebroker
+      - mssql-database
+      - rabbitmq-broker
     networks:
       - app-network
 
-  payment.processor:
+  payment-processor:
     image: ${DOCKER_REGISTRY-}paymentprocessor
-    container_name: payment.processor
+    container_name: payment-processor
     build:
       context: .
       dockerfile: src/Payment/Payment.Processor/Dockerfile
@@ -109,14 +112,14 @@ services:
       - 5008:8080
       - 5009:8081
     depends_on:
-      - mssql.db
-      - rabbitmq.messagebroker
+      - mssql-database
+      - rabbitmq-broker
     networks:
       - app-network
 
-  apigateway:
+  api-gateway:
     image: ${DOCKER_REGISTRY-}apigateway
-    container_name: apigateway
+    container_name: api-gateway
     build:
       context: .
       dockerfile: src/ApiGateway/Dockerfile
@@ -124,11 +127,11 @@ services:
       - 7000:8080
       - 7001:8081
     depends_on:
-      - identity.api
-      - catalog.api
-      - cart.api
-      - ordering.api
-      - payment.processor
+      - identity-api
+      - catalog-api
+      - cart-api
+      - ordering-api
+      - payment-processor
     networks:
       - app-network
 

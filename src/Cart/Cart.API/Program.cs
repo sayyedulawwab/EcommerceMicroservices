@@ -34,7 +34,7 @@ try
 
         var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
         transport.UseConventionalRoutingTopology(QueueType.Quorum);
-        transport.ConnectionString("host=rabbitmq.messagebroker;username=guest;password=guest");
+        transport.ConnectionString("host=rabbitmq-broker;username=guest;password=guest");
         endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
         endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedLibrary.Events");
