@@ -10,10 +10,9 @@ internal sealed class UserRepository : Repository<User>, IUserRepository
 
     public async Task<User?> GetByEmail(string email)
     {
-
         var user = await DbContext.Set<User>()
-                        .FromSqlInterpolated($"SELECT * FROM Users WHERE Email = {email}")
-                        .FirstOrDefaultAsync();
+            .Where(x => x.Email == email)   
+            .FirstOrDefaultAsync();
 
         return user;
 

@@ -6,13 +6,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Ordering.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialOrder : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "ordering");
+
             migrationBuilder.CreateTable(
                 name: "Orders",
+                schema: "ordering",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -22,9 +26,7 @@ namespace Ordering.Infrastructure.Migrations
                     TotalPrice_Currency = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "BDT"),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ShippedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeliveredOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CancelledOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    UpdatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -33,6 +35,7 @@ namespace Ordering.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "OrderItems",
+                schema: "ordering",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -52,6 +55,7 @@ namespace Ordering.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
+                        principalSchema: "ordering",
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -59,6 +63,7 @@ namespace Ordering.Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
+                schema: "ordering",
                 table: "OrderItems",
                 column: "OrderId");
         }
@@ -67,10 +72,12 @@ namespace Ordering.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OrderItems");
+                name: "OrderItems",
+                schema: "ordering");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "Orders",
+                schema: "ordering");
         }
     }
 }
