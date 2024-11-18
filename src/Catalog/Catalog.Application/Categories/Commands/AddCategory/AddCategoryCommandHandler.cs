@@ -4,13 +4,13 @@ using Catalog.Domain.Abstractions;
 using Catalog.Domain.Categories;
 
 namespace Catalog.Application.Categories.Commands.AddCategory;
-internal sealed class AddProductCommandHandler : ICommandHandler<AddCategoryCommand, long>
+internal sealed class AddCategoryCommandHandler : ICommandHandler<AddCategoryCommand, long>
 {
     private readonly ICategoryRepository _categoryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
 
-    public AddProductCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider)
+    public AddCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider)
     {
         _categoryRepository = categoryRepository;
         _unitOfWork = unitOfWork;
