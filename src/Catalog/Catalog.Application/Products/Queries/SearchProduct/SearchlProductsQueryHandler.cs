@@ -46,12 +46,12 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
         var productResponse = products.Select(product => new ProductResponse()
         {
             Id = product.Id,
-            Name = product.Name.Value,
-            Description = product.Description.Value,
+            Name = product.Name,
+            Description = product.Description,
             PriceAmount = product.Price.Amount,
             PriceCurrency = product.Price.Currency.Code,
             Quantity = product.Quantity,
-            ProductCategoryId = product.CategoryId,
+            CategoryId = product.CategoryId,
             CreatedOn = product.CreatedOn,
             UpdatedOn = product.UpdatedOn,
         }).ToList();
@@ -65,7 +65,7 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
     private static Expression<Func<Product, object>> GetSortExpression(string sortColumn) =>
         sortColumn switch
         {
-            "Name" => p => p.Name.Value,
+            "Name" => p => p.Name,
             "PriceAmount" => p => p.Price.Amount,
             _ => p => p.CreatedOn, // Default to CreatedOn if invalid
         };

@@ -25,10 +25,11 @@ namespace Catalog.Infrastructure.Data
             // Seed product categories
             for (int i = 0; i < 10; i++)
             {
-                var name = new CategoryName(faker.Commerce.Department());
-                var code = new CategoryCode(faker.Random.AlphaNumeric(5));
+                var name = faker.Commerce.Department();
+                var description = faker.Commerce.Department();
+                var parentCategoryId = faker.Random.Int();
 
-                var category = Category.Create(name, code, DateTime.UtcNow);
+                var category = Category.Create(name, description, parentCategoryId, DateTime.UtcNow);
 
                 context.Set<Category>().Add(category);
             }
@@ -40,8 +41,8 @@ namespace Catalog.Infrastructure.Data
             // Seed products
             for (int i = 0; i < 100; i++)
             {
-                var name = new ProductName(faker.Commerce.ProductName());
-                var description = new ProductDescription(faker.Commerce.ProductAdjective());
+                var name = faker.Commerce.ProductName();
+                var description = faker.Commerce.ProductAdjective();
                 var quantity = faker.Random.Number(1, 100);
                 var price = new Money(faker.Finance.Amount(), Currency.Create("BDT"));
                 var productCategoryId = productCategoryGuids[i % productCategoryGuids.Count];

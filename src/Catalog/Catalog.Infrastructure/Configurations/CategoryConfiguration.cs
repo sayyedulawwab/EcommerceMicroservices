@@ -15,12 +15,12 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
               .ValueGeneratedOnAdd();
 
         builder.Property(category => category.Name)
-               .HasMaxLength(200)
-               .HasConversion(name => name.Value, value => new CategoryName(value));
+               .HasMaxLength(200);
 
-        builder.Property(category => category.Code)
-               .HasMaxLength(200)
-               .HasConversion(code => code.Value, value => new CategoryCode(value));
+        builder.Property(category => category.Description)
+               .HasMaxLength(1000);
+
+        builder.Property(category => category.ParentCategoryId);
 
         builder.Property(category => category.CreatedOn);
 

@@ -23,8 +23,11 @@ internal sealed class GetCategoryByIdQueryHandler : IQueryHandler<GetCategoryByI
         var categoryResponse = new CategoryResponse()
         {
             Id = category.Id,
-            Name = category.Name.Value,
-            Code = category.Code.Value
+            Name = category.Name,
+            Description = category.Description,
+            ParentCategoryId = category.ParentCategoryId,
+            CreatedOn = category.CreatedOn,
+            UpdatedOn = category.UpdatedOn,
         };
 
         return categoryResponse;

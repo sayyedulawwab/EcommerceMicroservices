@@ -5,9 +5,17 @@ public class EditCategoryCommandValidator : AbstractValidator<EditCategoryComman
 {
     public EditCategoryCommandValidator()
     {
-        RuleFor(c => c.id).NotEmpty();
-        RuleFor(c => c.name).NotEmpty();
-        RuleFor(c => c.code).NotEmpty();
+        RuleFor(c => c.name)
+            .NotEmpty()
+            .MaximumLength(200);
+
+        RuleFor(c => c.description)
+            .NotEmpty()
+            .MaximumLength(1000);
+
+        RuleFor(c => c.parentCategoryId)
+            .NotNull()
+            .GreaterThanOrEqualTo(0);
 
     }
 }

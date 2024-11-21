@@ -53,7 +53,7 @@ public class CategoriesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddCategory(AddCategoryRequest request, CancellationToken cancellationToken)
     {
-        var command = new AddCategoryCommand(request.name, request.code);
+        var command = new AddCategoryCommand(request.name, request.description, request.parentCategoryId);
 
         var result = await _sender.Send(command, cancellationToken);
 
@@ -68,7 +68,7 @@ public class CategoriesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> EditCategory(long id, EditCategoryRequest request, CancellationToken cancellationToken)
     {
-        var command = new EditCategoryCommand(id, request.name, request.code);
+        var command = new EditCategoryCommand(id, request.name, request.description, request.parentCategoryId);
 
         var result = await _sender.Send(command, cancellationToken);
 

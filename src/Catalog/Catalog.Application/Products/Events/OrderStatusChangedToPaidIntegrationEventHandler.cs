@@ -1,5 +1,4 @@
-﻿using Catalog.Application.Products.Commands.EditProduct;
-using Catalog.Domain.Products;
+﻿using Catalog.Application.Products.Commands.UpdateProductStock;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SharedLibrary.Events;

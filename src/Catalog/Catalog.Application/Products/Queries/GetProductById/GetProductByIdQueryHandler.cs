@@ -23,12 +23,12 @@ internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQ
         var productResponse = new ProductResponse()
         {
             Id = product.Id,
-            Name = product.Name.Value,
-            Description = product.Description.Value,
+            Name = product.Name,
+            Description = product.Description,
             PriceAmount = product.Price.Amount,
             PriceCurrency = product.Price.Currency.Code,
             Quantity = product.Quantity,
-            ProductCategoryId = product.CategoryId,
+            CategoryId = product.CategoryId,
             CreatedOn = product.CreatedOn,
             UpdatedOn = product.UpdatedOn,
         };

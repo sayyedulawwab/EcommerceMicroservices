@@ -4,33 +4,35 @@ namespace Catalog.Domain.Categories;
 
 public sealed class Category : Entity<long>
 {
-    private Category(CategoryName name, CategoryCode code, DateTime createdOn)
+    private Category(string name, string description, long parentCategoryId, DateTime createdOn)
     {
         Name = name;
-        Code = code;
+        Description = description;
+        ParentCategoryId = parentCategoryId;
         CreatedOn = createdOn;
     }
     private Category()
     {
     }
 
-    public CategoryName Name { get; private set; }
-    public CategoryCode Code { get; private set; }
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+    public long ParentCategoryId { get; private set; }
     public DateTime CreatedOn { get; private set; }
     public DateTime? UpdatedOn { get; private set; }
 
-
-    public static Category Create(CategoryName name, CategoryCode code, DateTime createdOn)
+    public static Category Create(string name, string description, long parentCategoryId, DateTime createdOn)
     {
-        var category = new Category(name, code, createdOn);
+        var category = new Category(name, description, parentCategoryId, createdOn);
 
         return category;
     }
 
-    public static Category Update(Category category, CategoryName name, CategoryCode code, DateTime updatedOn)
+    public static Category Update(Category category, string name, string description, long parentCategoryId, DateTime updatedOn)
     {
         category.Name = name;
-        category.Code = code;
+        category.Description = description;
+        category.ParentCategoryId = parentCategoryId;
         category.UpdatedOn = updatedOn;
 
         return category;

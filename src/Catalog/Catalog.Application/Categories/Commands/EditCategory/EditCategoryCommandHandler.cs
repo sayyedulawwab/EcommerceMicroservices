@@ -26,7 +26,7 @@ internal sealed class EditCategoryCommandHandler : ICommandHandler<EditCategoryC
             return Result.Failure<long>(CategoryErrors.NotFound(request.id));
         }
 
-        productCategory = Category.Update(productCategory, new CategoryName(request.name), new CategoryCode(request.code), _dateTimeProvider.UtcNow);
+        productCategory = Category.Update(productCategory, request.name, request.description, request.parentCategoryId, _dateTimeProvider.UtcNow);
 
         _categoryRepository.Update(productCategory);
 

@@ -1,6 +1,7 @@
 ﻿using Catalog.Application.Abstractions.Messaging;
 using Catalog.Domain.Abstractions;
 using Catalog.Domain.Categories;
+using Catalog.Domain.Products;
 
 namespace Catalog.Application.Categories.Queries.GetAllCategories;
 internal sealed class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategoriesQuery, IReadOnlyList<CategoryResponse>>
@@ -23,10 +24,13 @@ internal sealed class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategor
         var categoriesResponse = categories.Select(cat => new CategoryResponse()
         {
             Id = cat.Id,
-            Name = cat.Name.Value,
-            Code = cat.Code.Value
-        });
+            Name = cat.Name,
+            Description = cat.Description,
+            ParentCategoryId = cat.ParentCategoryId,
+            CreatedOn = cat.CreatedOn,
+            UpdatedOn = cat.UpdatedOn,
+        }).ToList();
 
-        return categoriesResponse.ToList();
+        return categoriesResponse;
     }
 }

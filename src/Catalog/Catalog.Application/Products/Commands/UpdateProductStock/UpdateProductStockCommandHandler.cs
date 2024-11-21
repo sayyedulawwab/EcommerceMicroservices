@@ -5,7 +5,7 @@ using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using Catalog.Domain.Shared;
 
-namespace Catalog.Application.Products.Commands.EditProduct;
+namespace Catalog.Application.Products.Commands.UpdateProductStock;
 internal sealed class UpdateProductStockCommandHandler : ICommandHandler<UpdateProductStockCommand, long>
 {
     private readonly IProductRepository _productRepository;

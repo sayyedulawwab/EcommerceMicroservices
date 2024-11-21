@@ -1,3 +1,3 @@
 ﻿namespace Catalog.API.Controllers.Categories;
 
-public record AddCategoryRequest(string name, string code);
+public record AddCategoryRequest(string name, string description, long parentCategoryId);

@@ -9,5 +9,5 @@ public sealed class ProductResponse
     public int Quantity { get; init; }
     public DateTime CreatedOn { get; init; }
     public DateTime? UpdatedOn { get; init; }
-    public long ProductCategoryId { get; init; }
+    public long CategoryId { get; init; }
 }

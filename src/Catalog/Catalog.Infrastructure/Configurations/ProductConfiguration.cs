@@ -16,16 +16,12 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
                .ValueGeneratedOnAdd();
 
         builder.Property(product => product.Name)
-               .HasMaxLength(200)
-               .HasConversion(name => name.Value, value => new ProductName(value));
+               .HasMaxLength(200);
 
         builder.Property(product => product.Description)
-               .HasMaxLength(2000)
-               .HasConversion(description => description.Value, value => new ProductDescription(value));
+               .HasMaxLength(1000);
 
         builder.Property(product => product.Quantity);
-
-
 
         builder.OwnsOne(product => product.Price, priceBuilder =>
         {

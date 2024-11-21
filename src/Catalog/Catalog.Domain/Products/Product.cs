@@ -5,7 +5,7 @@ namespace Catalog.Domain.Products;
 
 public sealed class Product : Entity<long>
 {
-    private Product(ProductName name, ProductDescription description, Money price, int quantity, long categoryId, DateTime createdOn)
+    private Product(string name, string description, Money price, int quantity, long categoryId, DateTime createdOn)
     {
         Name = name;
         Description = description;
@@ -20,14 +20,14 @@ public sealed class Product : Entity<long>
     }
 
     public long CategoryId { get; private set; }
-    public ProductName Name { get; private set; }
-    public ProductDescription Description { get; private set; }
+    public string Name { get; private set; }
+    public string Description { get; private set; }
     public Money Price { get; private set; }
     public int Quantity { get; private set; }
     public DateTime CreatedOn { get; private set; }
     public DateTime? UpdatedOn { get; private set; }
 
-    public static Product Create(ProductName name, ProductDescription description, Money price, int quantity, long categoryId, DateTime createdOn)
+    public static Product Create(string name, string description, Money price, int quantity, long categoryId, DateTime createdOn)
     {
         var product = new Product(name, description, price, quantity, categoryId, createdOn);
 
@@ -35,7 +35,7 @@ public sealed class Product : Entity<long>
     }
 
 
-    public static Product Update(Product product, ProductName name, ProductDescription description, Money price, int quantity, long categoryId, DateTime updatedOn)
+    public static Product Update(Product product, string name, string description, Money price, int quantity, long categoryId, DateTime updatedOn)
     {
 
         product.Name = name;
@@ -50,11 +50,8 @@ public sealed class Product : Entity<long>
 
     public void RemoveStock(int quantityDesired)
     {
-
         int removed = Math.Min(quantityDesired, this.Quantity);
-
         this.Quantity -= removed;
-
     }
 
 }

@@ -28,7 +28,7 @@ internal sealed class EditProductCommandHandler : ICommandHandler<EditProductCom
             return Result.Failure<long>(ProductErrors.NotFound());
         }
 
-        product = Product.Update(product, new ProductName(request.name), new ProductDescription(request.description), new Money(request.priceAmount, Currency.Create(request.priceCurrency)), request.quantity, request.categoryId, _dateTimeProvider.UtcNow);
+        product = Product.Update(product, request.name, request.description, new Money(request.priceAmount, Currency.Create(request.priceCurrency)), request.quantity, request.categoryId, _dateTimeProvider.UtcNow);
 
         _productRepository.Update(product);
 
