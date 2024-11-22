@@ -1,4 +1,5 @@
-﻿using Catalog.Application.Products.Commands.AddProduct;
+﻿using Catalog.API.Extensions;
+using Catalog.Application.Products.Commands.AddProduct;
 using Catalog.Application.Products.Commands.DeleteProduct;
 using Catalog.Application.Products.Commands.EditProduct;
 using Catalog.Application.Products.Queries.GetProductById;
@@ -43,7 +44,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(result.Value);
@@ -59,7 +60,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return CreatedAtAction(nameof(GetProduct), new { id = result.Value }, result.Value);
@@ -75,12 +76,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsFailure)
         {
-            if (result.Error.code == HttpResponseStatusCodes.NotFound)
-            {
-                return NotFound(result.Error);
-            }
-
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(new { id = result.Value });
@@ -96,12 +92,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsFailure)
         {
-            if (result.Error.code == HttpResponseStatusCodes.NotFound)
-            {
-                return NotFound(result.Error);
-            }
-
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(new { id = result.Value });
