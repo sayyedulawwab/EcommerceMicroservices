@@ -1,6 +1,6 @@
 ﻿using Cart.Application.Abstractions.Messaging;
-using Cart.Domain.Abstractions;
 using Cart.Domain.Carts;
+using SharedKernel.Domain;
 
 namespace Cart.Application.Carts.Queries.GetCartByUserId;
 internal sealed class GetCartByUserIdQueryHandler : IQueryHandler<GetCartByUserIdQuery, CartResponse>

@@ -1,6 +1,5 @@
 ﻿using Identity.Application.Abstractions.Auth;
 using Identity.Application.Abstractions.Clock;
-using Identity.Domain.Abstractions;
 using Identity.Domain.Users;
 using Identity.Infrastructure.Auth;
 using Identity.Infrastructure.Clock;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.Domain;
 
 namespace Identity.Infrastructure;
 public static class DependencyInjection

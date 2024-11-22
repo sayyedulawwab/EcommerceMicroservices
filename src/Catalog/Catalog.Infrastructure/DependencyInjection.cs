@@ -1,5 +1,4 @@
 ﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Domain.Abstractions;
 using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.Auth;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.Domain;
 
 namespace Catalog.Infrastructure;
 public static class DependencyInjection

@@ -1,7 +1,7 @@
 ﻿using Identity.Application.Abstractions.Auth;
-using Identity.Domain.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SharedKernel.Domain;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;

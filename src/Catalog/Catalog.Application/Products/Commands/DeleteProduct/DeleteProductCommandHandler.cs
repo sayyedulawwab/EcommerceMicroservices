@@ -1,6 +1,6 @@
 ﻿using Catalog.Application.Abstractions.Messaging;
-using Catalog.Domain.Abstractions;
 using Catalog.Domain.Products;
+using SharedKernel.Domain;
 
 namespace Catalog.Application.Products.Commands.DeleteProduct;
 internal sealed class DeleteProductCommandHandler : ICommandHandler<DeleteProductCommand, long>

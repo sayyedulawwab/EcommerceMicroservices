@@ -31,7 +31,7 @@ builder.Host.UseNServiceBus(context =>
     transport.ConnectionString("host=rabbitmq-broker;username=guest;password=guest");
     endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
-    endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedLibrary.Events");
+    endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedKernel.Events");
 
     endpointConfiguration.EnableInstallers();
 

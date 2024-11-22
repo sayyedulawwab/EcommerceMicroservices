@@ -1,5 +1,5 @@
-﻿using Ordering.Domain.Abstractions;
-using Ordering.Domain.Shared;
+﻿using Ordering.Domain.Shared;
+using SharedKernel.Domain;
 
 namespace Ordering.Domain.Orders;
 

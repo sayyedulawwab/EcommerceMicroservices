@@ -9,4 +9,3 @@ public interface ICacheService
     Task RemoveByPrefixAsync(string prefixKey, CancellationToken cancellationToken = default);
 
 }
-

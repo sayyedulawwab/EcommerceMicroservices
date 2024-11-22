@@ -1,5 +1,5 @@
-﻿using Identity.Domain.Abstractions;
-using MediatR;
+﻿using MediatR;
+using SharedKernel.Domain;
 
 namespace Identity.Application.Abstractions.Messaging;
 public interface IQueryHandler<TQuery, TResponse> : IRequestHandler<TQuery, Result<TResponse>>

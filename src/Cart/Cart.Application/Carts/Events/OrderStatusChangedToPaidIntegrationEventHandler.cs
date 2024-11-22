@@ -1,7 +1,6 @@
-﻿using Cart.Application.Carts.Commands.RemoveCart;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using SharedLibrary.Events;
+using SharedKernel.Events;
 
 namespace Cart.Application.Carts.Events;
 internal class OrderStatusChangedToPaidIntegrationEventHandler : IHandleMessages<OrderStatusChangedToPaidIntegrationEvent>

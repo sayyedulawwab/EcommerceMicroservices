@@ -1,4 +1,4 @@
-﻿namespace Catalog.Domain.Abstractions;
+﻿namespace SharedKernel.Domain;
 
 public record Error(string code, string description, HttpResponseStatusCodes type)
 {

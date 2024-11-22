@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Cart.Domain.Abstractions;
+namespace SharedKernel.Domain;
 
 public class Result
 {

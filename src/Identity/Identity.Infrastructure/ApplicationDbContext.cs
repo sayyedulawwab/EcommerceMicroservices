@@ -1,7 +1,7 @@
 ﻿using Identity.Application.Exceptions;
-using Identity.Domain.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Domain;
 using System.Data;
 
 namespace Identity.Infrastructure;
@@ -13,8 +13,6 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
         _publisher = publisher;
 
     }
-
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

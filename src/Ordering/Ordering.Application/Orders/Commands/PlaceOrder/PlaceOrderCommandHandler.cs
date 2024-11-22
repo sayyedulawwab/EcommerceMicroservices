@@ -1,9 +1,9 @@
 ﻿using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Messaging;
-using Ordering.Domain.Abstractions;
 using Ordering.Domain.Orders;
 using Ordering.Domain.Shared;
-using SharedLibrary.Events;
+using SharedKernel.Domain;
+using SharedKernel.Events;
 
 namespace Ordering.Application.Orders.Commands.PlaceOrder;
 internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderCommand, long>

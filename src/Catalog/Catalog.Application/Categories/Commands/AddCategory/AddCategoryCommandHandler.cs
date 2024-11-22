@@ -1,7 +1,7 @@
 ﻿using Catalog.Application.Abstractions.Clock;
 using Catalog.Application.Abstractions.Messaging;
-using Catalog.Domain.Abstractions;
 using Catalog.Domain.Categories;
+using SharedKernel.Domain;
 
 namespace Catalog.Application.Categories.Commands.AddCategory;
 internal sealed class AddCategoryCommandHandler : ICommandHandler<AddCategoryCommand, long>

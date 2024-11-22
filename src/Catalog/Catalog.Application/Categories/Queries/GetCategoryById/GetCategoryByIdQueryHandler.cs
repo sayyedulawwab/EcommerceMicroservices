@@ -1,6 +1,6 @@
 ﻿using Catalog.Application.Abstractions.Messaging;
-using Catalog.Domain.Abstractions;
 using Catalog.Domain.Categories;
+using SharedKernel.Domain;
 
 namespace Catalog.Application.Categories.Queries.GetCategoryById;
 internal sealed class GetCategoryByIdQueryHandler : IQueryHandler<GetCategoryByIdQuery, CategoryResponse>

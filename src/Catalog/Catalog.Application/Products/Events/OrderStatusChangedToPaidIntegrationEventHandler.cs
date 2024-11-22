@@ -1,7 +1,7 @@
 ﻿using Catalog.Application.Products.Commands.UpdateProductStock;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using SharedLibrary.Events;
+using SharedKernel.Events;
 
 namespace Catalog.Application.Products.Events;
 internal class OrderStatusChangedToPaidIntegrationEventHandler : IHandleMessages<OrderStatusChangedToPaidIntegrationEvent>

@@ -1,6 +1,6 @@
 ﻿using Catalog.Application.Abstractions.Messaging;
-using Catalog.Domain.Abstractions;
 using Catalog.Domain.Products;
+using SharedKernel.Domain;
 
 namespace Catalog.Application.Products.Queries.GetProductById;
 internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQuery, ProductResponse>

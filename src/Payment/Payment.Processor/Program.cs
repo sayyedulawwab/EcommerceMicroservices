@@ -21,7 +21,7 @@ builder.Host.UseNServiceBus(context =>
 
     endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
-    endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedLibrary.Events");
+    endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedKernel.Events");
 
     endpointConfiguration.EnableInstallers();
 

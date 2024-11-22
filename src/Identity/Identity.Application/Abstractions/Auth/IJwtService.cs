@@ -1,4 +1,4 @@
-﻿using Identity.Domain.Abstractions;
+﻿using SharedKernel.Domain;
 
 namespace Identity.Application.Abstractions.Auth;
 public interface IJwtService

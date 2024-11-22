@@ -1,6 +1,6 @@
 ﻿using Catalog.Application.Abstractions.Messaging;
-using Catalog.Domain.Abstractions;
 using Catalog.Domain.Categories;
+using SharedKernel.Domain;
 
 namespace Catalog.Application.Categories.Commands.DeleteCategory;
 internal sealed class DeleteCategoryCommandHandler : ICommandHandler<DeleteCategoryCommand, long>

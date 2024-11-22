@@ -1,4 +1,4 @@
-﻿using Catalog.Domain.Abstractions;
+﻿using SharedKernel.Domain;
 
 namespace Catalog.Domain.Categories;
 

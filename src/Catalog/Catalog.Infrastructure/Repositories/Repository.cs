@@ -1,5 +1,5 @@
-﻿using Catalog.Domain.Abstractions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using SharedKernel.Domain;
 
 namespace Catalog.Infrastructure.Repositories;
 

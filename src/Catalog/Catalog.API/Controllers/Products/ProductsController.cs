@@ -3,10 +3,10 @@ using Catalog.Application.Products.Commands.DeleteProduct;
 using Catalog.Application.Products.Commands.EditProduct;
 using Catalog.Application.Products.Queries.GetProductById;
 using Catalog.Application.Products.Queries.SearchProduct;
-using Catalog.Domain.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products;
 

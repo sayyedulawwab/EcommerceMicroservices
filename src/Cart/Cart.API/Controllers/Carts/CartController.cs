@@ -1,9 +1,9 @@
 ﻿using Cart.Application.Carts.Commands;
-using Cart.Application.Carts.Commands.RemoveCart;
 using Cart.Application.Carts.Commands.UpdateCart;
 using Cart.Application.Carts.Queries.GetCartByUserId;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Cart.API.Controllers.Carts;
 [Route("api/cart")]
@@ -19,9 +19,9 @@ public class CartController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
     {
-        //var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
-        //var userId = Int64.Parse(userIdClaim.Value);
-        var userId = 123;
+        var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
+        var userId = Int64.Parse(userIdClaim.Value);
+
         var query = new GetCartByUserIdQuery(userId);
 
         var result = await _sender.Send(query, cancellationToken);
@@ -37,9 +37,8 @@ public class CartController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateCart([FromBody] UpdateCartRequest request, CancellationToken cancellationToken)
     {
-        //var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
-        //var userId = Int64.Parse(userIdClaim.Value);
-        var userId = 123;
+        var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
+        var userId = Int64.Parse(userIdClaim.Value);
 
         var cartItems = request.cartItems.Select(item =>
             new CartItemCommand(item.productId, item.productName, item.priceAmount, item.priceCurrency, item.quantity))

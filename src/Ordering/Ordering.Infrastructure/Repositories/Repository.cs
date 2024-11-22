@@ -1,5 +1,5 @@
-﻿using Ordering.Domain.Abstractions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using SharedKernel.Domain;
 
 namespace Ordering.Infrastructure.Repositories;
 

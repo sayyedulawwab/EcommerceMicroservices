@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.Abstractions.Clock;
-using Ordering.Domain.Abstractions;
 using Ordering.Domain.Orders;
 using Ordering.Infrastructure.Auth;
 using Ordering.Infrastructure.Clock;
 using Ordering.Infrastructure.Repositories;
+using SharedKernel.Domain;
 
 namespace Ordering.Infrastructure;
 public static class DependencyInjection

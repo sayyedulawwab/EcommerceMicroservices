@@ -1,4 +1,4 @@
-﻿using Identity.Domain.Abstractions;
+﻿using SharedKernel.Domain;
 
 namespace Identity.Domain.Users;
 public sealed class User : Entity<long>

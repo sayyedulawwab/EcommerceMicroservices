@@ -1,5 +1,5 @@
 ﻿using Payment.Processor.Application.Abstractions;
-using SharedLibrary.Events;
+using SharedKernel.Events;
 
 namespace Payment.Processor.Application.Events;
 internal class OrderStatusChangedToStockConfirmedIntegrationEventHandler : IHandleMessages<OrderStatusChangedToStockConfirmedIntegrationEvent>

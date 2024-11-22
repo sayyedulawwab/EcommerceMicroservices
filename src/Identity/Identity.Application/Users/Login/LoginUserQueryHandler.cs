@@ -1,7 +1,7 @@
 ﻿using Identity.Application.Abstractions.Auth;
 using Identity.Application.Abstractions.Messaging;
-using Identity.Domain.Abstractions;
 using Identity.Domain.Users;
+using SharedKernel.Domain;
 
 namespace Identity.Application.Users.Login;
 internal sealed class LoginUserQueryHandler : IQueryHandler<LoginUserQuery, AccessTokenResponse>

@@ -1,7 +1,7 @@
 ﻿using Catalog.Application.Exceptions;
-using Catalog.Domain.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Domain;
 using System.Data;
 
 namespace Catalog.Infrastructure;

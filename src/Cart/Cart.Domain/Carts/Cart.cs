@@ -1,5 +1,5 @@
 ﻿using Cart.Domain.Shared;
-using Cart.Domain.Abstractions;
+using SharedKernel.Domain;
 
 namespace Cart.Domain.Carts;
 public sealed class Cart : Entity<Guid>

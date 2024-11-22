@@ -1,7 +1,6 @@
 ﻿using Catalog.Application.Abstractions.Messaging;
-using Catalog.Domain.Abstractions;
 using Catalog.Domain.Categories;
-using Catalog.Domain.Products;
+using SharedKernel.Domain;
 
 namespace Catalog.Application.Categories.Queries.GetAllCategories;
 internal sealed class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategoriesQuery, IReadOnlyList<CategoryResponse>>

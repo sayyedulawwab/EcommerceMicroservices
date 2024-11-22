@@ -1,6 +1,6 @@
 ﻿using Catalog.Domain.Products;
 using Microsoft.Extensions.Logging;
-using SharedLibrary.Events;
+using SharedKernel.Events;
 
 namespace Catalog.Application.Products.Events;
 internal class OrderPlacedIntegrationEventHandler : IHandleMessages<OrderPlacedIntegrationEvent>

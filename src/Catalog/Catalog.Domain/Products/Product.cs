@@ -1,5 +1,5 @@
-﻿using Catalog.Domain.Abstractions;
-using Catalog.Domain.Shared;
+﻿using Catalog.Domain.Shared;
+using SharedKernel.Domain;
 
 namespace Catalog.Domain.Products;
 

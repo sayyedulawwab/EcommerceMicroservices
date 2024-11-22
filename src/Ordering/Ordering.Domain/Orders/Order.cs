@@ -1,6 +1,5 @@
-﻿using Ordering.Domain.Abstractions;
-using Ordering.Domain.Shared;
-using System.Collections.Generic;
+﻿using Ordering.Domain.Shared;
+using SharedKernel.Domain;
 
 namespace Ordering.Domain.Orders;
 public sealed class Order : Entity<long>

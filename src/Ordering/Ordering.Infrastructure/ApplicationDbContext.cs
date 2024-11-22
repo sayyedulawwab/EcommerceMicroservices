@@ -1,7 +1,7 @@
-﻿using Ordering.Application.Exceptions;
-using Ordering.Domain.Abstractions;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Ordering.Application.Exceptions;
+using SharedKernel.Domain;
 using System.Data;
 
 namespace Ordering.Infrastructure;
@@ -14,8 +14,6 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
         _publisher = publisher;
 
     }
-
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

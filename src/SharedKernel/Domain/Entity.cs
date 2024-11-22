@@ -1,4 +1,4 @@
-﻿namespace Catalog.Domain.Abstractions;
+﻿namespace SharedKernel.Domain;
 
 public abstract class Entity<TEntityId> : IEntity
 {

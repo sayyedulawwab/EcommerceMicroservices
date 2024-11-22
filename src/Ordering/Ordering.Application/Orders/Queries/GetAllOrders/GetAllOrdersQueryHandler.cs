@@ -1,6 +1,6 @@
 ﻿using Ordering.Application.Abstractions.Messaging;
-using Ordering.Domain.Abstractions;
 using Ordering.Domain.Orders;
+using SharedKernel.Domain;
 
 namespace Ordering.Application.Orders.Queries.GetAllOrders;
 internal sealed class GetAllOrdersQueryHandler : IQueryHandler<GetAllOrdersQuery, IReadOnlyList<OrderResponse>>

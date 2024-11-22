@@ -1,5 +1,5 @@
-﻿using Catalog.Domain.Abstractions;
-using MediatR;
+﻿using MediatR;
+using SharedKernel.Domain;
 
 namespace Catalog.Application.Abstractions.Messaging;
 

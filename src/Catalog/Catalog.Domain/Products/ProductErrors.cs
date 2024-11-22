@@ -1,5 +1,4 @@
-﻿using Catalog.Domain.Abstractions;
-using System.Xml.Linq;
+﻿using SharedKernel.Domain;
 
 namespace Catalog.Domain.Products;
 public static class ProductErrors

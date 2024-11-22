@@ -2,7 +2,6 @@
 
 public enum OrderStatus
 {
- 
     Placed = 1,
     StockConfirmed = 2,
     Paid = 3,
