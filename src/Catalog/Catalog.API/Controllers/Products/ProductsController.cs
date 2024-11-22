@@ -3,6 +3,7 @@ using Catalog.Application.Products.Commands.DeleteProduct;
 using Catalog.Application.Products.Commands.EditProduct;
 using Catalog.Application.Products.Queries.GetProductById;
 using Catalog.Application.Products.Queries.SearchProduct;
+using Catalog.Domain.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -74,6 +75,11 @@ public class ProductsController : ControllerBase
 
         if (result.IsFailure)
         {
+            if (result.Error.type == HttpResponseStatusCodes.NotFound)
+            {
+                return NotFound(result.Error);
+            }
+
             return BadRequest(result.Error);
         }
 
@@ -90,6 +96,11 @@ public class ProductsController : ControllerBase
 
         if (result.IsFailure)
         {
+            if (result.Error.type == HttpResponseStatusCodes.NotFound)
+            {
+                return NotFound(result.Error);
+            }
+
             return BadRequest(result.Error);
         }
 
