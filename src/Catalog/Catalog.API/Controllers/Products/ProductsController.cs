@@ -75,7 +75,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsFailure)
         {
-            if (result.Error.type == HttpResponseStatusCodes.NotFound)
+            if (result.Error.code == HttpResponseStatusCodes.NotFound)
             {
                 return NotFound(result.Error);
             }
@@ -96,7 +96,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsFailure)
         {
-            if (result.Error.type == HttpResponseStatusCodes.NotFound)
+            if (result.Error.code == HttpResponseStatusCodes.NotFound)
             {
                 return NotFound(result.Error);
             }
