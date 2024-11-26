@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Ordering.API.Extensions;
 using Ordering.Application.Orders.Commands.PlaceOrder;
 using Ordering.Application.Orders.Queries.GetAllOrders;
 using System.Security.Claims;
@@ -26,7 +27,7 @@ public class OrdersController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(result.Value);
@@ -49,7 +50,7 @@ public class OrdersController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
         return Created(string.Empty, result.Value);
     }

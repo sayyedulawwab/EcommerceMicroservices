@@ -1,4 +1,5 @@
-﻿using Catalog.Application.Categories.Commands.AddCategory;
+﻿using Catalog.API.Extensions;
+using Catalog.Application.Categories.Commands.AddCategory;
 using Catalog.Application.Categories.Commands.DeleteCategory;
 using Catalog.Application.Categories.Commands.EditCategory;
 using Catalog.Application.Categories.Queries.GetAllCategories;
@@ -29,7 +30,7 @@ public class CategoriesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(result.Value);
@@ -44,7 +45,7 @@ public class CategoriesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(result.Value);
@@ -59,7 +60,7 @@ public class CategoriesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return CreatedAtAction(nameof(GetCategory), new { id = result.Value }, result.Value);
@@ -74,7 +75,7 @@ public class CategoriesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(new { id = result.Value });
@@ -89,7 +90,7 @@ public class CategoriesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(new { id = result.Value });

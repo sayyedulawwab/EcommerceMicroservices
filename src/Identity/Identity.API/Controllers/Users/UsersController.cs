@@ -1,4 +1,5 @@
-﻿using Identity.Application.Users.Login;
+﻿using Identity.API.Extensions;
+using Identity.Application.Users.Login;
 using Identity.Application.Users.Register;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +34,7 @@ public class UsersController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(result.Value);
@@ -51,7 +52,7 @@ public class UsersController : ControllerBase
 
         if (result.IsFailure)
         {
-            return Unauthorized(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(result.Value);
