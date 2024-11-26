@@ -1,4 +1,5 @@
-﻿using Cart.Application.Carts.Commands;
+﻿using Cart.API.Extensions;
+using Cart.Application.Carts.Commands;
 using Cart.Application.Carts.Commands.UpdateCart;
 using Cart.Application.Carts.Queries.GetCartByUserId;
 using MediatR;
@@ -28,7 +29,7 @@ public class CartController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
 
         return Ok(result.Value);
@@ -50,7 +51,7 @@ public class CartController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return result.Error.ToActionResult();
         }
         return Created(string.Empty, result.Value);
     }
