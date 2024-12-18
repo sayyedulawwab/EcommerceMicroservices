@@ -1,8 +1,8 @@
 ﻿using Bogus;
 using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
-using Catalog.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Domain;
 
 namespace Catalog.Infrastructure.Data
 {
@@ -21,7 +21,7 @@ namespace Catalog.Infrastructure.Data
             }
 
             var faker = new Faker();
-           
+
             // Seed product categories
             for (int i = 0; i < 10; i++)
             {

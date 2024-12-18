@@ -1,5 +1,4 @@
-﻿using Ordering.Domain.Shared;
-using SharedKernel.Domain;
+﻿using SharedKernel.Domain;
 
 namespace Ordering.Domain.Orders;
 

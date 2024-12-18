@@ -1,7 +1,7 @@
 ﻿using Catalog.Domain.Products;
-using Catalog.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SharedKernel.Domain;
 
 namespace Catalog.Infrastructure.Configurations;
 internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>

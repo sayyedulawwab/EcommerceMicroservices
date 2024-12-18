@@ -1,6 +1,6 @@
-﻿using Ordering.Application.Abstractions.Behaviors;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Ordering.Application.Abstractions.Behaviors;
 
 namespace Ordering.Application;
 public static class DependencyInjection

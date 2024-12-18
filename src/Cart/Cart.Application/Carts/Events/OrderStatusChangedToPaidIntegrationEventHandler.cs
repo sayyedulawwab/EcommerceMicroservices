@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Cart.Application.Carts.Commands.RemoveCart;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 
@@ -18,8 +19,8 @@ internal class OrderStatusChangedToPaidIntegrationEventHandler : IHandleMessages
 
         _logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@orderId}", @event, @event.orderId);
 
-        //var command = new RemoveCartCommand(@event);
+        var command = new RemoveCartCommand(@event.userId);
 
-        //await _sender.Send(command);
+        await _sender.Send(command);
     }
 }

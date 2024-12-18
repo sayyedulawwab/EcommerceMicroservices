@@ -38,7 +38,7 @@ public class OrdersController : ControllerBase
     {
         var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
         var userId = Int64.Parse(userIdClaim.Value);
-      
+
 
         var orderItems = request.orderItems.Select(item =>
             new OrderItemCommand(item.productId, item.productName, item.priceAmount, item.priceCurrency, item.quantity))

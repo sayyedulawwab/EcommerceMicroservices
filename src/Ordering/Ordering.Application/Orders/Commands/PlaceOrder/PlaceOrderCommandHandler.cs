@@ -1,7 +1,6 @@
 ﻿using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Messaging;
 using Ordering.Domain.Orders;
-using Ordering.Domain.Shared;
 using SharedKernel.Domain;
 using SharedKernel.Events;
 

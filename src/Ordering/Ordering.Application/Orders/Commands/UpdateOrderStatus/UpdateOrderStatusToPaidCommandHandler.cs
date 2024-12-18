@@ -44,8 +44,8 @@ internal sealed class UpdateOrderStatusToPaidCommandHandler : ICommandHandler<Up
                                                                                             orderItem.Quantity)
                                                        ).ToList();
 
-        var integrationEvent = new OrderStatusChangedToPaidIntegrationEvent(order.Id, orderStockItems);
-        
+        var integrationEvent = new OrderStatusChangedToPaidIntegrationEvent(order.UserId, order.Id, orderStockItems);
+
         await _messageSession.Publish(integrationEvent, cancellationToken);
 
         return order.Id;

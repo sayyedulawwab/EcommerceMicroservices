@@ -1,7 +1,6 @@
 ﻿using Cart.Application.Abstractions.Clock;
 using Cart.Application.Abstractions.Messaging;
 using Cart.Domain.Carts;
-using Cart.Domain.Shared;
 using SharedKernel.Domain;
 
 namespace Cart.Application.Carts.Commands.UpdateCart;

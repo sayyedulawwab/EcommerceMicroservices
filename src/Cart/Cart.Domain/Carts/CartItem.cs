@@ -1,5 +1,4 @@
-﻿using Cart.Domain.Shared;
-using SharedKernel.Domain;
+﻿using SharedKernel.Domain;
 
 namespace Cart.Domain.Carts;
 

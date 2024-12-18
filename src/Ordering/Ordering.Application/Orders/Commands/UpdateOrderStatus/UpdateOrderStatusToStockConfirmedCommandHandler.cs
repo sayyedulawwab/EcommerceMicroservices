@@ -36,9 +36,9 @@ internal sealed class UpdateOrderStatusToStockConfirmedCommandHandler : ICommand
 
         await _unitOfWork.SaveChangesAsync();
 
-       
+
         var integrationEvent = new OrderStatusChangedToStockConfirmedIntegrationEvent(order.Id);
-        
+
         await _messageSession.Publish(integrationEvent, cancellationToken);
 
         return order.Id;

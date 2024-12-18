@@ -1,5 +1,5 @@
-﻿using Identity.Application.Abstractions.Behaviors;
-using FluentValidation;
+﻿using FluentValidation;
+using Identity.Application.Abstractions.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Identity.Application;

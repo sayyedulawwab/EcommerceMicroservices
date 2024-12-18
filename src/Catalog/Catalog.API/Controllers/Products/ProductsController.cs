@@ -7,7 +7,6 @@ using Catalog.Application.Products.Queries.SearchProduct;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products;
 
@@ -25,8 +24,8 @@ public class ProductsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Search([FromQuery] SearchProductRequest request, CancellationToken cancellationToken)
     {
-        var query = new SearchProductsQuery(request.categoryId, request.minPrice, 
-            request.maxPrice, request.keyword, request.page, request.pageSize, request.sortColumn, 
+        var query = new SearchProductsQuery(request.categoryId, request.minPrice,
+            request.maxPrice, request.keyword, request.page, request.pageSize, request.sortColumn,
             request.sortOrder);
 
         var result = await _sender.Send(query, cancellationToken);
@@ -53,7 +52,7 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddProduct(AddProductRequest request, CancellationToken cancellationToken)
     {
-        var command = new AddProductCommand(request.name, request.description, request.priceCurrency, request.priceAmount, 
+        var command = new AddProductCommand(request.name, request.description, request.priceCurrency, request.priceAmount,
             request.quantity, request.categoryId);
 
         var result = await _sender.Send(command, cancellationToken);

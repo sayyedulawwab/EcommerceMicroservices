@@ -35,7 +35,7 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
         var user = User.Create(
             request.firstName,
             request.lastName,
-            request.email, 
+            request.email,
             hashedPassword,
             false,
             _dateTimeProvider.UtcNow);

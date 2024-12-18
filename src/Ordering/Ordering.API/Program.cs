@@ -1,6 +1,4 @@
 using NLog.Web;
-using NServiceBus;
-using NServiceBus.Features;
 using Ordering.API.Extensions;
 using Ordering.Application;
 using Ordering.Infrastructure;

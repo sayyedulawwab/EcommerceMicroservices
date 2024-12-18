@@ -1,9 +1,7 @@
 using Catalog.API.Extensions;
 using Catalog.Application;
 using Catalog.Infrastructure;
-using NLog;
 using NLog.Web;
-using NServiceBus;
 
 var builder = WebApplication.CreateBuilder(args);
 

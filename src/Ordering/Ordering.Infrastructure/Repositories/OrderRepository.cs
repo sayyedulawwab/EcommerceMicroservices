@@ -1,5 +1,5 @@
-﻿using Ordering.Domain.Orders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Ordering.Domain.Orders;
 
 namespace Ordering.Infrastructure.Repositories;
 internal sealed class OrderRepository : Repository<Order>, IOrderRepository

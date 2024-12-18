@@ -1,6 +1,5 @@
 ﻿using Identity.Application.Abstractions.Auth;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Identity.Infrastructure.Auth;
 internal sealed class PasswordHasher : IPasswordHasher

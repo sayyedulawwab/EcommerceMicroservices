@@ -1,6 +1,6 @@
-﻿using Identity.Application.Exceptions;
-using FluentValidation;
+﻿using FluentValidation;
 using Identity.Application.Abstractions.Messaging;
+using Identity.Application.Exceptions;
 using MediatR;
 
 namespace Identity.Application.Abstractions.Behaviors;

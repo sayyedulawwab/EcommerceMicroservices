@@ -1,6 +1,7 @@
-﻿using FluentAssertions;
+﻿using Catalog.Domain.Categories;
+using FluentAssertions;
 
-namespace Catalog.Domain.Categories.Tests
+namespace Catalog.Domain.UnitTests.Categories
 {
     public class CategoryTests
     {
@@ -8,17 +9,18 @@ namespace Catalog.Domain.Categories.Tests
         public void Create_ShouldReturnCategory_WhenValidInputsAreProvided()
         {
             // Arrange
-            var name = new CategoryName("Electronics");
-            var code = new CategoryCode("ELEC");
+            var name = "Electronics";
+            var description = "ELEC";
+            var parentCategoryId = 0;
             var createdOn = DateTime.UtcNow;
 
             // Act
-            var category = Category.Create(name, code, createdOn);
+            var category = Category.Create(name, description, parentCategoryId, createdOn);
 
             // Assert
             category.Should().NotBeNull();
             category.Name.Should().Be(name);
-            category.Code.Should().Be(code);
+            category.Description.Should().Be(description);
             category.CreatedOn.Should().BeCloseTo(createdOn, TimeSpan.FromSeconds(1));
             category.UpdatedOn.Should().BeNull();
         }
@@ -27,22 +29,24 @@ namespace Catalog.Domain.Categories.Tests
         public void Update_ShouldUpdateCategoryProperties_WhenValidInputsAreProvided()
         {
             // Arrange
-            var name = new CategoryName("Electronics");
-            var code = new CategoryCode("ELEC");
+            var name = "Electronics";
+            var description = "ELEC";
+            var parentCategoryId = 0;
             var createdOn = DateTime.UtcNow;
-            var category = Category.Create(name, code, createdOn);
+            var category = Category.Create(name, description, parentCategoryId, createdOn);
 
-            var updatedName = new CategoryName("Home Appliances");
-            var updatedCode = new CategoryCode("HOME");
+            var updatedName = "Home Appliances";
+            var updatedDescription = "HOME";
+            var updateParentCategoryId = 1;
             var updatedOn = DateTime.UtcNow;
 
             // Act
-            var updatedCategory = Category.Update(category, updatedName, updatedCode, updatedOn);
+            var updatedCategory = Category.Update(category, updatedName, updatedDescription, updateParentCategoryId, updatedOn);
 
             // Assert
             updatedCategory.Should().NotBeNull();
             updatedCategory.Name.Should().Be(updatedName);
-            updatedCategory.Code.Should().Be(updatedCode);
+            updatedCategory.Description.Should().Be(updatedDescription);
             updatedCategory.UpdatedOn.Should().BeCloseTo(updatedOn, TimeSpan.FromSeconds(1));
         }
 
@@ -50,17 +54,19 @@ namespace Catalog.Domain.Categories.Tests
         public void Update_ShouldPreserveCreatedOn_WhenUpdatingCategory()
         {
             // Arrange
-            var name = new CategoryName("Electronics");
-            var code = new CategoryCode("ELEC");
+            var name = "Electronics";
+            var description = "ELEC";
+            var parentCategoryId = 0;
             var createdOn = DateTime.UtcNow;
-            var category = Category.Create(name, code, createdOn);
+            var category = Category.Create(name, description, parentCategoryId, createdOn);
 
-            var updatedName = new CategoryName("Home Appliances");
-            var updatedCode = new CategoryCode("HOME");
+            var updatedName = "Home Appliances";
+            var updatedDescription = "HOME";
+            var updateParentCategoryId = 1;
             var updatedOn = DateTime.UtcNow;
 
             // Act
-            var updatedCategory = Category.Update(category, updatedName, updatedCode, updatedOn);
+            var updatedCategory = Category.Update(category, updatedName, updatedDescription, updateParentCategoryId, updatedOn);
 
             // Assert
             updatedCategory.CreatedOn.Should().Be(category.CreatedOn);

@@ -1,5 +1,4 @@
-﻿using Ordering.Domain.Shared;
-using SharedKernel.Domain;
+﻿using SharedKernel.Domain;
 
 namespace Ordering.Domain.Orders;
 public sealed class Order : Entity<long>
@@ -10,7 +9,7 @@ public sealed class Order : Entity<long>
         TotalPrice = totalPrice;
         Status = status;
         CreatedOnUtc = createdOn;
-     
+
     }
 
     private Order()
@@ -37,9 +36,9 @@ public sealed class Order : Entity<long>
     {
 
         var orderItem = OrderItem.Create(orderId, productId, productName, price, quantity, createdOn);
-      
+
         OrderItems.Add(orderItem);
-   
+
         if (TotalPrice.IsZero())
         {
             TotalPrice = new Money(orderItem.Price.Amount, orderItem.Price.Currency);

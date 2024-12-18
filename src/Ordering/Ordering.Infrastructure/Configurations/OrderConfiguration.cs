@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ordering.Domain.Orders;
-using Ordering.Domain.Shared;
+using SharedKernel.Domain;
 
 namespace Ordering.Infrastructure.Configurations;
 internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>

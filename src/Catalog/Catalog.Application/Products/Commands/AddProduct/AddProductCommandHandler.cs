@@ -1,7 +1,6 @@
 ﻿using Catalog.Application.Abstractions.Clock;
 using Catalog.Application.Abstractions.Messaging;
 using Catalog.Domain.Products;
-using Catalog.Domain.Shared;
 using SharedKernel.Domain;
 
 namespace Catalog.Application.Products.Commands.AddProduct;

@@ -1,5 +1,4 @@
-﻿using Catalog.Domain.Shared;
-using SharedKernel.Domain;
+﻿using SharedKernel.Domain;
 
 namespace Catalog.Domain.Products;
 

@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Orders.Commands.UpdateOrderStatus;
-using Ordering.Domain.Orders;
 using SharedKernel.Events;
 
 namespace Ordering.Application.Orders.Events;
