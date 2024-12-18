@@ -21,6 +21,6 @@ internal class OrderPaymentFailedIntegrationEventHandler : IHandleMessages<Order
 
         var command = new UpdateOrderStatusToCanceledCommand(@event.orderId);
 
-        await _sender.Send(command);
+        await _sender.Send(command, default);
     }
 }

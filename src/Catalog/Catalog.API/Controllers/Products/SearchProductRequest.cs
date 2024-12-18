@@ -3,7 +3,7 @@
 public record SearchProductRequest(long? categoryId,
                                     decimal? minPrice,
                                     decimal? maxPrice,
-                                    string? keyword,
+                                    string keyword,
                                     string? sortColumn,
                                     string? sortOrder,
                                     int page = 1,

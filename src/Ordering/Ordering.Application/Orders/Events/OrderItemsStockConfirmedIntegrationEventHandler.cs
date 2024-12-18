@@ -21,7 +21,7 @@ internal class OrderItemsStockConfirmedIntegrationEventHandler : IHandleMessages
 
         var command = new UpdateOrderStatusToStockConfirmedCommand(@event.orderId);
 
-        await _sender.Send(command);
+        await _sender.Send(command, default);
 
     }
 }
