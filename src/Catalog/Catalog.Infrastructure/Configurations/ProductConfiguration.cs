@@ -34,8 +34,8 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         });
 
-        builder.Property(product => product.CreatedOn);
-        builder.Property(product => product.UpdatedOn);
+        builder.Property(product => product.CreatedOnUtc);
+        builder.Property(product => product.UpdatedOnUtc);
 
         //builder.HasOne<Category>()
         //       .WithMany()

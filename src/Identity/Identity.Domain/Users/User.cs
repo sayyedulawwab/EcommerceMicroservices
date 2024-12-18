@@ -3,14 +3,14 @@
 namespace Identity.Domain.Users;
 public sealed class User : Entity<long>
 {
-    private User(string firstName, string lastName, string email, string passwordHash, bool isAdmin, DateTime createdOn)
+    private User(string firstName, string lastName, string email, string passwordHash, bool isAdmin, DateTime createdOnUtc)
     {
         FirstName = firstName;
         LastName = lastName;
         Email = email;
         PasswordHash = passwordHash;
         IsAdmin = isAdmin;
-        CreatedOn = createdOn;
+        CreatedOnUtc = createdOnUtc;
     }
 
     private User()
@@ -21,12 +21,12 @@ public sealed class User : Entity<long>
     public string Email { get; private set; }
     public string PasswordHash { get; private set; }
     public bool IsAdmin { get; private set; }
-    public DateTime CreatedOn { get; private set; }
-    public DateTime? UpdatedOn { get; private set; }
+    public DateTime CreatedOnUtc { get; private set; }
+    public DateTime? UpdatedOnUtc { get; private set; }
 
-    public static User Create(string firstName, string lastName, string email, string passwordHash, bool isAdmin, DateTime createdOn)
+    public static User Create(string firstName, string lastName, string email, string passwordHash, bool isAdmin, DateTime createdOnUtc)
     {
-        var user = new User(firstName, lastName, email, passwordHash, isAdmin, createdOn);
+        var user = new User(firstName, lastName, email, passwordHash, isAdmin, createdOnUtc);
 
         return user;
     }

@@ -26,8 +26,8 @@ internal sealed class GetCategoryByIdQueryHandler : IQueryHandler<GetCategoryByI
             Name = category.Name,
             Description = category.Description,
             ParentCategoryId = category.ParentCategoryId,
-            CreatedOn = category.CreatedOn,
-            UpdatedOn = category.UpdatedOn,
+            CreatedOnUtc = category.CreatedOnUtc,
+            UpdatedOnUtc = category.UpdatedOnUtc,
         };
 
         return categoryResponse;

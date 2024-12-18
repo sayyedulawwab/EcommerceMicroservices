@@ -3,7 +3,6 @@
 namespace Catalog.Domain.Products;
 public static class ProductErrors
 {
-
     public static Error NotFound() => Error.NotFound(
        "Product.NotFound",
        $"The Products with this filter was not found");

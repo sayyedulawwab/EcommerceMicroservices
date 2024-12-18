@@ -29,8 +29,8 @@ internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQ
             PriceCurrency = product.Price.Currency.Code,
             Quantity = product.Quantity,
             CategoryId = product.CategoryId,
-            CreatedOn = product.CreatedOn,
-            UpdatedOn = product.UpdatedOn,
+            CreatedOnUtc = product.CreatedOnUtc,
+            UpdatedOnUtc = product.UpdatedOnUtc,
         };
 
         return productResponse;

@@ -30,9 +30,9 @@ internal sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderIte
 
         });
 
-        builder.Property(orderItem => orderItem.CreatedOn);
+        builder.Property(orderItem => orderItem.CreatedOnUtc);
 
-        builder.Property(orderItem => orderItem.UpdatedOn);
+        builder.Property(orderItem => orderItem.UpdatedOnUtc);
 
         //builder.HasOne<Order>()
         //    .WithMany(order => order.OrderItems)

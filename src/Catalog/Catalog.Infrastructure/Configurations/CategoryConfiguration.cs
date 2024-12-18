@@ -22,9 +22,9 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.Property(category => category.ParentCategoryId);
 
-        builder.Property(category => category.CreatedOn);
+        builder.Property(category => category.CreatedOnUtc);
 
-        builder.Property(category => category.UpdatedOn);
+        builder.Property(category => category.UpdatedOnUtc);
 
     }
 }

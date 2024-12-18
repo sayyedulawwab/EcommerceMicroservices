@@ -4,14 +4,14 @@ namespace Ordering.Domain.Orders;
 
 public sealed class OrderItem : Entity<long>
 {
-    private OrderItem(long orderId, long productId, string productName, Money price, int quantity, DateTime createdOn)
+    private OrderItem(long orderId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc)
     {
         OrderId = orderId;
         ProductId = productId;
         ProductName = productName;
         Price = price;
         Quantity = quantity;
-        CreatedOn = createdOn;
+        CreatedOnUtc = createdOnUtc;
     }
 
     private OrderItem()
@@ -23,13 +23,13 @@ public sealed class OrderItem : Entity<long>
     public string ProductName { get; private set; }
     public Money Price { get; private set; }
     public int Quantity { get; private set; }
-    public DateTime CreatedOn { get; private set; }
-    public DateTime? UpdatedOn { get; private set; }
+    public DateTime CreatedOnUtc { get; private set; }
+    public DateTime? UpdatedOnUtc { get; private set; }
 
 
-    public static OrderItem Create(long orderId, long productId, string productName, Money price, int quantity, DateTime createdOn)
+    public static OrderItem Create(long orderId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc)
     {
-        var orderItem = new OrderItem(orderId, productId, productName, price, quantity, createdOn);
+        var orderItem = new OrderItem(orderId, productId, productName, price, quantity, createdOnUtc);
 
         return orderItem;
     }

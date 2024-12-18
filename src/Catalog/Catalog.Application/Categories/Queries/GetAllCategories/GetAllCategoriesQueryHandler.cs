@@ -26,8 +26,8 @@ internal sealed class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategor
             Name = cat.Name,
             Description = cat.Description,
             ParentCategoryId = cat.ParentCategoryId,
-            CreatedOn = cat.CreatedOn,
-            UpdatedOn = cat.UpdatedOn,
+            CreatedOnUtc = cat.CreatedOnUtc,
+            UpdatedOnUtc = cat.UpdatedOnUtc,
         }).ToList();
 
         return categoriesResponse;

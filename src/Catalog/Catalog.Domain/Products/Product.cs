@@ -4,14 +4,14 @@ namespace Catalog.Domain.Products;
 
 public sealed class Product : Entity<long>
 {
-    private Product(string name, string description, Money price, int quantity, long categoryId, DateTime createdOn)
+    private Product(string name, string description, Money price, int quantity, long categoryId, DateTime createdOnUtc)
     {
         Name = name;
         Description = description;
         Price = price;
         Quantity = quantity;
         CategoryId = categoryId;
-        CreatedOn = createdOn;
+        CreatedOnUtc = createdOnUtc;
     }
 
     private Product()
@@ -23,18 +23,18 @@ public sealed class Product : Entity<long>
     public string Description { get; private set; }
     public Money Price { get; private set; }
     public int Quantity { get; private set; }
-    public DateTime CreatedOn { get; private set; }
-    public DateTime? UpdatedOn { get; private set; }
+    public DateTime CreatedOnUtc { get; private set; }
+    public DateTime? UpdatedOnUtc { get; private set; }
 
-    public static Product Create(string name, string description, Money price, int quantity, long categoryId, DateTime createdOn)
+    public static Product Create(string name, string description, Money price, int quantity, long categoryId, DateTime createdOnUtc)
     {
-        var product = new Product(name, description, price, quantity, categoryId, createdOn);
+        var product = new Product(name, description, price, quantity, categoryId, createdOnUtc);
 
         return product;
     }
 
 
-    public static Product Update(Product product, string name, string description, Money price, int quantity, long categoryId, DateTime updatedOn)
+    public static Product Update(Product product, string name, string description, Money price, int quantity, long categoryId, DateTime updatedOnUtc)
     {
 
         product.Name = name;
@@ -42,7 +42,7 @@ public sealed class Product : Entity<long>
         product.Price = price;
         product.Quantity = quantity;
         product.CategoryId = categoryId;
-        product.UpdatedOn = updatedOn;
+        product.UpdatedOnUtc = updatedOnUtc;
 
         return product;
     }

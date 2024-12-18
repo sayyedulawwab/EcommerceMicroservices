@@ -30,7 +30,7 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
             _ when !string.IsNullOrEmpty(request.sortColumn) =>
                 query => query.OrderBy(GetSortExpression(request.sortColumn)),
 
-            _ => query => query.OrderBy(p => p.CreatedOn) // Default sorting by CreatedOn if sortColumn is null/empty
+            _ => query => query.OrderBy(p => p.CreatedOnUtc) // Default sorting by CreatedOn if sortColumn is null/empty
         };
 
         // Fetch products with applied filter, sorting, and pagination
@@ -52,8 +52,8 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
             PriceCurrency = product.Price.Currency.Code,
             Quantity = product.Quantity,
             CategoryId = product.CategoryId,
-            CreatedOn = product.CreatedOn,
-            UpdatedOn = product.UpdatedOn,
+            CreatedOnUtc = product.CreatedOnUtc,
+            UpdatedOnUtc = product.UpdatedOnUtc,
         }).ToList();
 
         var pagedProducts = PagedList<ProductResponse>.Create(productResponse, request.page, request.pageSize, totalRecords);
@@ -67,6 +67,6 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
         {
             "Name" => p => p.Name,
             "PriceAmount" => p => p.Price.Amount,
-            _ => p => p.CreatedOn, // Default to CreatedOn if invalid
+            _ => p => p.CreatedOnUtc, // Default to CreatedOnUtc if invalid
         };
 }

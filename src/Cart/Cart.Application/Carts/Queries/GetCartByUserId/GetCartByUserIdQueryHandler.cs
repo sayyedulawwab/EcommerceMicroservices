@@ -30,8 +30,8 @@ internal sealed class GetCartByUserIdQueryHandler : IQueryHandler<GetCartByUserI
                 ProductPriceAmount = ci.Price.Amount,
                 ProductPriceCurrency = ci.Price.Currency.Code,
                 Quantity = ci.Quantity,
-                CreatedOn = ci.CreatedOn,
-                UpdatedOn = ci.UpdatedOn
+                CreatedOn = ci.CreatedOnUtc,
+                UpdatedOn = ci.UpdatedOnUtc
             }).ToList(),
             TotalPriceAmount = cart.TotalPrice.Amount,
             TotalPriceCurrency = cart.TotalPrice.Currency.Code,

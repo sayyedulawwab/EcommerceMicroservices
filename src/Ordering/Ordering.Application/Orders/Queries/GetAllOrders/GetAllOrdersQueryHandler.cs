@@ -31,8 +31,8 @@ internal sealed class GetAllOrdersQueryHandler : IQueryHandler<GetAllOrdersQuery
                 ProductPriceAmount = oi.Price.Amount,
                 ProductPriceCurrency = oi.Price.Currency.Code,
                 Quantity = oi.Quantity,
-                CreatedOn = oi.CreatedOn,
-                UpdatedOn = oi.UpdatedOn
+                CreatedOn = oi.CreatedOnUtc,
+                UpdatedOn = oi.UpdatedOnUtc
             }).ToList(),
             TotalPriceAmount = order.TotalPrice.Amount,
             TotalPriceCurrency = order.TotalPrice.Currency.Code,

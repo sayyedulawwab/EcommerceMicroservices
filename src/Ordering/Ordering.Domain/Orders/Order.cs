@@ -3,12 +3,12 @@
 namespace Ordering.Domain.Orders;
 public sealed class Order : Entity<long>
 {
-    public Order(long userID, Money totalPrice, OrderStatus status, DateTime createdOn)
+    public Order(long userID, Money totalPrice, OrderStatus status, DateTime createdOnUtc)
     {
         UserId = userID;
         TotalPrice = totalPrice;
         Status = status;
-        CreatedOnUtc = createdOn;
+        CreatedOnUtc = createdOnUtc;
 
     }
 
@@ -32,10 +32,10 @@ public sealed class Order : Entity<long>
     }
 
 
-    public void AddOrderItem(long orderId, long productId, string productName, Money price, int quantity, DateTime createdOn)
+    public void AddOrderItem(long orderId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc)
     {
 
-        var orderItem = OrderItem.Create(orderId, productId, productName, price, quantity, createdOn);
+        var orderItem = OrderItem.Create(orderId, productId, productName, price, quantity, createdOnUtc);
 
         OrderItems.Add(orderItem);
 
@@ -54,13 +54,13 @@ public sealed class Order : Entity<long>
         }
     }
 
-    public static Order Update(Order order, long userID, Money totalPrice, OrderStatus status, DateTime updatedOn)
+    public static Order Update(Order order, long userID, Money totalPrice, OrderStatus status, DateTime updatedOnUtc)
     {
 
         order.UserId = userID;
         order.TotalPrice = totalPrice;
         order.Status = status;
-        order.UpdatedOnUtc = updatedOn;
+        order.UpdatedOnUtc = updatedOnUtc;
 
         return order;
     }

@@ -3,11 +3,11 @@
 namespace Cart.Domain.Carts;
 public sealed class Cart : Entity<Guid>
 {
-    public Cart(Guid id, long userId, Money totalPrice, DateTime createdOn) : base(id)
+    public Cart(Guid id, long userId, Money totalPrice, DateTime createdOnUtc) : base(id)
     {
         UserId = userId;
         TotalPrice = totalPrice;
-        CreatedOnUtc = createdOn;
+        CreatedOnUtc = createdOnUtc;
 
     }
 
@@ -29,9 +29,9 @@ public sealed class Cart : Entity<Guid>
         return cart;
     }
 
-    public void AddCartItem(Guid cartId, long productId, string productName, Money price, int quantity, DateTime createdOn)
+    public void AddCartItem(Guid cartId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc)
     {
-        var cartItem = CartItem.Create(cartId, productId, productName, price, quantity, createdOn);
+        var cartItem = CartItem.Create(cartId, productId, productName, price, quantity, createdOnUtc);
 
         CartItems.Add(cartItem);
 

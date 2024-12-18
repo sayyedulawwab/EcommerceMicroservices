@@ -29,7 +29,7 @@ internal sealed class ProductRepository : Repository<Product>, IProductRepositor
         }
         else
         {
-            query = query.OrderBy(p => p.CreatedOn); // Default sorting
+            query = query.OrderBy(p => p.CreatedOnUtc); // Default sorting
         }
 
         // Apply pagination
