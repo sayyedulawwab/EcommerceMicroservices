@@ -1,9 +1,8 @@
-﻿using Catalog.Application.Products.UpdateProductStock;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 
-namespace Catalog.Application.Products.Events;
+namespace Cart.Application.Carts.RemoveCart;
 internal class OrderStatusChangedToPaidIntegrationEventHandler : IHandleMessages<OrderStatusChangedToPaidIntegrationEvent>
 {
     private readonly ILogger<OrderStatusChangedToPaidIntegrationEvent> _logger;
@@ -19,13 +18,8 @@ internal class OrderStatusChangedToPaidIntegrationEventHandler : IHandleMessages
 
         _logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@orderId}", @event, @event.orderId);
 
-        foreach (var orderStockItem in @event.orderStockItems)
-        {
+        var command = new RemoveCartCommand(@event.userId);
 
-            var command = new UpdateProductStockCommand(orderStockItem.productId, orderStockItem.quantity);
-
-            await _sender.Send(command);
-        }
-
+        await _sender.Send(command);
     }
 }
