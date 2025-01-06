@@ -1,8 +1,8 @@
-using NLog.Web;
 using Ordering.API;
 using Ordering.API.Extensions;
 using Ordering.Application;
 using Ordering.Infrastructure;
+using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -12,10 +12,8 @@ builder.Services.AddApplication()
     .AddPresentation()
     .AddInfrastructure(builder.Configuration);
 
-// NLog: Setup NLog for Dependency injection
-builder.Logging.ClearProviders();
-builder.Host.UseNLog();
-
+builder.Host.UseSerilog((context, loggerConfig) =>
+            loggerConfig.ReadFrom.Configuration(context.Configuration));
 
 builder.Host.UseNServiceBus(context =>
 {

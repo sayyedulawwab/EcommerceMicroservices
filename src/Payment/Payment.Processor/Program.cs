@@ -1,15 +1,14 @@
-using NLog.Web;
 using Payment.Processor.Application.Abstractions;
 using Payment.Processor.Infrastructure;
+using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
-// NLog: Setup NLog for Dependency injection
-builder.Logging.ClearProviders();
-builder.Host.UseNLog();
+builder.Host.UseSerilog((context, loggerConfig) =>
+            loggerConfig.ReadFrom.Configuration(context.Configuration));
 
 builder.Host.UseNServiceBus(context =>
 {
