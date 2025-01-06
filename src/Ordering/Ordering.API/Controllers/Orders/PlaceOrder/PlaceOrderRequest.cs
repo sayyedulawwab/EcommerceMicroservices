@@ -1,4 +1,4 @@
 ﻿namespace Ordering.API.Controllers.Orders.PlaceOrder;
 
-public record OrderItemRequest(long productId, string productName, decimal priceAmount, string priceCurrency, int quantity);
-public record PlaceOrderRequest(List<OrderItemRequest> orderItems);
+public record OrderItemRequest(long ProductId, string ProductName, decimal PriceAmount, string PriceCurrency, int Quantity);
+public record PlaceOrderRequest(List<OrderItemRequest> OrderItems);

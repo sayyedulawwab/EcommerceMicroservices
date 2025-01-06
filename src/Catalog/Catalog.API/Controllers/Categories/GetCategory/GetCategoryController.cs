@@ -1,8 +1,10 @@
 ﻿using Catalog.API.Extensions;
+using Catalog.Application.Categories;
 using Catalog.Application.Categories.GetCategoryById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Categories.GetCategory;
 [Route("api/[controller]")]
@@ -22,7 +24,7 @@ public class GetCategoryController : ControllerBase
     {
         var query = new GetCategoryByIdQuery(id);
 
-        var result = await _sender.Send(query, cancellationToken);
+        Result<CategoryResponse> result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

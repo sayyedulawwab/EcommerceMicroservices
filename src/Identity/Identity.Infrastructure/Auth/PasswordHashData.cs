@@ -1,4 +1,6 @@
-﻿namespace Identity.Infrastructure.Auth;
+﻿using System.Globalization;
+
+namespace Identity.Infrastructure.Auth;
 public class PasswordHashData
 {
     public int Iterations { get; set; }
@@ -14,10 +16,10 @@ public class PasswordHashData
     public static PasswordHashData Parse(string storedPasswordHash)
     {
         // Split format Iterations:Salt:Hash and populate properties
-        var parts = storedPasswordHash.Split(':');
+        string[] parts = storedPasswordHash.Split(':');
         return new PasswordHashData
         {
-            Iterations = int.Parse(parts[0]),
+            Iterations = int.Parse(parts[0], CultureInfo.InvariantCulture),
             Salt = parts[1],
             Hash = parts[2]
         };

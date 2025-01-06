@@ -7,7 +7,7 @@ public static class ErrorMappingExtensions
 {
     public static IActionResult ToActionResult(this Error error)
     {
-        return error.code switch
+        return error.Code switch
         {
             HttpResponseStatusCodes.NotFound => new NotFoundObjectResult(error),
             HttpResponseStatusCodes.BadRequest => new BadRequestObjectResult(error),

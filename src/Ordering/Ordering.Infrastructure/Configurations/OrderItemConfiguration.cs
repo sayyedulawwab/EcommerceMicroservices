@@ -32,8 +32,6 @@ internal sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderIte
 
         builder.Property(orderItem => orderItem.CreatedOnUtc);
 
-        builder.Property(orderItem => orderItem.UpdatedOnUtc);
-
         //builder.HasOne<Order>()
         //    .WithMany(order => order.OrderItems)
         //    .HasForeignKey(orderItem => orderItem.OrderId);

@@ -30,4 +30,14 @@ public sealed class User : Entity<long>
 
         return user;
     }
+
+    public static User Update(User user, string firstName, string lastName, bool isAdmin, DateTime updatedOnUtc)
+    {
+        user.FirstName = firstName;
+        user.LastName = lastName;
+        user.IsAdmin = isAdmin;
+        user.UpdatedOnUtc = updatedOnUtc;
+
+        return user;
+    }
 }

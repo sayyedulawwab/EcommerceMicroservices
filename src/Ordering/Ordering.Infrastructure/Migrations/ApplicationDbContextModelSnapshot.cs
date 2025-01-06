@@ -71,9 +71,6 @@ namespace Ordering.Infrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("UpdatedOnUtc")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");

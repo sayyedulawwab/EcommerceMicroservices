@@ -3,6 +3,7 @@ using Catalog.Application.Products.EditProduct;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products.EditProduct;
 [Route("api/products")]
@@ -20,10 +21,10 @@ public class EditProductController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> EditProduct(long id, EditProductRequest request, CancellationToken cancellationToken)
     {
-        var command = new EditProductCommand(id, request.name, request.description, request.priceCurrency, request.priceAmount,
-            request.quantity, request.categoryId);
+        var command = new EditProductCommand(id, request.Name, request.Description, request.PriceCurrency, request.PriceAmount,
+            request.Quantity, request.CategoryId);
 
-        var result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

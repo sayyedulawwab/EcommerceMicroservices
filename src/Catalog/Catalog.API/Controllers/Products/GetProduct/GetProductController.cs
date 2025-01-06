@@ -1,7 +1,9 @@
 ﻿using Catalog.API.Extensions;
+using Catalog.Application.Products;
 using Catalog.Application.Products.GetProductById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products.GetProduct;
 [Route("api/products")]
@@ -20,7 +22,7 @@ public class GetProductController : ControllerBase
     {
         var query = new GetProductByIdQuery(id);
 
-        var result = await _sender.Send(query, cancellationToken);
+        Result<ProductResponse> result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

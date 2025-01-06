@@ -2,6 +2,8 @@
 using Cart.Application.Carts.GetCartByUser;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace Cart.API.Controllers.Carts.GetCartByUser;
@@ -18,12 +20,18 @@ public class GetCartByUserController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
     {
-        var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
-        var userId = long.Parse(userIdClaim.Value);
+        Claim? userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim is null)
+        {
+            return BadRequest("User not found");
+        }
+
+        long userId = long.Parse(userIdClaim.Value, CultureInfo.InvariantCulture);
 
         var query = new GetCartByUserQuery(userId);
 
-        var result = await _sender.Send(query, cancellationToken);
+        Result<CartResponse> result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

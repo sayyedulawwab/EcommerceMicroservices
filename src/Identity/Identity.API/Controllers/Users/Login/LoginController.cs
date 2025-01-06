@@ -2,6 +2,7 @@
 using Identity.Application.Users.Login;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Identity.API.Controllers.Users.Login;
 [Route("api/auth/login")]
@@ -20,9 +21,9 @@ public class LoginController : ControllerBase
         LoginRequest request,
         CancellationToken cancellationToken)
     {
-        var query = new LoginUserQuery(request.email, request.password);
+        var query = new LoginUserQuery(request.Email, request.Password);
 
-        var result = await _sender.Send(query, cancellationToken);
+        Result<AccessTokenResponse> result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

@@ -12,7 +12,7 @@ internal sealed class GetCartByUserQueryHandler : IQueryHandler<GetCartByUserQue
     }
     public async Task<Result<CartResponse>> Handle(GetCartByUserQuery request, CancellationToken cancellationToken)
     {
-        var cart = await _cartRepository.GetByUserId(request.userId);
+        Domain.Carts.Cart? cart = await _cartRepository.GetByUserId(request.UserId, cancellationToken);
 
         if (cart is null)
         {
@@ -30,13 +30,11 @@ internal sealed class GetCartByUserQueryHandler : IQueryHandler<GetCartByUserQue
                 ProductPriceAmount = ci.Price.Amount,
                 ProductPriceCurrency = ci.Price.Currency.Code,
                 Quantity = ci.Quantity,
-                CreatedOn = ci.CreatedOnUtc,
-                UpdatedOn = ci.UpdatedOnUtc
+                CreatedOnUtc = ci.CreatedOnUtc
             }).ToList(),
             TotalPriceAmount = cart.TotalPrice.Amount,
             TotalPriceCurrency = cart.TotalPrice.Currency.Code,
-            CreatedOnUtc = cart.CreatedOnUtc,
-            UpdatedOnUtc = cart.UpdatedOnUtc
+            CreatedOnUtc = cart.CreatedOnUtc
         };
 
         return cartResponse;

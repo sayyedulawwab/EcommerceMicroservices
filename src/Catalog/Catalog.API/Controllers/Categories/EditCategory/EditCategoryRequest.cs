@@ -1,3 +1,10 @@
-﻿namespace Catalog.API.Controllers.Categories.EditCategory;
+﻿using System.Text.Json.Serialization;
 
-public record EditCategoryRequest(string name, string description, long parentCategoryId);
+namespace Catalog.API.Controllers.Categories.EditCategory;
+
+public record EditCategoryRequest
+{
+    public string Name { get; init; }
+    public string Description { get; init; }
+    [JsonRequired] public long ParentCategoryId { get; init; }
+}

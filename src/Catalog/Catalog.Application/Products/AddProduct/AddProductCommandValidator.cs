@@ -5,24 +5,24 @@ public class AddProductCommandValidator : AbstractValidator<AddProductCommand>
 {
     public AddProductCommandValidator()
     {
-        RuleFor(x => x.name)
+        RuleFor(x => x.Name)
            .NotEmpty()
            .MaximumLength(200);
 
-        RuleFor(x => x.description)
+        RuleFor(x => x.Description)
             .MaximumLength(1000);
 
-        RuleFor(x => x.priceCurrency)
+        RuleFor(x => x.PriceCurrency)
             .NotEmpty()
             .Matches(@"^[A-Z]{3}$");
 
-        RuleFor(x => x.priceAmount)
+        RuleFor(x => x.PriceAmount)
             .GreaterThan(0);
 
-        RuleFor(x => x.quantity)
+        RuleFor(x => x.Quantity)
             .GreaterThanOrEqualTo(0);
 
-        RuleFor(x => x.categoryId)
+        RuleFor(x => x.CategoryId)
             .GreaterThan(0);
 
     }

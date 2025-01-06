@@ -3,44 +3,46 @@ using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 
 namespace Catalog.Application.Products.Events;
-internal class OrderPlacedIntegrationEventHandler : IHandleMessages<OrderPlacedIntegrationEvent>
+internal sealed class OrderPlacedIntegrationEventHandler : IHandleMessages<OrderPlacedIntegrationEvent>
 {
-    private readonly ILogger<OrderPlacedIntegrationEvent> _logger;
+    private readonly ILogger<OrderPlacedIntegrationEventHandler> _logger;
     private readonly IProductRepository _productRepository;
 
-    public OrderPlacedIntegrationEventHandler(ILogger<OrderPlacedIntegrationEvent> logger, IProductRepository productRepository)
+    public OrderPlacedIntegrationEventHandler(ILogger<OrderPlacedIntegrationEventHandler> logger, IProductRepository productRepository)
     {
         _logger = logger;
         _productRepository = productRepository;
     }
     public async Task Handle(OrderPlacedIntegrationEvent @event, IMessageHandlerContext context)
     {
-
-        _logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@orderId}", @event, @event.orderId);
+        _logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", @event, @event.OrderId);
 
         // check stock
-
         var rejectedOrderStockItems = new List<OrderStockItem>();
 
-        foreach (var orderStockItem in @event.orderStockItems)
+        foreach (OrderStockItem orderStockItem in @event.OrderStockItems)
         {
-            var product = await _productRepository.GetByIdAsync(orderStockItem.productId);
+            Product? product = await _productRepository.GetByIdAsync(orderStockItem.ProductId, context.CancellationToken);
 
-            var hasStock = product.Quantity >= orderStockItem.quantity;
+            if (product is null)
+            {
+                _logger.LogWarning("Product with Id: {ProductId} not found", orderStockItem.ProductId);
+                rejectedOrderStockItems.Add(orderStockItem);
+                continue;
+            }
+
+            bool hasStock = product.Quantity >= orderStockItem.Quantity;
 
             if (!hasStock)
             {
                 rejectedOrderStockItems.Add(orderStockItem);
             }
-
         }
 
-        var integrationEvent = rejectedOrderStockItems.Any() ? (IEvent)new OrderItemsStockRejectedIntegrationEvent(@event.orderId)
-                                                              : new OrderItemsStockConfirmedIntegrationEvent(@event.orderId);
-
+        IEvent integrationEvent = rejectedOrderStockItems.Any() ? new OrderItemsStockRejectedIntegrationEvent(@event.OrderId)
+                                                                : new OrderItemsStockConfirmedIntegrationEvent(@event.OrderId);
 
         // publish stock available event
-
         await context.Publish(integrationEvent);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -40,8 +41,7 @@ namespace Ordering.Infrastructure.Migrations
                     Price_Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Price_Currency = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "BDT"),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    CreatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {

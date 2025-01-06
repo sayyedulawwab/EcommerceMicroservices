@@ -9,7 +9,7 @@ internal sealed class ProductRepository : Repository<Product>, IProductRepositor
     {
     }
 
-    public async Task<(IReadOnlyList<Product?>, int TotalRecords)> FindAsync(Expression<Func<Product, bool>>? predicate = null, Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = null, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<Product>, int TotalRecords)> FindAsync(Expression<Func<Product, bool>>? predicate = null, Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = null, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
         IQueryable<Product> query = DbContext.Set<Product>();
 
@@ -20,7 +20,7 @@ internal sealed class ProductRepository : Repository<Product>, IProductRepositor
         }
 
         // Calculate total count without pagination
-        var totalCount = await query.CountAsync(cancellationToken);
+        int totalCount = await query.CountAsync(cancellationToken);
 
         // Apply sorting if provided
         if (orderBy != null)
@@ -33,7 +33,7 @@ internal sealed class ProductRepository : Repository<Product>, IProductRepositor
         }
 
         // Apply pagination
-        var pagedProducts = await query
+        List<Product> pagedProducts = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);

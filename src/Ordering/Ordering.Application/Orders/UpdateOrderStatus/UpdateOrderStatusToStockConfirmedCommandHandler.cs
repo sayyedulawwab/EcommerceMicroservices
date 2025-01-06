@@ -23,7 +23,7 @@ internal sealed class UpdateOrderStatusToStockConfirmedCommandHandler : ICommand
     public async Task<Result<long>> Handle(UpdateOrderStatusToStockConfirmedCommand request, CancellationToken cancellationToken)
     {
 
-        var order = await _orderRepository.GetByIdAsync(request.orderId);
+        Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
 
         if (order is null)
         {
@@ -34,7 +34,7 @@ internal sealed class UpdateOrderStatusToStockConfirmedCommandHandler : ICommand
 
         _orderRepository.Update(updatedOrder);
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 
         var integrationEvent = new OrderStatusChangedToStockConfirmedIntegrationEvent(order.Id);

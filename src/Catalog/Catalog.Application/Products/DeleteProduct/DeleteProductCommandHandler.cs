@@ -16,7 +16,7 @@ internal sealed class DeleteProductCommandHandler : ICommandHandler<DeleteProduc
 
     public async Task<Result<long>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(request.id);
+        Product? product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (product is null)
         {
@@ -25,7 +25,7 @@ internal sealed class DeleteProductCommandHandler : ICommandHandler<DeleteProduc
 
         _productRepository.Remove(product);
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return product.Id;
 

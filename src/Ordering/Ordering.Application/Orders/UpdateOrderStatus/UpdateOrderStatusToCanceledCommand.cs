@@ -2,4 +2,4 @@
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
 
-public record UpdateOrderStatusToCanceledCommand(long orderId) : ICommand<long>;
+public record UpdateOrderStatusToCanceledCommand(long OrderId) : ICommand<long>;

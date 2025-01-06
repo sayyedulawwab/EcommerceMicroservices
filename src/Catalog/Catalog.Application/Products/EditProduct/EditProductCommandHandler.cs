@@ -19,18 +19,25 @@ internal sealed class EditProductCommandHandler : ICommandHandler<EditProductCom
 
     public async Task<Result<long>> Handle(EditProductCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(request.id);
+        Product? product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (product is null)
         {
             return Result.Failure<long>(ProductErrors.NotFound());
         }
 
-        product = Product.Update(product, request.name, request.description, new Money(request.priceAmount, Currency.Create(request.priceCurrency)), request.quantity, request.categoryId, _dateTimeProvider.UtcNow);
+        product = Product.Update(
+            product,
+            request.Name,
+            request.Description,
+            new Money(request.PriceAmount, Currency.Create(request.PriceCurrency)),
+            request.Quantity,
+            request.CategoryId,
+            _dateTimeProvider.UtcNow);
 
         _productRepository.Update(product);
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return product.Id;
 

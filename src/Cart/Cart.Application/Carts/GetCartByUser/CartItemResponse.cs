@@ -7,9 +7,6 @@ public sealed class CartItemResponse
     public decimal ProductPriceAmount { get; init; }
     public string ProductPriceCurrency { get; init; }
     public int Quantity { get; init; }
-    public DateTime CreatedOn { get; init; }
-    public DateTime? UpdatedOn { get; init; }
-
-
+    public DateTime CreatedOnUtc { get; init; }
 }
 

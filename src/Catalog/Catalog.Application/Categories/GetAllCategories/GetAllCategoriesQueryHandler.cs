@@ -13,12 +13,7 @@ internal sealed class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategor
     public async Task<Result<IReadOnlyList<CategoryResponse>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
     {
 
-        var categories = await _productCategoryRepository.GetAllAsync();
-
-        if (categories is null)
-        {
-            return Result.Failure<IReadOnlyList<CategoryResponse>>(CategoryErrors.NoCategories);
-        }
+        IReadOnlyList<Category> categories = await _productCategoryRepository.GetAllAsync(cancellationToken);
 
         var categoriesResponse = categories.Select(cat => new CategoryResponse()
         {

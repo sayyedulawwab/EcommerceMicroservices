@@ -17,22 +17,19 @@ internal sealed class UpdateCartCommandHandler : ICommandHandler<UpdateCartComma
 
     public async Task<Result<Guid>> Handle(UpdateCartCommand request, CancellationToken cancellationToken)
     {
+        var cart = Domain.Carts.Cart.Create(request.UserId, _dateTimeProvider.UtcNow);
 
-        var newCartItems = new List<CartItem>();
-
-        var cart = Domain.Carts.Cart.Create(request.userId, _dateTimeProvider.UtcNow);
-
-        foreach (var item in request.cartItems)
+        foreach (CartItemCommand item in request.CartItems)
         {
             cart.AddCartItem(cart.Id,
-                item.productId,
-                item.productName,
-                new Money(item.priceAmount, Currency.Create(item.priceCurrency)),
-                item.quantity,
+                item.ProductId,
+                item.ProductName,
+                new Money(item.PriceAmount, Currency.Create(item.PriceCurrency)),
+                item.Quantity,
                 _dateTimeProvider.UtcNow);
         }
 
-        await _cartRepository.RemoveAsync(request.userId);
+        await _cartRepository.RemoveAsync(request.UserId);
 
         await _cartRepository.AddAsync(cart);
 

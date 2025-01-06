@@ -1,2 +1,2 @@
 ﻿namespace Cart.Application.Carts.RemoveCart;
-public record RemoveCartCommand(long userId) : Abstractions.Messaging.ICommand;
+public record RemoveCartCommand(long UserId) : Abstractions.Messaging.ICommand;

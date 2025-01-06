@@ -13,7 +13,7 @@ internal abstract class Repository<TEntity>
         DbContext = dbContext;
     }
 
-    public virtual async Task<IReadOnlyList<TEntity?>> GetAllAsync(CancellationToken cancellationToken = default)
+    public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await DbContext
             .Set<TEntity>().ToListAsync(cancellationToken);

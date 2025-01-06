@@ -10,8 +10,8 @@ public static class DependencyInjection
         services.AddMediatR(configuration =>
         {
             configuration.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
-            configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));
-            configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            configuration.AddOpenBehavior(typeof(RequestLoggingPipelineBehavior<,>));
+            configuration.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
         });
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);

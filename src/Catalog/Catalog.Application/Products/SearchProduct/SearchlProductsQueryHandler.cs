@@ -1,6 +1,7 @@
 ﻿using Catalog.Application.Abstractions.Messaging;
 using Catalog.Domain.Products;
 using SharedKernel.Domain;
+using System.Globalization;
 using System.Linq.Expressions;
 
 namespace Catalog.Application.Products.SearchProduct;
@@ -16,26 +17,26 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
 
         // Build filter expression dynamically
         Expression<Func<Product, bool>>? filter = product =>
-            (!request.categoryId.HasValue || product.CategoryId == request.categoryId) &&
-            (!request.minPrice.HasValue || product.Price.Amount >= request.minPrice) &&
-            (!request.maxPrice.HasValue || product.Price.Amount <= request.maxPrice) &&
-            (string.IsNullOrEmpty(request.keyword) || request.keyword == null);
+            (!request.CategoryId.HasValue || product.CategoryId == request.CategoryId) &&
+            (!request.MinPrice.HasValue || product.Price.Amount >= request.MinPrice) &&
+            (!request.MaxPrice.HasValue || product.Price.Amount <= request.MaxPrice) &&
+            (string.IsNullOrEmpty(request.Keyword) || request.Keyword == null);
 
         // sorting
-        Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = request.sortOrder?.ToLower() switch
+        Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = request.SortOrder?.ToUpperInvariant() switch
         {
-            "desc" when !string.IsNullOrEmpty(request.sortColumn) =>
-                query => query.OrderByDescending(GetSortExpression(request.sortColumn)),
+            "DESC" when !string.IsNullOrEmpty(request.SortColumn) =>
+                query => query.OrderByDescending(GetSortExpression(request.SortColumn)),
 
-            _ when !string.IsNullOrEmpty(request.sortColumn) =>
-                query => query.OrderBy(GetSortExpression(request.sortColumn)),
+            _ when !string.IsNullOrEmpty(request.SortColumn) =>
+                query => query.OrderBy(GetSortExpression(request.SortColumn)),
 
             _ => query => query.OrderBy(p => p.CreatedOnUtc) // Default sorting by CreatedOn if sortColumn is null/empty
         };
 
         // Fetch products with applied filter, sorting, and pagination
-        var (products, totalRecords) = await _productRepository.FindAsync(
-            filter, orderBy, request.page, request.pageSize, cancellationToken);
+        (IReadOnlyList<Product> products, int totalRecords) = await _productRepository.FindAsync(
+            filter, orderBy, request.Page, request.PageSize, cancellationToken);
 
 
         if (products is null)
@@ -56,7 +57,7 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
             UpdatedOnUtc = product.UpdatedOnUtc,
         }).ToList();
 
-        var pagedProducts = PagedList<ProductResponse>.Create(productResponse, request.page, request.pageSize, totalRecords);
+        var pagedProducts = PagedList<ProductResponse>.Create(productResponse, request.Page, request.PageSize, totalRecords);
 
         return pagedProducts;
     }

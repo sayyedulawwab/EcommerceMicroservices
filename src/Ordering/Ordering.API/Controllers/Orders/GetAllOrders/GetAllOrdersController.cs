@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.API.Extensions;
 using Ordering.Application.Orders.GetAllOrders;
+using SharedKernel.Domain;
 
 namespace Ordering.API.Controllers.Orders.GetAllOrders;
 [Route("api/orders")]
@@ -22,7 +23,7 @@ public class GetAllOrdersController : ControllerBase
     {
         var query = new GetAllOrdersQuery();
 
-        var result = await _sender.Send(query, cancellationToken);
+        Result<IReadOnlyList<OrderResponse>> result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

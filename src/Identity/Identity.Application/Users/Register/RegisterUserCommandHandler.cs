@@ -22,27 +22,27 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
     }
     public async Task<Result<long>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        var existingUserByEmail = await _userRepository.GetByEmail(request.email);
+        User? existingUserByEmail = await _userRepository.GetByEmail(request.Email);
 
         if (existingUserByEmail is not null)
         {
             return Result.Failure<long>(UserErrors.AlreadyExists);
         }
 
-        var passwordSalt = _passwordHasher.GenerateSalt();
-        var hashedPassword = _passwordHasher.Hash(request.password, passwordSalt);
+        string passwordSalt = _passwordHasher.GenerateSalt();
+        string hashedPassword = _passwordHasher.Hash(request.Password, passwordSalt);
 
         var user = User.Create(
-            request.firstName,
-            request.lastName,
-            request.email,
+            request.FirstName,
+            request.LastName,
+            request.Email,
             hashedPassword,
             false,
             _dateTimeProvider.UtcNow);
 
         _userRepository.Add(user);
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return user.Id;
     }

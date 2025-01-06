@@ -2,4 +2,4 @@
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
 
-public record UpdateOrderStatusToStockConfirmedCommand(long orderId) : ICommand<long>;
+public record UpdateOrderStatusToStockConfirmedCommand(long OrderId) : ICommand<long>;

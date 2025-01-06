@@ -16,7 +16,7 @@ public static class DependencyInjection
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
-        AddAuthentication(services, configuration);
+        AddAuthentication(services);
 
         services.AddStackExchangeRedisCache(redisOptions =>
         {
@@ -32,7 +32,7 @@ public static class DependencyInjection
         return services;
     }
 
-    private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
+    private static void AddAuthentication(IServiceCollection services)
     {
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

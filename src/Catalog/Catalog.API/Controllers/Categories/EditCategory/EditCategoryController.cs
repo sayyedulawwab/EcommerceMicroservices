@@ -3,6 +3,7 @@ using Catalog.Application.Categories.EditCategory;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Categories.EditCategory;
 [Route("api/categories")]
@@ -19,9 +20,9 @@ public class EditCategoryController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> EditCategory(long id, EditCategoryRequest request, CancellationToken cancellationToken)
     {
-        var command = new EditCategoryCommand(id, request.name, request.description, request.parentCategoryId);
+        var command = new EditCategoryCommand(id, request.Name, request.Description, request.ParentCategoryId);
 
-        var result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

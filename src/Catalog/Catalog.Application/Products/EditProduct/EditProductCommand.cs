@@ -1,4 +1,4 @@
 ﻿using Catalog.Application.Abstractions.Messaging;
 
 namespace Catalog.Application.Products.EditProduct;
-public record EditProductCommand(long id, string name, string description, string priceCurrency, decimal priceAmount, int quantity, long categoryId) : ICommand<long>;
+public record EditProductCommand(long Id, string Name, string Description, string PriceCurrency, decimal PriceAmount, int Quantity, long CategoryId) : ICommand<long>;

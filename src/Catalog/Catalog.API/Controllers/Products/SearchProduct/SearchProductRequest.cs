@@ -1,10 +1,10 @@
 ﻿namespace Catalog.API.Controllers.Products.SearchProduct;
 
-public record SearchProductRequest(long? categoryId,
-                                    decimal? minPrice,
-                                    decimal? maxPrice,
-                                    string keyword,
-                                    string? sortColumn,
-                                    string? sortOrder,
-                                    int page = 1,
-                                    int pageSize = 10);
+public record SearchProductRequest(long? CategoryId,
+                                    decimal? MinPrice,
+                                    decimal? MaxPrice,
+                                    string? Keyword,
+                                    string? SortColumn,
+                                    string? SortOrder,
+                                    int Page = 1,
+                                    int PageSize = 10);

@@ -12,8 +12,8 @@ using Ordering.Infrastructure;
 namespace Ordering.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241219133031_UpdateDate")]
-    partial class UpdateDate
+    [Migration("20250106132506_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -73,9 +73,6 @@ namespace Ordering.Infrastructure.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedOnUtc")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

@@ -22,14 +22,14 @@ internal sealed class LoginUserQueryHandler : IQueryHandler<LoginUserQuery, Acce
         CancellationToken cancellationToken)
     {
 
-        var user = await _userRepository.GetByEmail(request.email);
+        User? user = await _userRepository.GetByEmail(request.Email);
 
         if (user is null)
         {
             return Result.Failure<AccessTokenResponse>(UserErrors.NotFound);
         }
 
-        var isPasswordValid = _passwordHasher.Verify(request.password, user.PasswordHash);
+        bool isPasswordValid = _passwordHasher.Verify(request.Password, user.PasswordHash);
 
         if (!isPasswordValid)
         {
@@ -37,8 +37,8 @@ internal sealed class LoginUserQueryHandler : IQueryHandler<LoginUserQuery, Acce
         }
 
 
-        var result = _jwtService.GetAccessToken(
-            request.email,
+        Result<string> result = _jwtService.GetAccessToken(
+            request.Email,
             user.Id,
             cancellationToken);
 

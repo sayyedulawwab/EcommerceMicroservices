@@ -3,6 +3,7 @@ using Catalog.Application.Categories.AddCategory;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Categories.AddCategory;
 [Route("api/categories")]
@@ -19,15 +20,15 @@ public class AddCategoryController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddCategory(AddCategoryRequest request, CancellationToken cancellationToken)
     {
-        var command = new AddCategoryCommand(request.name, request.description, request.parentCategoryId);
+        var command = new AddCategoryCommand(request.Name, request.Description, request.ParentCategoryId);
 
-        var result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
             return result.Error.ToActionResult();
         }
 
-        return CreatedAtAction(nameof(GetCategory.GetCategoryController.GetCategory), new { id = result.Value }, result.Value);
+        return Created();
     }
 }

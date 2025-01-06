@@ -15,8 +15,8 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+      - ./.containers/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./.containers/rabbitmq/log/:/var/log/rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -35,48 +35,48 @@ services:
     ports:
       - 1433:1433
     volumes:
-      - ./data:/var/opt/mssql/data
-      - ./log:/var/opt/mssql/log
-      - ./secrets:/var/opt/mssql/secrets
+      - ./.containers/data:/var/opt/mssql/data
+      - ./.containers/log:/var/opt/mssql/log
+      - ./.containers/secrets:/var/opt/mssql/secrets
     networks:
       - app-network
   
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.16.0
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    ports:
-      - 9200:9200
-      - 9300:9300
-    networks:
-      - app-network
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.16.0
+  #   container_name: elasticsearch
+  #   environment:
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #   ports:
+  #     - 9200:9200
+  #     - 9300:9300
+  #   networks:
+  #     - app-network
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.16.0
-    container_name: kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - 5601:5601
-    depends_on:
-      - elasticsearch
-    networks:
-      - app-network
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:8.16.0
+  #   container_name: kibana
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  #   ports:
+  #     - 5601:5601
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - app-network
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.16.0
-    container_name: logstash
-    ports:
-      - 5044:5044
-    volumes:
-      - ./logstash/config:/usr/share/logstash/config
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
-    depends_on:
-      - elasticsearch
-    networks:
-      - app-network
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:8.16.0
+  #   container_name: logstash
+  #   ports:
+  #     - 5044:5044
+  #   volumes:
+  #     - ./.containers/logstash/config:/usr/share/logstash/config
+  #     - ./.containers/logstash/pipeline:/usr/share/logstash/pipeline
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - app-network
 
   identity-api:
     image: ${DOCKER_REGISTRY-}identityapi
@@ -92,8 +92,8 @@ services:
       - rabbitmq-broker
     networks:
       - app-network
-    environment:
-      LOGSTASH_URL: logstash:5044 # Add logstash endpoint for logging
+    # environment:
+    #   LOGSTASH_URL: logstash:5044 
 
   catalog-api:
     image: ${DOCKER_REGISTRY-}catalogapi
@@ -109,8 +109,8 @@ services:
       - rabbitmq-broker
     networks:
       - app-network
-    environment:
-      LOGSTASH_URL: logstash:5044 # Add logstash endpoint for logging
+    # environment:
+    #   LOGSTASH_URL: logstash:5044
 
   cart-api:
     image: ${DOCKER_REGISTRY-}cartapi
@@ -127,8 +127,8 @@ services:
       - redis-caching
     networks:
       - app-network
-    environment:
-      LOGSTASH_URL: logstash:5044 # Add logstash endpoint for logging
+    # environment:
+    #   LOGSTASH_URL: logstash:5044
 
   ordering-api:
     image: ${DOCKER_REGISTRY-}orderingapi
@@ -144,8 +144,8 @@ services:
       - rabbitmq-broker
     networks:
       - app-network
-    environment:
-      LOGSTASH_URL: logstash:5044 # Add logstash endpoint for logging
+    # environment:
+    #   LOGSTASH_URL: logstash:5044 
 
   payment-processor:
     image: ${DOCKER_REGISTRY-}paymentprocessor
@@ -161,8 +161,8 @@ services:
       - rabbitmq-broker
     networks:
       - app-network
-    environment:
-      LOGSTASH_URL: logstash:5044 # Add logstash endpoint for logging
+    # environment:
+    #   LOGSTASH_URL: logstash:5044 
 
   api-gateway:
     image: ${DOCKER_REGISTRY-}apigateway
@@ -181,8 +181,8 @@ services:
       - payment-processor
     networks:
       - app-network
-    environment:
-      LOGSTASH_URL: logstash:5044 # Add logstash endpoint for logging
+    # environment:
+    #   LOGSTASH_URL: logstash:5044
 
 networks:
   app-network:

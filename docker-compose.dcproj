@@ -15,7 +15,5 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
-    <None Include="logstash\config\logstash.yml" />
-    <None Include="logstash\pipeline\logstash.conf" />
   </ItemGroup>
 </Project>

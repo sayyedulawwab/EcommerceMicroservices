@@ -1,4 +1,19 @@
-﻿namespace Cart.API.Controllers.Carts.UpdateCart;
+﻿using System.Text.Json.Serialization;
 
-public record CartItemRequest(long productId, string productName, decimal priceAmount, string priceCurrency, int quantity);
-public record UpdateCartRequest(long userId, List<CartItemRequest> cartItems);
+namespace Cart.API.Controllers.Carts.UpdateCart;
+
+public record CartItemRequest
+{
+    [JsonRequired] public long ProductId { get; init; }
+    public string ProductName { get; init; }
+    [JsonRequired] public decimal PriceAmount { get; init; }
+    public string PriceCurrency { get; init; }
+    [JsonRequired] public int Quantity { get; init; }
+
+}
+
+public record UpdateCartRequest
+{
+    [JsonRequired] public long UserId { get; init; }
+    public List<CartItemRequest> CartItems { get; init; }
+}

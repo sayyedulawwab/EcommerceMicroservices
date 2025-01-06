@@ -1,6 +1,8 @@
-﻿using Catalog.Application.Products.SearchProduct;
+﻿using Catalog.Application.Products;
+using Catalog.Application.Products.SearchProduct;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products.SearchProduct;
 [Route("api/products")]
@@ -17,11 +19,11 @@ public class SearchProductController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Search([FromQuery] SearchProductRequest request, CancellationToken cancellationToken)
     {
-        var query = new SearchProductsQuery(request.categoryId, request.minPrice,
-            request.maxPrice, request.keyword, request.page, request.pageSize, request.sortColumn,
-            request.sortOrder);
+        var query = new SearchProductsQuery(request.CategoryId, request.MinPrice,
+            request.MaxPrice, request.Keyword, request.Page, request.PageSize, request.SortColumn,
+            request.SortOrder);
 
-        var result = await _sender.Send(query, cancellationToken);
+        Result<PagedList<ProductResponse>> result = await _sender.Send(query, cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value) : NotFound();
     }

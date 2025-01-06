@@ -3,7 +3,7 @@ using Cart.Application;
 using Cart.Infrastructure;
 using NLog.Web;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
@@ -23,7 +23,7 @@ builder.Host.UseNServiceBus(context =>
 {
     var endpointConfiguration = new EndpointConfiguration("Cart");
 
-    var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+    TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
     transport.UseConventionalRoutingTopology(QueueType.Quorum);
     transport.ConnectionString("host=rabbitmq-broker;username=guest;password=guest");
     endpointConfiguration.UseSerialization<SystemJsonSerializer>();
@@ -35,7 +35,7 @@ builder.Host.UseNServiceBus(context =>
     return endpointConfiguration;
 });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -52,4 +52,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

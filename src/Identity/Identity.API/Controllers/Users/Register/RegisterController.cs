@@ -2,6 +2,7 @@
 using Identity.Application.Users.Register;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Identity.API.Controllers.Users.Register;
 [Route("api/auth/register")]
@@ -21,12 +22,12 @@ public class RegisterController : ControllerBase
         CancellationToken cancellationToken)
     {
         var command = new RegisterUserCommand(
-            request.firstName,
-            request.lastName,
-            request.email,
-            request.password);
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.Password);
 
-        var result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

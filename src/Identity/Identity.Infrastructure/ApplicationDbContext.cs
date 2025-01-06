@@ -25,7 +25,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     {
         try
         {
-            var result = await base.SaveChangesAsync(cancellationToken);
+            int result = await base.SaveChangesAsync(cancellationToken);
 
             await PublishDomainEventsAsync();
 
@@ -44,7 +44,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
             .Select(entry => entry.Entity)
             .SelectMany(entity =>
             {
-                var domainEvents = entity.GetDomainEvents();
+                IReadOnlyList<IDomainEvent> domainEvents = entity.GetDomainEvents();
 
                 entity.ClearDomainEvents();
 
@@ -52,7 +52,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
             })
             .ToList();
 
-        foreach (var domainEvent in domainEvents)
+        foreach (IDomainEvent? domainEvent in domainEvents)
         {
             await _publisher.Publish(domainEvent);
         }

@@ -1,4 +1,4 @@
 ﻿using Catalog.Application.Abstractions.Messaging;
 
 namespace Catalog.Application.Categories.AddCategory;
-public record AddCategoryCommand(string name, string description, long parentCategoryId) : ICommand<long>;
+public record AddCategoryCommand(string Name, string Description, long ParentCategoryId) : ICommand<long>;

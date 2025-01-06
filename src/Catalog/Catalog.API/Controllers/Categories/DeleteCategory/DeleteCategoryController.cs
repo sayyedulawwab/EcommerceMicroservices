@@ -3,6 +3,7 @@ using Catalog.Application.Categories.DeleteCategory;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Categories.DeleteCategory;
 [Route("api/categories")]
@@ -21,7 +22,7 @@ public class DeleteCategoryController : ControllerBase
     {
         var command = new DeleteCategoryCommand(id);
 
-        var result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

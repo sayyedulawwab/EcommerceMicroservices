@@ -1,10 +1,10 @@
 ﻿namespace SharedKernel.Domain;
 
-public record Error(string name, string description, HttpResponseStatusCodes code)
+public record Error(string Name, string Description, HttpResponseStatusCodes Code)
 {
-    public static Error None = new(string.Empty, string.Empty, HttpResponseStatusCodes.InternalServerError);
+    public static readonly Error None = new(string.Empty, string.Empty, HttpResponseStatusCodes.InternalServerError);
 
-    public static Error NullValue = new("Error.NullValue", "Null value was provided", HttpResponseStatusCodes.BadRequest);
+    public static readonly Error NullValue = new("Error.NullValue", "Null value was provided", HttpResponseStatusCodes.BadRequest);
 
     public static Error InternalServerError(string name, string description) =>
        new(name, description, HttpResponseStatusCodes.InternalServerError);

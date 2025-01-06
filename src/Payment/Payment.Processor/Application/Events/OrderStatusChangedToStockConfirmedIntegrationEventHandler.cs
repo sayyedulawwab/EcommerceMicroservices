@@ -2,12 +2,12 @@
 using SharedKernel.Events;
 
 namespace Payment.Processor.Application.Events;
-internal class OrderStatusChangedToStockConfirmedIntegrationEventHandler : IHandleMessages<OrderStatusChangedToStockConfirmedIntegrationEvent>
+internal sealed class OrderStatusChangedToStockConfirmedIntegrationEventHandler : IHandleMessages<OrderStatusChangedToStockConfirmedIntegrationEvent>
 {
-    private readonly ILogger<OrderStatusChangedToStockConfirmedIntegrationEvent> _logger;
+    private readonly ILogger<OrderStatusChangedToStockConfirmedIntegrationEventHandler> _logger;
     private readonly IPaymentService _paymentService;
 
-    public OrderStatusChangedToStockConfirmedIntegrationEventHandler(ILogger<OrderStatusChangedToStockConfirmedIntegrationEvent> logger, IPaymentService paymentService)
+    public OrderStatusChangedToStockConfirmedIntegrationEventHandler(ILogger<OrderStatusChangedToStockConfirmedIntegrationEventHandler> logger, IPaymentService paymentService)
     {
         _logger = logger;
         _paymentService = paymentService;
@@ -15,12 +15,12 @@ internal class OrderStatusChangedToStockConfirmedIntegrationEventHandler : IHand
     public async Task Handle(OrderStatusChangedToStockConfirmedIntegrationEvent @event, IMessageHandlerContext context)
     {
 
-        _logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@orderId}", @event, @event.orderId);
+        _logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", @event, @event.OrderId);
 
-        var isPaymentSuccess = await _paymentService.ProcessPaymentAsync();
+        bool isPaymentSuccess = await _paymentService.ProcessPaymentAsync();
 
-        var integrationEvent = isPaymentSuccess ? (IEvent)new OrderPaymentSucceededIntegrationEvent(@event.orderId)
-                                                : new OrderPaymentFailedIntegrationEvent(@event.orderId);
+        IEvent integrationEvent = isPaymentSuccess ? new OrderPaymentSucceededIntegrationEvent(@event.OrderId)
+                                                : new OrderPaymentFailedIntegrationEvent(@event.OrderId);
 
         await context.Publish(integrationEvent);
     }

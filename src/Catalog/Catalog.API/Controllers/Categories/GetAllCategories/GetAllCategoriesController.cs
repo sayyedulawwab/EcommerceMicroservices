@@ -1,8 +1,10 @@
 ﻿using Catalog.API.Extensions;
+using Catalog.Application.Categories;
 using Catalog.Application.Categories.GetAllCategories;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Categories.GetAllCategories;
 [Route("api/categories")]
@@ -21,7 +23,7 @@ public class GetAllCategoriesController : ControllerBase
     {
         var query = new GetAllCategoriesQuery();
 
-        var result = await _sender.Send(query, cancellationToken);
+        Result<IReadOnlyList<CategoryResponse>> result = await _sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

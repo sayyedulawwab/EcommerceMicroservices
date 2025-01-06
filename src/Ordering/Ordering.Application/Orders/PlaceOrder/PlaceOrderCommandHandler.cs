@@ -23,16 +23,16 @@ internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderComma
     public async Task<Result<long>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
     {
 
-        var order = Order.Create(request.userId, OrderStatus.Placed, _dateTimeProvider.UtcNow);
+        var order = Order.Create(request.UserId, OrderStatus.Placed, _dateTimeProvider.UtcNow);
 
 
-        foreach (var item in request.orderItems)
+        foreach (OrderItemCommand item in request.OrderItems)
         {
             order.AddOrderItem(order.Id,
-                item.productId,
-                item.productName,
-                new Money(item.priceAmount, Currency.Create(item.priceCurrency)),
-                item.quantity,
+                item.ProductId,
+                item.ProductName,
+                new Money(item.PriceAmount, Currency.Create(item.PriceCurrency)),
+                item.Quantity,
                 _dateTimeProvider.UtcNow);
         }
 
@@ -42,11 +42,11 @@ internal sealed class PlaceOrderCommandHandler : ICommandHandler<PlaceOrderComma
 
         // publish event
 
-        var orderStockItems = request.orderItems.Select(orderItem => new OrderStockItem(orderItem.productId,
-                                                                                            orderItem.productName,
-                                                                                            orderItem.priceAmount,
-                                                                                            orderItem.priceCurrency,
-                                                                                            orderItem.quantity)
+        var orderStockItems = request.OrderItems.Select(orderItem => new OrderStockItem(orderItem.ProductId,
+                                                                                            orderItem.ProductName,
+                                                                                            orderItem.PriceAmount,
+                                                                                            orderItem.PriceCurrency,
+                                                                                            orderItem.Quantity)
                                                        ).ToList();
 
 

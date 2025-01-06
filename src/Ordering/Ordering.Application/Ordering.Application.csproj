@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="3.0.0" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="System.Formats.Asn1" Version="9.0.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>

@@ -26,7 +26,7 @@ public class ExceptionHandlingMiddleware
         {
             _logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
 
-            var exceptionDetails = GetExceptionDetails(exception);
+            ExceptionDetails exceptionDetails = GetExceptionDetails(exception);
 
             var problemDetails = new ProblemDetails
             {
@@ -66,7 +66,7 @@ public class ExceptionHandlingMiddleware
         };
     }
 
-    internal record ExceptionDetails(
+    internal sealed record ExceptionDetails(
         int Status,
         string Type,
         string Title,

@@ -19,11 +19,11 @@ internal sealed class AddCategoryCommandHandler : ICommandHandler<AddCategoryCom
 
     public async Task<Result<long>> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = Category.Create(request.name, request.description, request.parentCategoryId, _dateTimeProvider.UtcNow);
+        var category = Category.Create(request.Name, request.Description, request.ParentCategoryId, _dateTimeProvider.UtcNow);
 
         _categoryRepository.Add(category);
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return category.Id;
 

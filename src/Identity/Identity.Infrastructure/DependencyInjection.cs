@@ -18,19 +18,16 @@ public static class DependencyInjection
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
         AddPersistence(services, configuration);
-        AddAuthentication(services, configuration);
+        AddAuthentication(services);
 
         return services;
     }
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("EcommerceDB") ?? throw new ArgumentNullException(nameof(configuration));
+        string connectionString = configuration.GetConnectionString("EcommerceDB") ?? throw new ArgumentNullException(nameof(configuration));
 
-        services.AddDbContext<ApplicationDbContext>(options =>
-        {
-            options.UseSqlServer(connectionString);
-        });
+        services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
@@ -38,7 +35,7 @@ public static class DependencyInjection
 
     }
 
-    private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
+    private static void AddAuthentication(IServiceCollection services)
     {
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -5,7 +5,11 @@ public record Currency
     public static readonly Currency Usd = new("USD");
     public static readonly Currency Bdt = new("BDT");
 
-    private Currency(string code) => Code = code;
+    private Currency(string code)
+    {
+        Code = code;
+    }
+
     public string Code { get; init; }
 
     public static Currency FromCode(string code)
@@ -13,11 +17,11 @@ public record Currency
         return All.FirstOrDefault(c => c.Code == code) ?? throw new ApplicationException("The currency code is invalid");
     }
 
-    public static readonly IReadOnlyCollection<Currency> All = new[]
-    {
+    public static readonly IReadOnlyCollection<Currency> All =
+    [
         Usd,
         Bdt
-    };
+    ];
 
     public static Currency Create(string code)
     {

@@ -2,6 +2,8 @@
 using Cart.Application.Carts.UpdateCart;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace Cart.API.Controllers.Carts.UpdateCart;
@@ -18,16 +20,22 @@ public class UpdateCartController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateCart([FromBody] UpdateCartRequest request, CancellationToken cancellationToken)
     {
-        var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
-        var userId = long.Parse(userIdClaim.Value);
+        Claim? userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
 
-        var cartItems = request.cartItems.Select(item =>
-            new CartItemCommand(item.productId, item.productName, item.priceAmount, item.priceCurrency, item.quantity))
+        if (userIdClaim is null)
+        {
+            return BadRequest("User not found");
+        }
+
+        long userId = long.Parse(userIdClaim.Value, CultureInfo.InvariantCulture);
+
+        var cartItems = request.CartItems.Select(item =>
+            new CartItemCommand(item.ProductId, item.ProductName, item.PriceAmount, item.PriceCurrency, item.Quantity))
             .ToList();
 
         var command = new UpdateCartCommand(userId, cartItems);
 
-        var result = await _sender.Send(command, cancellationToken);
+        Result<Guid> result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

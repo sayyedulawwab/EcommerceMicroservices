@@ -24,7 +24,6 @@ public sealed class CartItem : Entity<Guid>
     public Money Price { get; private set; }
     public int Quantity { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
-    public DateTime? UpdatedOnUtc { get; private set; }
 
 
     public static CartItem Create(Guid cartId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc)

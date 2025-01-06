@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Identity.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241115143838_Initial")]
+    [Migration("20250106132437_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -33,7 +33,7 @@ namespace Identity.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<DateTime>("CreatedOn")
+                    b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
@@ -58,7 +58,7 @@ namespace Identity.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UpdatedOn")
+                    b.Property<DateTime?>("UpdatedOnUtc")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");

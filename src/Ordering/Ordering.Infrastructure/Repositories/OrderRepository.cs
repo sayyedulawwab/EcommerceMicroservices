@@ -8,7 +8,7 @@ internal sealed class OrderRepository : Repository<Order>, IOrderRepository
     {
     }
 
-    public override async Task<IReadOnlyList<Order?>> GetAllAsync(CancellationToken cancellationToken = default)
+    public override async Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await DbContext
             .Set<Order>().Include(order => order.OrderItems).ToListAsync(cancellationToken);
@@ -20,6 +20,6 @@ internal sealed class OrderRepository : Repository<Order>, IOrderRepository
             .Set<Order>()
             .Where(entity => entity.Id == id)
             .Include(order => order.OrderItems)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

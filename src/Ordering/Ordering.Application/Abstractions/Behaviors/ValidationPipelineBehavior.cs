@@ -1,16 +1,16 @@
-﻿using Cart.Application.Abstractions.Messaging;
-using Cart.Application.Exceptions;
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
+using Ordering.Application.Abstractions.Messaging;
+using Ordering.Application.Exceptions;
 
-namespace Cart.Application.Abstractions.Behaviors;
-public class ValidationBehavior<TRequest, TResponse>
+namespace Ordering.Application.Abstractions.Behaviors;
+public class ValidationPipelineBehavior<TRequest, TResponse>
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseCommand
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
-    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+    public ValidationPipelineBehavior(IEnumerable<IValidator<TRequest>> validators)
     {
         _validators = validators;
     }

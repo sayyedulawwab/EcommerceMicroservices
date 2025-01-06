@@ -5,15 +5,15 @@ public class EditCategoryCommandValidator : AbstractValidator<EditCategoryComman
 {
     public EditCategoryCommandValidator()
     {
-        RuleFor(c => c.name)
+        RuleFor(c => c.Name)
             .NotEmpty()
             .MaximumLength(200);
 
-        RuleFor(c => c.description)
+        RuleFor(c => c.Description)
             .NotEmpty()
             .MaximumLength(1000);
 
-        RuleFor(c => c.parentCategoryId)
+        RuleFor(c => c.ParentCategoryId)
             .NotNull()
             .GreaterThanOrEqualTo(0);
 

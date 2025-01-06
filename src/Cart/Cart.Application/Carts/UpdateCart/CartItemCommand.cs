@@ -1,2 +1,2 @@
 ﻿namespace Cart.Application.Carts.UpdateCart;
-public record CartItemCommand(long productId, string productName, decimal priceAmount, string priceCurrency, int quantity);
+public record CartItemCommand(long ProductId, string ProductName, decimal PriceAmount, string PriceCurrency, int Quantity);

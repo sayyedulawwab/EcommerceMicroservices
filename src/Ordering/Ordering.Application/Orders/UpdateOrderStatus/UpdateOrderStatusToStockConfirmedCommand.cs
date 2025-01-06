@@ -2,4 +2,4 @@
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
 
-public record UpdateOrderStatusToPaidCommand(long orderId) : ICommand<long>;
+public record UpdateOrderStatusToPaidCommand(long OrderId) : ICommand<long>;

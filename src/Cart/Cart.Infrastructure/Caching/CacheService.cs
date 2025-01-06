@@ -50,21 +50,13 @@ public class CacheService : ICacheService
         CachedKeys.TryRemove(key, out bool _);
     }
 
-    public async Task RemoveByPrefixAsync(string prefixKey, CancellationToken cancellationToken = default)
+    public Task RemoveByPrefixAsync(string prefixKey, CancellationToken cancellationToken = default)
     {
-        //foreach (var key in CachedKeys.Keys)
-        //{
-        //    if (key.StartsWith(prefixKey))
-        //    {
-        //        await _distributedCache.RemoveAsync(key, cancellationToken);
-        //    }
-        //}
-
         IEnumerable<Task> tasks = CachedKeys
             .Keys
-            .Where(k => k.StartsWith(prefixKey))
+            .Where(k => k.StartsWith(prefixKey, StringComparison.Ordinal))
             .Select(k => RemoveAsync(k, cancellationToken));
 
-        Task.WhenAll(tasks);
+        return Task.WhenAll(tasks);
     }
 }

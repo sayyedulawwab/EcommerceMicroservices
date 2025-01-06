@@ -1,3 +1,3 @@
 ﻿namespace Identity.API.Controllers.Users.Register;
 
-public record RegisterRequest(string firstName, string lastName, string email, string password);
+public record RegisterRequest(string FirstName, string LastName, string Email, string Password);

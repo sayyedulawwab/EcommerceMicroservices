@@ -21,7 +21,7 @@ public sealed class Order : Entity<long>
     public OrderStatus Status { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
     public DateTime? UpdatedOnUtc { get; private set; }
-    public List<OrderItem> OrderItems { get; private set; } = new List<OrderItem>();
+    public List<OrderItem> OrderItems { get; private set; } = [];
 
 
     public static Order Create(long userId, OrderStatus status, DateTime createdOnUtc)
@@ -32,10 +32,10 @@ public sealed class Order : Entity<long>
     }
 
 
-    public void AddOrderItem(long orderId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc)
+    public void AddOrderItem(long OrderId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc)
     {
 
-        var orderItem = OrderItem.Create(orderId, productId, productName, price, quantity, createdOnUtc);
+        var orderItem = OrderItem.Create(OrderId, productId, productName, price, quantity, createdOnUtc);
 
         OrderItems.Add(orderItem);
 

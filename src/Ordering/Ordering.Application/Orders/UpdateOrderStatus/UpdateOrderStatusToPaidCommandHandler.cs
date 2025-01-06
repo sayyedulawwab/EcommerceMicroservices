@@ -23,7 +23,7 @@ internal sealed class UpdateOrderStatusToPaidCommandHandler : ICommandHandler<Up
     public async Task<Result<long>> Handle(UpdateOrderStatusToPaidCommand request, CancellationToken cancellationToken)
     {
 
-        var order = await _orderRepository.GetByIdAsync(request.orderId);
+        Order? order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
 
         if (order is null)
         {
@@ -34,7 +34,7 @@ internal sealed class UpdateOrderStatusToPaidCommandHandler : ICommandHandler<Up
 
         _orderRepository.Update(updatedOrder);
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 
         var orderStockItems = order.OrderItems.Select(orderItem => new OrderStockItem(orderItem.ProductId,

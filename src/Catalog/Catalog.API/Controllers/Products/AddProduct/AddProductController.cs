@@ -3,6 +3,7 @@ using Catalog.Application.Products.AddProduct;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products.AddProduct;
 [Route("api/products")]
@@ -20,16 +21,16 @@ public class AddProductController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddProduct(AddProductRequest request, CancellationToken cancellationToken)
     {
-        var command = new AddProductCommand(request.name, request.description, request.priceCurrency, request.priceAmount,
-            request.quantity, request.categoryId);
+        var command = new AddProductCommand(request.Name, request.Description, request.PriceCurrency, request.PriceAmount,
+            request.Quantity, request.CategoryId);
 
-        var result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
             return result.Error.ToActionResult();
         }
 
-        return CreatedAtAction(nameof(GetProduct.GetProductController.GetProduct), new { id = result.Value }, result.Value);
+        return Created();
     }
 }

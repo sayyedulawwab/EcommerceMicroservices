@@ -2,11 +2,11 @@
 
 namespace Catalog.Application.Products.SearchProduct;
 public record SearchProductsQuery(
-    long? categoryId,
-    decimal? minPrice,
-    decimal? maxPrice,
-    string keyword,
-    int page,
-    int pageSize,
-    string? sortColumn,
-    string? sortOrder) : IQuery<PagedList<ProductResponse>>;
+    long? CategoryId,
+    decimal? MinPrice,
+    decimal? MaxPrice,
+    string? Keyword,
+    int Page,
+    int PageSize,
+    string? SortColumn,
+    string? SortOrder) : IQuery<PagedList<ProductResponse>>;

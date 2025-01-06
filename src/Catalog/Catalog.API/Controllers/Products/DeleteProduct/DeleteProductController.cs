@@ -3,6 +3,7 @@ using Catalog.Application.Products.DeleteProduct;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products.DeleteProduct;
 [Route("api/products")]
@@ -22,7 +23,7 @@ public class DeleteProductController : ControllerBase
     {
         var command = new DeleteProductCommand(id);
 
-        var result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

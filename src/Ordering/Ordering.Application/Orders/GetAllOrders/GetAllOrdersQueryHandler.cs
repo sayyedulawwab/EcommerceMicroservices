@@ -12,14 +12,9 @@ internal sealed class GetAllOrdersQueryHandler : IQueryHandler<GetAllOrdersQuery
     }
     public async Task<Result<IReadOnlyList<OrderResponse>>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
     {
-        var orders = await _orderRepository.GetAllAsync();
+        IReadOnlyList<Order> orders = await _orderRepository.GetAllAsync(cancellationToken);
 
-        if (orders is null)
-        {
-            return Result.Failure<IReadOnlyList<OrderResponse>>(OrderErrors.NotFound());
-        }
-
-        var ordersResponse = orders.Select(order => new OrderResponse
+        IEnumerable<OrderResponse> ordersResponse = orders.Select(order => new OrderResponse
         {
             Id = order.Id,
             UserId = order.UserId,
@@ -31,14 +26,12 @@ internal sealed class GetAllOrdersQueryHandler : IQueryHandler<GetAllOrdersQuery
                 ProductPriceAmount = oi.Price.Amount,
                 ProductPriceCurrency = oi.Price.Currency.Code,
                 Quantity = oi.Quantity,
-                CreatedOn = oi.CreatedOnUtc,
-                UpdatedOn = oi.UpdatedOnUtc
+                CreatedOnUtc = oi.CreatedOnUtc
             }).ToList(),
             TotalPriceAmount = order.TotalPrice.Amount,
             TotalPriceCurrency = order.TotalPrice.Currency.Code,
             Status = order.Status.ToString(),
-            CreatedOnUtc = order.CreatedOnUtc,
-            UpdatedOnUtc = order.UpdatedOnUtc,
+            CreatedOnUtc = order.CreatedOnUtc
         });
 
         return ordersResponse.ToList();

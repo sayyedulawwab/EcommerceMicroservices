@@ -3,9 +3,7 @@ using Ordering.API.Extensions;
 using Ordering.Application;
 using Ordering.Infrastructure;
 
-
-
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
@@ -26,7 +24,7 @@ builder.Host.UseNServiceBus(context =>
 {
     var endpointConfiguration = new EndpointConfiguration("Ordering");
 
-    var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+    TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
     transport.UseConventionalRoutingTopology(QueueType.Quorum);
     transport.ConnectionString("host=rabbitmq-broker;username=guest;password=guest");
 
@@ -40,7 +38,7 @@ builder.Host.UseNServiceBus(context =>
     return endpointConfiguration;
 });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -59,4 +57,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

@@ -8,18 +8,16 @@ internal sealed class UpdateProductStockCommandHandler : ICommandHandler<UpdateP
 {
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IDateTimeProvider _dateTimeProvider;
 
-    public UpdateProductStockCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider)
+    public UpdateProductStockCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
-        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<Result<long>> Handle(UpdateProductStockCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(request.id);
+        Product? product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (product is null)
         {
@@ -28,14 +26,14 @@ internal sealed class UpdateProductStockCommandHandler : ICommandHandler<UpdateP
 
         if (product.Quantity == 0)
         {
-            return Result.Failure<long>(ProductErrors.SoldOut(request.id));
+            return Result.Failure<long>(ProductErrors.SoldOut(request.Id));
         }
 
-        product.RemoveStock(request.quantity);
+        product.RemoveStock(request.Quantity);
 
         _productRepository.Update(product);
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return product.Id;
 

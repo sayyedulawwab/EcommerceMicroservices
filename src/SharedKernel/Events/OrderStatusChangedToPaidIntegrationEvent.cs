@@ -1,2 +1,2 @@
 ﻿namespace SharedKernel.Events;
-public record OrderStatusChangedToPaidIntegrationEvent(long userId, long orderId, List<OrderStockItem> orderStockItems) : IEvent;
+public record OrderStatusChangedToPaidIntegrationEvent(long UserId, long OrderId, List<OrderStockItem> OrderStockItems) : IEvent;
