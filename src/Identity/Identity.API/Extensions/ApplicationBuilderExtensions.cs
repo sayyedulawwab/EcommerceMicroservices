@@ -6,17 +6,11 @@ namespace Identity.API.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
-    public static void ApplyMigrations(this IApplicationBuilder app)
+    public static IApplicationBuilder UseSwaggerWithUi(this WebApplication app)
     {
-        using IServiceScope scope = app.ApplicationServices.CreateScope();
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
-        using ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        dbContext.Database.Migrate();
-    }
-
-    public static void UseCustomExceptionHandler(this IApplicationBuilder app)
-    {
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        return app;
     }
 }

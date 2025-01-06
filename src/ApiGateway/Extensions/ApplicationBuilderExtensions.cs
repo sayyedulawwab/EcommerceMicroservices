@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Ordering.API.Middleware;
-using Ordering.Infrastructure;
-
-namespace Ordering.API.Extensions;
+﻿namespace ApiGateway.Extensions;
 
 public static class ApplicationBuilderExtensions
 {

@@ -4,8 +4,11 @@ namespace Cart.API.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
-    public static void UseCustomExceptionHandler(this IApplicationBuilder app)
+    public static IApplicationBuilder UseSwaggerWithUi(this WebApplication app)
     {
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseSwagger();
+        app.UseSwaggerUI();
+
+        return app;
     }
 }
