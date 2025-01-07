@@ -6,7 +6,6 @@ using SharedKernel.Domain;
 
 namespace Ordering.Application.Abstractions.Behaviors;
 
-
 internal sealed class RequestLoggingPipelineBehavior<TRequest, TResponse>(
     ILogger<RequestLoggingPipelineBehavior<TRequest, TResponse>> logger)
     : IPipelineBehavior<TRequest, TResponse>

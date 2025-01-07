@@ -1,9 +1,5 @@
 ﻿namespace Ordering.Application.Exceptions;
 
-public sealed class ConcurrencyException : Exception
+public sealed class ConcurrencyException(string message, Exception innerException) : Exception(message, innerException)
 {
-    public ConcurrencyException(string message, Exception innerException)
-        : base(message, innerException)
-    {
-    }
 }

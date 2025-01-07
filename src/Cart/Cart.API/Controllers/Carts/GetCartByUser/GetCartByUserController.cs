@@ -9,14 +9,8 @@ using System.Security.Claims;
 namespace Cart.API.Controllers.Carts.GetCartByUser;
 [Route("api/carts")]
 [ApiController]
-public class GetCartByUserController : ControllerBase
+public class GetCartByUserController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-    public GetCartByUserController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
     {
@@ -31,7 +25,7 @@ public class GetCartByUserController : ControllerBase
 
         var query = new GetCartByUserQuery(userId);
 
-        Result<CartResponse> result = await _sender.Send(query, cancellationToken);
+        Result<CartResponse> result = await sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

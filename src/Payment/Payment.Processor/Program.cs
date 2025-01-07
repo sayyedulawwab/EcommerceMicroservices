@@ -4,7 +4,6 @@ using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Host.UseSerilog((context, loggerConfig) =>

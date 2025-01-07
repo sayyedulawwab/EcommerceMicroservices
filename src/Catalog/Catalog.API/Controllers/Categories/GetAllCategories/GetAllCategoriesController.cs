@@ -9,21 +9,14 @@ using SharedKernel.Domain;
 namespace Catalog.API.Controllers.Categories.GetAllCategories;
 [Route("api/categories")]
 [ApiController]
-public class GetAllCategoriesController : ControllerBase
+public class GetAllCategoriesController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public GetAllCategoriesController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetCategories(CancellationToken cancellationToken)
     {
         var query = new GetAllCategoriesQuery();
 
-        Result<IReadOnlyList<CategoryResponse>> result = await _sender.Send(query, cancellationToken);
+        Result<IReadOnlyList<CategoryResponse>> result = await sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

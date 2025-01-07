@@ -8,22 +8,15 @@ using SharedKernel.Domain;
 namespace Ordering.API.Controllers.Orders.GetAllOrders;
 [Route("api/orders")]
 [ApiController]
-public class GetAllOrdersController : ControllerBase
+public class GetAllOrdersController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public GetAllOrdersController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllOrders(CancellationToken cancellationToken)
     {
         var query = new GetAllOrdersQuery();
 
-        Result<IReadOnlyList<OrderResponse>> result = await _sender.Send(query, cancellationToken);
+        Result<IReadOnlyList<OrderResponse>> result = await sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

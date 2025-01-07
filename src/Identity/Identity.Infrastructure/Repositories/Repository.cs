@@ -3,15 +3,10 @@ using SharedKernel.Domain;
 
 namespace Identity.Infrastructure.Repositories;
 
-internal abstract class Repository<TEntity>
+internal abstract class Repository<TEntity>(ApplicationDbContext dbContext)
     where TEntity : Entity<long>
 {
-    protected readonly ApplicationDbContext DbContext;
-
-    protected Repository(ApplicationDbContext dbContext)
-    {
-        DbContext = dbContext;
-    }
+    protected readonly ApplicationDbContext DbContext = dbContext;
 
     public virtual async Task<IReadOnlyList<TEntity?>> GetAllAsync(CancellationToken cancellationToken = default)
     {

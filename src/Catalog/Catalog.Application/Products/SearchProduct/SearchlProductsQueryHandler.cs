@@ -5,24 +5,20 @@ using System.Globalization;
 using System.Linq.Expressions;
 
 namespace Catalog.Application.Products.SearchProduct;
-internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProductsQuery, PagedList<ProductResponse>>
+internal sealed class SearchlProductsQueryHandler(IProductRepository productRepository)
+    : IQueryHandler<SearchProductsQuery, PagedList<ProductResponse>>
 {
-    private readonly IProductRepository _productRepository;
-    public SearchlProductsQueryHandler(IProductRepository productRepository)
-    {
-        _productRepository = productRepository;
-    }
     public async Task<Result<PagedList<ProductResponse>>> Handle(SearchProductsQuery request, CancellationToken cancellationToken)
     {
 
-        // Build filter expression dynamically
+
         Expression<Func<Product, bool>>? filter = product =>
             (!request.CategoryId.HasValue || product.CategoryId == request.CategoryId) &&
             (!request.MinPrice.HasValue || product.Price.Amount >= request.MinPrice) &&
             (!request.MaxPrice.HasValue || product.Price.Amount <= request.MaxPrice) &&
             (string.IsNullOrEmpty(request.Keyword) || request.Keyword == null);
 
-        // sorting
+
         Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = request.SortOrder?.ToUpperInvariant() switch
         {
             "DESC" when !string.IsNullOrEmpty(request.SortColumn) =>
@@ -31,11 +27,11 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
             _ when !string.IsNullOrEmpty(request.SortColumn) =>
                 query => query.OrderBy(GetSortExpression(request.SortColumn)),
 
-            _ => query => query.OrderBy(p => p.CreatedOnUtc) // Default sorting by CreatedOn if sortColumn is null/empty
+            _ => query => query.OrderBy(p => p.CreatedOnUtc)
         };
 
-        // Fetch products with applied filter, sorting, and pagination
-        (IReadOnlyList<Product> products, int totalRecords) = await _productRepository.FindAsync(
+
+        (IReadOnlyList<Product> products, int totalRecords) = await productRepository.FindAsync(
             filter, orderBy, request.Page, request.PageSize, cancellationToken);
 
 
@@ -64,10 +60,10 @@ internal sealed class SearchlProductsQueryHandler : IQueryHandler<SearchProducts
 
 
     private static Expression<Func<Product, object>> GetSortExpression(string sortColumn) =>
-        sortColumn switch
-        {
-            "Name" => p => p.Name,
-            "PriceAmount" => p => p.Price.Amount,
-            _ => p => p.CreatedOnUtc, // Default to CreatedOnUtc if invalid
-        };
+    sortColumn switch
+    {
+        "Name" => p => p.Name,
+        "PriceAmount" => p => p.Price.Amount,
+        _ => p => p.CreatedOnUtc, // Default to CreatedOnUtc if invalid
+    };
 }

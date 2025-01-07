@@ -9,14 +9,8 @@ using System.Security.Claims;
 namespace Cart.API.Controllers.Carts.UpdateCart;
 [Route("api/carts")]
 [ApiController]
-public class UpdateCartController : ControllerBase
+public class UpdateCartController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-    public UpdateCartController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [HttpPut]
     public async Task<IActionResult> UpdateCart([FromBody] UpdateCartRequest request, CancellationToken cancellationToken)
     {
@@ -35,7 +29,7 @@ public class UpdateCartController : ControllerBase
 
         var command = new UpdateCartCommand(userId, cartItems);
 
-        Result<Guid> result = await _sender.Send(command, cancellationToken);
+        Result<Guid> result = await sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

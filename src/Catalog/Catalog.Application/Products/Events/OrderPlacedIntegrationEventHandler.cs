@@ -3,30 +3,25 @@ using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 
 namespace Catalog.Application.Products.Events;
-internal sealed class OrderPlacedIntegrationEventHandler : IHandleMessages<OrderPlacedIntegrationEvent>
+internal sealed class OrderPlacedIntegrationEventHandler(
+    ILogger<OrderPlacedIntegrationEventHandler> logger,
+    IProductRepository productRepository)
+    : IHandleMessages<OrderPlacedIntegrationEvent>
 {
-    private readonly ILogger<OrderPlacedIntegrationEventHandler> _logger;
-    private readonly IProductRepository _productRepository;
-
-    public OrderPlacedIntegrationEventHandler(ILogger<OrderPlacedIntegrationEventHandler> logger, IProductRepository productRepository)
-    {
-        _logger = logger;
-        _productRepository = productRepository;
-    }
     public async Task Handle(OrderPlacedIntegrationEvent @event, IMessageHandlerContext context)
     {
-        _logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", @event, @event.OrderId);
+        logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", @event, @event.OrderId);
 
         // check stock
         var rejectedOrderStockItems = new List<OrderStockItem>();
 
         foreach (OrderStockItem orderStockItem in @event.OrderStockItems)
         {
-            Product? product = await _productRepository.GetByIdAsync(orderStockItem.ProductId, context.CancellationToken);
+            Product? product = await productRepository.GetByIdAsync(orderStockItem.ProductId, context.CancellationToken);
 
             if (product is null)
             {
-                _logger.LogWarning("Product with Id: {ProductId} not found", orderStockItem.ProductId);
+                logger.LogWarning("Product with Id: {ProductId} not found", orderStockItem.ProductId);
                 rejectedOrderStockItems.Add(orderStockItem);
                 continue;
             }

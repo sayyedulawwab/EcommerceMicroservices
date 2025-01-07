@@ -4,20 +4,12 @@ using Catalog.Domain.Products;
 using SharedKernel.Domain;
 
 namespace Catalog.Application.Products.UpdateProductStock;
-internal sealed class UpdateProductStockCommandHandler : ICommandHandler<UpdateProductStockCommand, long>
+internal sealed class UpdateProductStockCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
+    : ICommandHandler<UpdateProductStockCommand, long>
 {
-    private readonly IProductRepository _productRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public UpdateProductStockCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
-    {
-        _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<Result<long>> Handle(UpdateProductStockCommand request, CancellationToken cancellationToken)
     {
-        Product? product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
+        Product? product = await productRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (product is null)
         {
@@ -31,9 +23,9 @@ internal sealed class UpdateProductStockCommandHandler : ICommandHandler<UpdateP
 
         product.RemoveStock(request.Quantity);
 
-        _productRepository.Update(product);
+        productRepository.Update(product);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return product.Id;
 

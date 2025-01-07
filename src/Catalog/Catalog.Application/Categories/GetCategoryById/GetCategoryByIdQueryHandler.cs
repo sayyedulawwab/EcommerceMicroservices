@@ -3,17 +3,12 @@ using Catalog.Domain.Categories;
 using SharedKernel.Domain;
 
 namespace Catalog.Application.Categories.GetCategoryById;
-internal sealed class GetCategoryByIdQueryHandler : IQueryHandler<GetCategoryByIdQuery, CategoryResponse>
+internal sealed class GetCategoryByIdQueryHandler(ICategoryRepository categoryRepository)
+    : IQueryHandler<GetCategoryByIdQuery, CategoryResponse>
 {
-    private readonly ICategoryRepository _categoryRepository;
-
-    public GetCategoryByIdQueryHandler(ICategoryRepository categoryRepository)
-    {
-        _categoryRepository = categoryRepository;
-    }
     public async Task<Result<CategoryResponse>> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
     {
-        Category? category = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
+        Category? category = await categoryRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (category is null)
         {

@@ -8,21 +8,15 @@ using SharedKernel.Domain;
 namespace Catalog.API.Controllers.Categories.AddCategory;
 [Route("api/categories")]
 [ApiController]
-public class AddCategoryController : ControllerBase
+public class AddCategoryController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-    public AddCategoryController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddCategory(AddCategoryRequest request, CancellationToken cancellationToken)
     {
         var command = new AddCategoryCommand(request.Name, request.Description, request.ParentCategoryId);
 
-        Result<long> result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

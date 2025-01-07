@@ -4,20 +4,14 @@ using Cart.Domain.Carts;
 using SharedKernel.Domain;
 
 namespace Cart.Application.Carts.UpdateCart;
-internal sealed class UpdateCartCommandHandler : ICommandHandler<UpdateCartCommand, Guid>
+internal sealed class UpdateCartCommandHandler(
+    ICartRepository cartRepository,
+    IDateTimeProvider dateTimeProvider)
+    : ICommandHandler<UpdateCartCommand, Guid>
 {
-    private readonly ICartRepository _cartRepository;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public UpdateCartCommandHandler(ICartRepository cartRepository, IDateTimeProvider dateTimeProvider)
-    {
-        _cartRepository = cartRepository;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public async Task<Result<Guid>> Handle(UpdateCartCommand request, CancellationToken cancellationToken)
     {
-        var cart = Domain.Carts.Cart.Create(request.UserId, _dateTimeProvider.UtcNow);
+        var cart = Domain.Carts.Cart.Create(request.UserId, dateTimeProvider.UtcNow);
 
         foreach (CartItemCommand item in request.CartItems)
         {
@@ -26,12 +20,12 @@ internal sealed class UpdateCartCommandHandler : ICommandHandler<UpdateCartComma
                 item.ProductName,
                 new Money(item.PriceAmount, Currency.Create(item.PriceCurrency)),
                 item.Quantity,
-                _dateTimeProvider.UtcNow);
+                dateTimeProvider.UtcNow);
         }
 
-        await _cartRepository.RemoveAsync(request.UserId);
+        await cartRepository.RemoveAsync(request.UserId);
 
-        await _cartRepository.AddAsync(cart);
+        await cartRepository.AddAsync(cart);
 
         return cart.Id;
     }

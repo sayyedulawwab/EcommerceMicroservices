@@ -3,16 +3,11 @@ using Cart.Domain.Carts;
 using SharedKernel.Domain;
 
 namespace Cart.Application.Carts.GetCartByUser;
-internal sealed class GetCartByUserQueryHandler : IQueryHandler<GetCartByUserQuery, CartResponse>
+internal sealed class GetCartByUserQueryHandler(ICartRepository cartRepository) : IQueryHandler<GetCartByUserQuery, CartResponse>
 {
-    private readonly ICartRepository _cartRepository;
-    public GetCartByUserQueryHandler(ICartRepository cartRepository)
-    {
-        _cartRepository = cartRepository;
-    }
     public async Task<Result<CartResponse>> Handle(GetCartByUserQuery request, CancellationToken cancellationToken)
     {
-        Domain.Carts.Cart? cart = await _cartRepository.GetByUserId(request.UserId, cancellationToken);
+        Domain.Carts.Cart? cart = await cartRepository.GetByUserId(request.UserId, cancellationToken);
 
         if (cart is null)
         {

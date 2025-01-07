@@ -8,21 +8,15 @@ using SharedKernel.Domain;
 namespace Catalog.API.Controllers.Categories.EditCategory;
 [Route("api/categories")]
 [ApiController]
-public class EditCategoryController : ControllerBase
+public class EditCategoryController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-    public EditCategoryController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> EditCategory(long id, EditCategoryRequest request, CancellationToken cancellationToken)
     {
         var command = new EditCategoryCommand(id, request.Name, request.Description, request.ParentCategoryId);
 
-        Result<long> result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

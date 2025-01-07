@@ -4,28 +4,21 @@ using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 
 namespace Catalog.Application.Products.Events;
-internal sealed class OrderStatusChangedToPaidIntegrationEventHandler : IHandleMessages<OrderStatusChangedToPaidIntegrationEvent>
+internal sealed class OrderStatusChangedToPaidIntegrationEventHandler(
+    ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger,
+    ISender sender)
+    : IHandleMessages<OrderStatusChangedToPaidIntegrationEvent>
 {
-    private readonly ILogger<OrderStatusChangedToPaidIntegrationEventHandler> _logger;
-    private readonly ISender _sender;
-
-    public OrderStatusChangedToPaidIntegrationEventHandler(ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger, ISender sender)
-    {
-        _logger = logger;
-        _sender = sender;
-    }
     public async Task Handle(OrderStatusChangedToPaidIntegrationEvent @event, IMessageHandlerContext context)
     {
-
-        _logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", @event, @event.OrderId);
+        logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", @event, @event.OrderId);
 
         foreach (OrderStockItem orderStockItem in @event.OrderStockItems)
         {
 
             var command = new UpdateProductStockCommand(orderStockItem.ProductId, orderStockItem.Quantity);
 
-            await _sender.Send(command, context.CancellationToken);
+            await sender.Send(command, context.CancellationToken);
         }
-
     }
 }

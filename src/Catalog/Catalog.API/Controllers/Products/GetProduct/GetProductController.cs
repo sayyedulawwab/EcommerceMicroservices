@@ -8,21 +8,14 @@ using SharedKernel.Domain;
 namespace Catalog.API.Controllers.Products.GetProduct;
 [Route("api/products")]
 [ApiController]
-public class GetProductController : ControllerBase
+public class GetProductController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public GetProductController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProduct(long id, CancellationToken cancellationToken)
     {
         var query = new GetProductByIdQuery(id);
 
-        Result<ProductResponse> result = await _sender.Send(query, cancellationToken);
+        Result<ProductResponse> result = await sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

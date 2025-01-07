@@ -5,19 +5,13 @@ using System.Collections.Concurrent;
 
 namespace Cart.Infrastructure.Caching;
 
-public class CacheService : ICacheService
+public class CacheService(IDistributedCache distributedCache) : ICacheService
 {
-    private readonly IDistributedCache _distributedCache;
     private static readonly ConcurrentDictionary<string, bool> CachedKeys = new();
-
-    public CacheService(IDistributedCache distributedCache)
-    {
-        _distributedCache = distributedCache;
-    }
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
     {
-        string? cachedValue = await _distributedCache.GetStringAsync(key, cancellationToken);
+        string? cachedValue = await distributedCache.GetStringAsync(key, cancellationToken);
 
         if (cachedValue is null)
         {
@@ -37,7 +31,7 @@ public class CacheService : ICacheService
     {
         string cachedValue = JsonConvert.SerializeObject(value);
 
-        await _distributedCache.SetStringAsync(key, cachedValue, cancellationToken);
+        await distributedCache.SetStringAsync(key, cachedValue, cancellationToken);
 
         CachedKeys.TryAdd(key, false);
 
@@ -45,7 +39,7 @@ public class CacheService : ICacheService
 
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
-        await _distributedCache.RemoveAsync(key, cancellationToken);
+        await distributedCache.RemoveAsync(key, cancellationToken);
 
         CachedKeys.TryRemove(key, out bool _);
     }

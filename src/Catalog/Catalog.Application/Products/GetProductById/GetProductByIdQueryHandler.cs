@@ -3,17 +3,12 @@ using Catalog.Domain.Products;
 using SharedKernel.Domain;
 
 namespace Catalog.Application.Products.GetProductById;
-internal sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQuery, ProductResponse>
+internal sealed class GetProductByIdQueryHandler(IProductRepository productRepository)
+    : IQueryHandler<GetProductByIdQuery, ProductResponse>
 {
-    private readonly IProductRepository _productRepository;
-
-    public GetProductByIdQueryHandler(IProductRepository productRepository)
-    {
-        _productRepository = productRepository;
-    }
     public async Task<Result<ProductResponse>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
-        Product? product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
+        Product? product = await productRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (product is null)
         {

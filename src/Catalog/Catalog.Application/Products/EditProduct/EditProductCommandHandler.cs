@@ -4,22 +4,15 @@ using Catalog.Domain.Products;
 using SharedKernel.Domain;
 
 namespace Catalog.Application.Products.EditProduct;
-internal sealed class EditProductCommandHandler : ICommandHandler<EditProductCommand, long>
+internal sealed class EditProductCommandHandler(
+    IProductRepository productRepository,
+    IUnitOfWork unitOfWork,
+    IDateTimeProvider dateTimeProvider)
+    : ICommandHandler<EditProductCommand, long>
 {
-    private readonly IProductRepository _productRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public EditProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider)
-    {
-        _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public async Task<Result<long>> Handle(EditProductCommand request, CancellationToken cancellationToken)
     {
-        Product? product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
+        Product? product = await productRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (product is null)
         {
@@ -33,11 +26,11 @@ internal sealed class EditProductCommandHandler : ICommandHandler<EditProductCom
             new Money(request.PriceAmount, Currency.Create(request.PriceCurrency)),
             request.Quantity,
             request.CategoryId,
-            _dateTimeProvider.UtcNow);
+            dateTimeProvider.UtcNow);
 
-        _productRepository.Update(product);
+        productRepository.Update(product);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return product.Id;
 

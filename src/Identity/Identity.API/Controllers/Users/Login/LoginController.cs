@@ -7,15 +7,8 @@ using SharedKernel.Domain;
 namespace Identity.API.Controllers.Users.Login;
 [Route("api/auth/login")]
 [ApiController]
-public class LoginController : ControllerBase
+public class LoginController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public LoginController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Login(
         LoginRequest request,
@@ -23,7 +16,7 @@ public class LoginController : ControllerBase
     {
         var query = new LoginUserQuery(request.Email, request.Password);
 
-        Result<AccessTokenResponse> result = await _sender.Send(query, cancellationToken);
+        Result<AccessTokenResponse> result = await sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

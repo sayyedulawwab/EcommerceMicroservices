@@ -7,15 +7,8 @@ using SharedKernel.Domain;
 namespace Identity.API.Controllers.Users.Register;
 [Route("api/auth/register")]
 [ApiController]
-public class RegisterController : ControllerBase
+public class RegisterControllerr(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public RegisterController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Register(
         RegisterRequest request,
@@ -27,7 +20,7 @@ public class RegisterController : ControllerBase
             request.Email,
             request.Password);
 
-        Result<long> result = await _sender.Send(command, cancellationToken);
+        Result<long> result = await sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {

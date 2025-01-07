@@ -4,26 +4,19 @@ using Catalog.Domain.Categories;
 using SharedKernel.Domain;
 
 namespace Catalog.Application.Categories.AddCategory;
-internal sealed class AddCategoryCommandHandler : ICommandHandler<AddCategoryCommand, long>
+internal sealed class AddCategoryCommandHandler(
+    ICategoryRepository categoryRepository,
+    IUnitOfWork unitOfWork,
+    IDateTimeProvider dateTimeProvider)
+    : ICommandHandler<AddCategoryCommand, long>
 {
-    private readonly ICategoryRepository _categoryRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public AddCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider)
-    {
-        _categoryRepository = categoryRepository;
-        _unitOfWork = unitOfWork;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public async Task<Result<long>> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = Category.Create(request.Name, request.Description, request.ParentCategoryId, _dateTimeProvider.UtcNow);
+        var category = Category.Create(request.Name, request.Description, request.ParentCategoryId, dateTimeProvider.UtcNow);
 
-        _categoryRepository.Add(category);
+        categoryRepository.Add(category);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return category.Id;
 
