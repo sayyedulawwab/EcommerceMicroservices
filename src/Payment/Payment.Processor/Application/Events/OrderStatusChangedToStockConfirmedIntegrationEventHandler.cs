@@ -5,7 +5,7 @@ namespace Payment.Processor.Application.Events;
 internal sealed class OrderStatusChangedToStockConfirmedIntegrationEventHandler(
     ILogger<OrderStatusChangedToStockConfirmedIntegrationEventHandler> logger,
     IPaymentService paymentService)
-    : IHandleMessages<OrderStatusChangedToStockConfirmedIntegrationEvent>
+    : IIntegrationEventHandler<OrderStatusChangedToStockConfirmedIntegrationEvent>
 {
     public async Task Handle(OrderStatusChangedToStockConfirmedIntegrationEvent @event, IMessageHandlerContext context)
     {

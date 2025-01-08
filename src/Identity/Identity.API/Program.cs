@@ -2,7 +2,10 @@ using Identity.API;
 using Identity.API.Extensions;
 using Identity.Application;
 using Identity.Infrastructure;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,17 @@ builder.Services.AddApplication()
 
 builder.Host.UseSerilog((context, loggerConfig) =>
             loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("Identity.API"))
+    .WithTracing(tracing =>
+    {
+        tracing.AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddSource("NServiceBus");
+
+        tracing.AddOtlpExporter();
+    });
 
 builder.Host.UseNServiceBus(context =>
 {
@@ -39,6 +53,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerWithUi();
     app.ApplyMigrations();
 }
+
+app.UseRequestContextLogging();
+
+app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 

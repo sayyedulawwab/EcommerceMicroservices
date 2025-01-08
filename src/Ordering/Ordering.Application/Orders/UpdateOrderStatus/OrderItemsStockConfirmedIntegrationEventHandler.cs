@@ -6,7 +6,7 @@ namespace Ordering.Application.Orders.UpdateOrderStatus;
 internal sealed class OrderItemsStockConfirmedIntegrationEventHandler(
     ILogger<OrderItemsStockConfirmedIntegrationEventHandler> logger,
     ISender sender)
-    : IHandleMessages<OrderItemsStockConfirmedIntegrationEvent>
+    : IIntegrationEventHandler<OrderItemsStockConfirmedIntegrationEvent>
 {
     public async Task Handle(OrderItemsStockConfirmedIntegrationEvent @event, IMessageHandlerContext context)
     {

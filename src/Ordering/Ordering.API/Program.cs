@@ -1,8 +1,11 @@
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Ordering.API;
 using Ordering.API.Extensions;
 using Ordering.Application;
 using Ordering.Infrastructure;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +15,21 @@ builder.Services.AddApplication()
     .AddPresentation()
     .AddInfrastructure(builder.Configuration);
 
+builder.Logging.ClearProviders();
+
 builder.Host.UseSerilog((context, loggerConfig) =>
             loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("Ordering.API"))
+    .WithTracing(tracing =>
+    {
+        tracing.AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddSource("NServiceBus");
+
+        tracing.AddOtlpExporter();
+    });
 
 builder.Host.UseNServiceBus(context =>
 {
@@ -41,6 +57,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerWithUi();
     app.ApplyMigrations();
 }
+
+app.UseRequestContextLogging();
+
+app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 

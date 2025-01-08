@@ -6,7 +6,7 @@ namespace Catalog.Application.Products.Events;
 internal sealed class OrderPlacedIntegrationEventHandler(
     ILogger<OrderPlacedIntegrationEventHandler> logger,
     IProductRepository productRepository)
-    : IHandleMessages<OrderPlacedIntegrationEvent>
+    : IIntegrationEventHandler<OrderPlacedIntegrationEvent>
 {
     public async Task Handle(OrderPlacedIntegrationEvent @event, IMessageHandlerContext context)
     {

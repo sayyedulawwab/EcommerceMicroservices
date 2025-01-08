@@ -1,7 +1,7 @@
 services:
 
   redis-caching:
-    image: redis:latest
+    image: redis:7.4.2-alpine
     container_name: redis-caching
     restart: always
     ports:
@@ -10,7 +10,7 @@ services:
       - app-network
 
   rabbitmq-broker:
-    image: rabbitmq:4.0-management
+    image: rabbitmq:4.0-alpine
     container_name: rabbitmq-broker
     ports:
       - 5672:5672
@@ -45,6 +45,8 @@ services:
   seq-logging:
         image: datalust/seq:latest
         container_name: seq-logging
+        volumes:
+          - ./.containers/seq/data:/data
         environment:
           - ACCEPT_EULA=Y
         networks:
@@ -55,10 +57,13 @@ services:
 
   identity-api:
     image: ${DOCKER_REGISTRY-}identityapi
-    container_name: identity-api
+    container_name: Identity.API
     build:
       context: .
       dockerfile: src/Identity/Identity.API/Dockerfile
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5006:8080
       - 5007:8081
@@ -71,10 +76,13 @@ services:
 
   catalog-api:
     image: ${DOCKER_REGISTRY-}catalogapi
-    container_name: catalog-api
+    container_name: Catalog.API
     build:
       context: .
       dockerfile: src/Catalog/Catalog.API/Dockerfile
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5000:8080
       - 5001:8081
@@ -87,10 +95,13 @@ services:
 
   cart-api:
     image: ${DOCKER_REGISTRY-}cartapi
-    container_name: cart-api
+    container_name: Cart.API
     build:
       context: .
       dockerfile: src/Cart/Cart.API/Dockerfile
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5002:8080
       - 5003:8081
@@ -104,10 +115,13 @@ services:
 
   ordering-api:
     image: ${DOCKER_REGISTRY-}orderingapi
-    container_name: ordering-api
+    container_name: Ordering.API
     build:
       context: .
       dockerfile: src/Ordering/Ordering.API/Dockerfile
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5004:8080
       - 5005:8081
@@ -120,10 +134,13 @@ services:
 
   payment-processor:
     image: ${DOCKER_REGISTRY-}paymentprocessor
-    container_name: payment-processor
+    container_name: Payment.Processor
     build:
       context: .
       dockerfile: src/Payment/Payment.Processor/Dockerfile
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5008:8080
       - 5009:8081
@@ -136,7 +153,7 @@ services:
 
   api-gateway:
     image: ${DOCKER_REGISTRY-}apigateway
-    container_name: api-gateway
+    container_name: ApiGateway
     build:
       context: .
       dockerfile: src/ApiGateway/Dockerfile

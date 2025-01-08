@@ -2,7 +2,10 @@ using Catalog.API;
 using Catalog.API.Extensions;
 using Catalog.Application;
 using Catalog.Infrastructure;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,16 @@ builder.Services.AddApplication()
 builder.Host.UseSerilog((context, loggerConfig) =>
             loggerConfig.ReadFrom.Configuration(context.Configuration));
 
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("Catalog.API"))
+    .WithTracing(tracing =>
+    {
+        tracing.AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddSource("NServiceBus");
+
+        tracing.AddOtlpExporter();
+    });
 
 builder.Host.UseNServiceBus(context =>
 {
@@ -40,6 +53,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerWithUi();
     app.ApplyMigrations();
 }
+
+app.UseRequestContextLogging();
+
+app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 

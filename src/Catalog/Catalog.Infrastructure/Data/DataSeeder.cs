@@ -11,18 +11,18 @@ public static class DataSeeder
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "EF1002:Risk of vulnerability to SQL injection.", Justification = "Truncating tables in test database")]
     public static void SeedData(ApplicationDbContext context)
     {
-        var tableNames = context.Model.GetEntityTypes()
-                    .Select(t => t.GetTableName())
-                    .Distinct()
-                    .ToList();
+        //var tableNames = context.Model.GetEntityTypes()
+        //            .Select(t => t.GetTableName())
+        //            .Distinct()
+        //            .ToList();
 
-        foreach (string? tableName in tableNames)
-        {
-            if (!string.IsNullOrEmpty(tableName))
-            {
-                context.Database.ExecuteSqlRaw($"TRUNCATE TABLE [{tableName}];");
-            }
-        }
+        //foreach (string? tableName in tableNames)
+        //{
+        //    if (!string.IsNullOrEmpty(tableName))
+        //    {
+        //        context.Database.ExecuteSqlRaw($"TRUNCATE TABLE [{tableName}];");
+        //    }
+        //}
 
         var faker = new Faker();
 

@@ -7,7 +7,7 @@ namespace Catalog.Application.Products.Events;
 internal sealed class OrderStatusChangedToPaidIntegrationEventHandler(
     ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger,
     ISender sender)
-    : IHandleMessages<OrderStatusChangedToPaidIntegrationEvent>
+    : IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>
 {
     public async Task Handle(OrderStatusChangedToPaidIntegrationEvent @event, IMessageHandlerContext context)
     {

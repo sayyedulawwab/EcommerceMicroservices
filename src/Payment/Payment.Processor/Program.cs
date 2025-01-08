@@ -1,13 +1,29 @@
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Payment.Processor.Application.Abstractions;
 using Payment.Processor.Infrastructure;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
+builder.Logging.ClearProviders();
+
 builder.Host.UseSerilog((context, loggerConfig) =>
             loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("Payment.Processor"))
+    .WithTracing(tracing =>
+    {
+        tracing.AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddSource("NServiceBus");
+
+        tracing.AddOtlpExporter();
+    });
 
 builder.Host.UseNServiceBus(context =>
 {

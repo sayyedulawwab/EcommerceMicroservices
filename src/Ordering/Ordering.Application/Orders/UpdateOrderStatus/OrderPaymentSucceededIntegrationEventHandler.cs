@@ -6,7 +6,7 @@ namespace Ordering.Application.Orders.UpdateOrderStatus;
 internal sealed class OrderPaymentSucceededIntegrationEventHandler(
     ILogger<OrderPaymentSucceededIntegrationEventHandler> logger,
     ISender sender)
-    : IHandleMessages<OrderPaymentSucceededIntegrationEvent>
+    : IIntegrationEventHandler<OrderPaymentSucceededIntegrationEvent>
 {
     public async Task Handle(OrderPaymentSucceededIntegrationEvent @event, IMessageHandlerContext context)
     {

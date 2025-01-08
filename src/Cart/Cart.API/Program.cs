@@ -2,7 +2,11 @@ using Cart.API;
 using Cart.API.Extensions;
 using Cart.Application;
 using Cart.Infrastructure;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,18 @@ builder.Services.AddApplication()
 
 builder.Host.UseSerilog((context, loggerConfig) =>
             loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("Cart.API"))
+    .WithTracing(tracing =>
+    {
+        tracing.AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddSource("NServiceBus");
+
+        tracing.AddOtlpExporter();
+    });
 
 builder.Host.UseNServiceBus(context =>
 {
@@ -37,6 +53,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerWithUi();
 }
+
+app.UseRequestContextLogging();
+
+app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 
