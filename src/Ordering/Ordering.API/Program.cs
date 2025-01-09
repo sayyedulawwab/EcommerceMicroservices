@@ -1,3 +1,6 @@
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Ordering.API;
@@ -6,6 +9,8 @@ using Ordering.Application;
 using Ordering.Infrastructure;
 using Serilog;
 using Serilog.Sinks.OpenTelemetry;
+using System.Diagnostics;
+using System.Globalization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -17,37 +22,48 @@ builder.Services.AddApplication()
 
 builder.Logging.ClearProviders();
 
-builder.Host.UseSerilog((context, loggerConfig) =>
-            loggerConfig.ReadFrom.Configuration(context.Configuration));
-
 builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => resource.AddService("Ordering.API"))
-    .WithTracing(tracing =>
-    {
-        tracing.AddHttpClientInstrumentation()
-            .AddAspNetCoreInstrumentation()
-            .AddSource("NServiceBus");
+    .ConfigureResource(resource => resource.AddService(builder.Environment.ApplicationName))
+    .WithTracing(tracing => tracing
+        .AddSource(builder.Environment.ApplicationName)
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddSource("NServiceBus.*")
+        .AddOtlpExporter())
+    .WithMetrics(metrics => metrics
+        .AddMeter(builder.Environment.ApplicationName)
+        .AddOtlpExporter());
 
-        tracing.AddOtlpExporter();
+builder.Logging.AddOpenTelemetry(options =>
+{
+    options.IncludeFormattedMessage = true;
+    options.IncludeScopes = true;
+    options.ParseStateValues = true;
+    options.SetResourceBuilder(ResourceBuilder.CreateEmpty().AddService(builder.Environment.ApplicationName));
+    options.AddOtlpExporter(x =>
+    {
+#pragma warning disable S1075 // URIs should not be hardcoded
+        x.Endpoint = new Uri("http://seq-logging:5341/ingest/otlp/v1/logs");
+#pragma warning restore S1075 // URIs should not be hardcoded
+        x.Protocol = OtlpExportProtocol.HttpProtobuf;
     });
 
-builder.Host.UseNServiceBus(context =>
-{
-    var endpointConfiguration = new EndpointConfiguration("Ordering");
-
-    TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-    transport.UseConventionalRoutingTopology(QueueType.Quorum);
-    transport.ConnectionString("host=rabbitmq-broker;username=guest;password=guest");
-
-    endpointConfiguration.UseSerialization<SystemJsonSerializer>();
-
-    endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedKernel.Events");
-
-    endpointConfiguration.EnableInstallers();
-
-
-    return endpointConfiguration;
 });
+
+
+var endpointConfiguration = new EndpointConfiguration(builder.Environment.ApplicationName);
+
+TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+transport.UseConventionalRoutingTopology(QueueType.Quorum);
+transport.ConnectionString("host=rabbitmq-broker;username=guest;password=guest");
+
+endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+endpointConfiguration.EnableOpenTelemetry();
+endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedKernel.Events");
+
+endpointConfiguration.EnableInstallers();
+
+builder.UseNServiceBus(endpointConfiguration);
 
 WebApplication app = builder.Build();
 
@@ -58,9 +74,9 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 
-app.UseRequestContextLogging();
+//app.UseRequestContextLogging();
 
-app.UseSerilogRequestLogging();
+//app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 
