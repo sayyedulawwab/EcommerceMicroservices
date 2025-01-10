@@ -1,4 +1,5 @@
-﻿using Ordering.Application.Abstractions.Clock;
+﻿using MassTransit;
+using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Messaging;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
@@ -9,7 +10,7 @@ internal sealed class UpdateOrderStatusToStockConfirmedCommandHandler(
     IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider,
-    IMessageSession messageSession)
+    IPublishEndpoint publishEndpoint)
     : ICommandHandler<UpdateOrderStatusToStockConfirmedCommand, long>
 {
     public async Task<Result<long>> Handle(UpdateOrderStatusToStockConfirmedCommand request, CancellationToken cancellationToken)
@@ -29,7 +30,7 @@ internal sealed class UpdateOrderStatusToStockConfirmedCommandHandler(
 
         var integrationEvent = new OrderStatusChangedToStockConfirmedIntegrationEvent(order.Id);
 
-        await messageSession.Publish(integrationEvent, cancellationToken);
+        await publishEndpoint.Publish(integrationEvent, cancellationToken);
 
         return order.Id;
     }

@@ -1,21 +1,23 @@
 ﻿using Catalog.Domain.Products;
+using MassTransit;
+using MassTransit.Middleware;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 
 namespace Catalog.Application.Products.Events;
-internal sealed class OrderPlacedIntegrationEventHandler(
+public sealed class OrderPlacedIntegrationEventHandler(
     ILogger<OrderPlacedIntegrationEventHandler> logger,
     IProductRepository productRepository)
     : IIntegrationEventHandler<OrderPlacedIntegrationEvent>
 {
-    public async Task Handle(OrderPlacedIntegrationEvent @event, IMessageHandlerContext context)
+    public async Task Consume(ConsumeContext<OrderPlacedIntegrationEvent> context)
     {
-        logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", @event, @event.OrderId);
+        logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", context.Message, context.Message.OrderId);
 
         // check stock
         var rejectedOrderStockItems = new List<OrderStockItem>();
 
-        foreach (OrderStockItem orderStockItem in @event.OrderStockItems)
+        foreach (OrderStockItem orderStockItem in context.Message.OrderStockItems)
         {
             Product? product = await productRepository.GetByIdAsync(orderStockItem.ProductId, context.CancellationToken);
 
@@ -34,10 +36,19 @@ internal sealed class OrderPlacedIntegrationEventHandler(
             }
         }
 
-        IEvent integrationEvent = rejectedOrderStockItems.Any() ? new OrderItemsStockRejectedIntegrationEvent(@event.OrderId)
-                                                                : new OrderItemsStockConfirmedIntegrationEvent(@event.OrderId);
+        if (rejectedOrderStockItems.Any())
+        {
+            var integrationEvent = new OrderItemsStockRejectedIntegrationEvent(context.Message.OrderId);
 
-        // publish stock available event
-        await context.Publish(integrationEvent);
+            // publish stock available event
+            await context.Publish(integrationEvent);
+        }
+        else
+        {
+            var integrationEvent = new OrderItemsStockConfirmedIntegrationEvent(context.Message.OrderId);
+
+            // publish stock available event
+            await context.Publish(integrationEvent);
+        }
     }
 }

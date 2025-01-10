@@ -1,18 +1,19 @@
-﻿using MediatR;
+﻿using MassTransit;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
-internal sealed class OrderPaymentFailedIntegrationEventHandler(
+public sealed class OrderPaymentFailedIntegrationEventHandler(
     ILogger<OrderPaymentFailedIntegrationEventHandler> logger,
     ISender sender)
     : IIntegrationEventHandler<OrderPaymentFailedIntegrationEvent>
 {
-    public async Task Handle(OrderPaymentFailedIntegrationEvent @event, IMessageHandlerContext context)
+    public async Task Consume(ConsumeContext<OrderPaymentFailedIntegrationEvent> context)
     {
-        logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", @event, @event.OrderId);
+        logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", context.Message, context.Message.OrderId);
 
-        var command = new UpdateOrderStatusToCanceledCommand(@event.OrderId);
+        var command = new UpdateOrderStatusToCanceledCommand(context.Message.OrderId);
 
         await sender.Send(command, default);
     }

@@ -1,2 +1,2 @@
 ﻿namespace SharedKernel.Events;
-public record OrderPlacedIntegrationEvent(long OrderId, List<OrderStockItem> OrderStockItems) : IIntegrationEvent;
+public record OrderPlacedIntegrationEvent(long OrderId, List<OrderStockItem> OrderStockItems) : IntegrationEvent;

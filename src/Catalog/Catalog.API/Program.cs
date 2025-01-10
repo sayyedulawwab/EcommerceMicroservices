@@ -1,7 +1,9 @@
 using Catalog.API;
 using Catalog.API.Extensions;
 using Catalog.Application;
+using Catalog.Application.Products.Events;
 using Catalog.Infrastructure;
+using MassTransit;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -19,49 +21,53 @@ builder.Services.AddApplication()
     .AddPresentation()
     .AddInfrastructure(builder.Configuration);
 
-builder.Logging.ClearProviders();
-
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => resource.AddService(builder.Environment.ApplicationName))
-    .WithTracing(tracing => tracing
-        .AddSource(builder.Environment.ApplicationName)
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation()
-        .AddSource("NServiceBus.*")
-        .AddOtlpExporter())
-    .WithMetrics(metrics => metrics
-        .AddMeter(builder.Environment.ApplicationName)
-        .AddOtlpExporter());
-
-builder.Logging.AddOpenTelemetry(options =>
+builder.Services.AddMassTransit(busConfigurator =>
 {
-    options.IncludeFormattedMessage = true;
-    options.IncludeScopes = true;
-    options.ParseStateValues = true;
-    options.SetResourceBuilder(ResourceBuilder.CreateEmpty().AddService(builder.Environment.ApplicationName));
-    options.AddOtlpExporter(x =>
-    {
-#pragma warning disable S1075 // URIs should not be hardcoded
-        x.Endpoint = new Uri("http://seq-logging:5341/ingest/otlp/v1/logs");
-#pragma warning restore S1075 // URIs should not be hardcoded
-        x.Protocol = OtlpExportProtocol.HttpProtobuf;
-    });
+    busConfigurator.SetKebabCaseEndpointNameFormatter();
 
+    busConfigurator.AddConsumer<OrderPlacedIntegrationEventHandler>();
+    busConfigurator.AddConsumer<OrderStatusChangedToPaidIntegrationEventHandler>();
+
+    busConfigurator.UsingRabbitMq((context, configurator) =>
+    {
+        configurator.Host(new Uri(builder.Configuration["MessageBroker:Host"] ?? string.Empty), h =>
+        {
+            h.Username(builder.Configuration["MessageBroker:Username"] ?? string.Empty);
+            h.Password(builder.Configuration["MessageBroker:Password"] ?? string.Empty);
+        });
+
+        configurator.ConfigureEndpoints(context);
+    });
 });
 
+builder.Logging.ClearProviders();
 
-var endpointConfiguration = new EndpointConfiguration(builder.Environment.ApplicationName);
+builder.Host.UseSerilog((context, loggerConfigruration) => loggerConfigruration.ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.OpenTelemetry(options =>
+    {
+        options.Endpoint = "http://seq-logging:5341/ingest/otlp/v1/logs";
+        options.Protocol = OtlpProtocol.HttpProtobuf;
+        options.ResourceAttributes = new Dictionary<string, object>
+        {
+            ["service.name"] = "Catalog.API",
+            ["deployment.environment"] = "Development"
+        };
+    }), true, writeToProviders: false);
 
-TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-transport.UseConventionalRoutingTopology(QueueType.Quorum);
-transport.ConnectionString("host=rabbitmq-broker;username=guest;password=guest");
-endpointConfiguration.UseSerialization<SystemJsonSerializer>();
-endpointConfiguration.EnableOpenTelemetry();
-endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "SharedKernel.Events");
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("Catalog.API"))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName)
+        .AddOtlpExporter());
 
-endpointConfiguration.EnableInstallers();
-
-builder.UseNServiceBus(endpointConfiguration);
+//builder.Logging.AddOpenTelemetry(logging =>
+//{
+//    logging.IncludeScopes = true;
+//    logging.IncludeFormattedMessage = true;
+//    logging.AddOtlpExporter();
+//});
 
 WebApplication app = builder.Build();
 
@@ -72,9 +78,9 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 
-//app.UseRequestContextLogging();
+app.UseRequestContextLogging();
 
-//app.UseSerilogRequestLogging();
+app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 

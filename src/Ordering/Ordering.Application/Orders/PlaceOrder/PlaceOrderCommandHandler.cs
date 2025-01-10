@@ -1,4 +1,5 @@
-﻿using Ordering.Application.Abstractions.Clock;
+﻿using MassTransit;
+using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Messaging;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
@@ -9,7 +10,7 @@ internal sealed class PlaceOrderCommandHandler(
     IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider,
-    IMessageSession messageSession)
+    IPublishEndpoint publishEndpoint)
     : ICommandHandler<PlaceOrderCommand, long>
 {
     public async Task<Result<long>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
@@ -44,7 +45,7 @@ internal sealed class PlaceOrderCommandHandler(
 
         var integrationEvent = new OrderPlacedIntegrationEvent(order.Id, orderStockItems);
 
-        await messageSession.Publish(integrationEvent, cancellationToken);
+        await publishEndpoint.Publish(integrationEvent, cancellationToken);
 
         return order.Id;
     }

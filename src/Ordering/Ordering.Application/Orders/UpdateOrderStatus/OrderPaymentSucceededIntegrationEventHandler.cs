@@ -1,18 +1,19 @@
-﻿using MediatR;
+﻿using MassTransit;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
-internal sealed class OrderPaymentSucceededIntegrationEventHandler(
+public sealed class OrderPaymentSucceededIntegrationEventHandler(
     ILogger<OrderPaymentSucceededIntegrationEventHandler> logger,
     ISender sender)
     : IIntegrationEventHandler<OrderPaymentSucceededIntegrationEvent>
 {
-    public async Task Handle(OrderPaymentSucceededIntegrationEvent @event, IMessageHandlerContext context)
+    public async Task Consume(ConsumeContext<OrderPaymentSucceededIntegrationEvent> context)
     {
-        logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", @event, @event.OrderId);
+        logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", context.Message, context.Message.OrderId);
 
-        var command = new UpdateOrderStatusToPaidCommand(@event.OrderId);
+        var command = new UpdateOrderStatusToPaidCommand(context.Message.OrderId);
 
         await sender.Send(command, default);
     }

@@ -1,5 +1,7 @@
-﻿namespace SharedKernel.Events;
-public interface IIntegrationEventHandler<T> : IHandleMessages<T>
-    where T : IIntegrationEvent
+﻿using MassTransit;
+
+namespace SharedKernel.Events;
+public interface IIntegrationEventHandler<in TIntegrationEvent> : IConsumer<TIntegrationEvent>
+    where TIntegrationEvent : IntegrationEvent
 {
 }

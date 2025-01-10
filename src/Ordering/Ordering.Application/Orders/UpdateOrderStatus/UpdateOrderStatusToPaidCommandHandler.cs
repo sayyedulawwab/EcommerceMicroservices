@@ -1,4 +1,5 @@
-﻿using Ordering.Application.Abstractions.Clock;
+﻿using MassTransit;
+using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Messaging;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
@@ -9,7 +10,7 @@ internal sealed class UpdateOrderStatusToPaidCommandHandler(
     IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider,
-    IMessageSession messageSession)
+    IPublishEndpoint publishEndpoint)
     : ICommandHandler<UpdateOrderStatusToPaidCommand, long>
 {
     public async Task<Result<long>> Handle(UpdateOrderStatusToPaidCommand request, CancellationToken cancellationToken)
@@ -37,7 +38,7 @@ internal sealed class UpdateOrderStatusToPaidCommandHandler(
 
         var integrationEvent = new OrderStatusChangedToPaidIntegrationEvent(order.UserId, order.Id, orderStockItems);
 
-        await messageSession.Publish(integrationEvent, cancellationToken);
+        await publishEndpoint.Publish(integrationEvent, cancellationToken);
 
         return order.Id;
     }
