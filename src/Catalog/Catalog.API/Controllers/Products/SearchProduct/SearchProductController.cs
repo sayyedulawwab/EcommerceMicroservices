@@ -1,14 +1,17 @@
-﻿using Catalog.Application.Products;
+﻿using Asp.Versioning;
+using Catalog.Application.Products;
 using Catalog.Application.Products.SearchProduct;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products.SearchProduct;
-[Route("api/products")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/products")]
 [ApiController]
 public class SearchProductController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [HttpGet]
     public async Task<IActionResult> Search([FromQuery] SearchProductRequest request, CancellationToken cancellationToken)
     {

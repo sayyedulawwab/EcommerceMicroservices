@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Asp.Versioning;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.API.Extensions;
@@ -8,10 +9,12 @@ using System.Globalization;
 using System.Security.Claims;
 
 namespace Ordering.API.Controllers.Orders.PlaceOrder;
-[Route("api/orders")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/orders")]
 [ApiController]
 public class PlaceOrderController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request, CancellationToken cancellationToken)

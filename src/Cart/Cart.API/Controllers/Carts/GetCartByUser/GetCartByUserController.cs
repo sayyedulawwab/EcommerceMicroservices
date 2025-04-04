@@ -1,4 +1,5 @@
-﻿using Cart.API.Extensions;
+﻿using Asp.Versioning;
+using Cart.API.Extensions;
 using Cart.Application.Carts.GetCartByUser;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -7,10 +8,12 @@ using System.Globalization;
 using System.Security.Claims;
 
 namespace Cart.API.Controllers.Carts.GetCartByUser;
-[Route("api/carts")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/carts")]
 [ApiController]
 public class GetCartByUserController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [HttpGet]
     public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
     {

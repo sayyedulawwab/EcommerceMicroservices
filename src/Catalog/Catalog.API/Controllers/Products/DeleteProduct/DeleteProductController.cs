@@ -1,4 +1,5 @@
-﻿using Catalog.API.Extensions;
+﻿using Asp.Versioning;
+using Catalog.API.Extensions;
 using Catalog.Application.Products.DeleteProduct;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -6,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products.DeleteProduct;
-[Route("api/products")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/products")]
 [ApiController]
 public class DeleteProductController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProduct(long id, CancellationToken cancellationToken)

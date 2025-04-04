@@ -1,4 +1,5 @@
-﻿using Catalog.API.Extensions;
+﻿using Asp.Versioning;
+using Catalog.API.Extensions;
 using Catalog.Application.Categories.EditCategory;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -6,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Categories.EditCategory;
-[Route("api/categories")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/categories")]
 [ApiController]
 public class EditCategoryController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> EditCategory(long id, EditCategoryRequest request, CancellationToken cancellationToken)

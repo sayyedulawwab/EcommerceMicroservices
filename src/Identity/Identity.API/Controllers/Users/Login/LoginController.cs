@@ -1,14 +1,17 @@
-﻿using Identity.API.Extensions;
+﻿using Asp.Versioning;
+using Identity.API.Extensions;
 using Identity.Application.Users.Login;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 
 namespace Identity.API.Controllers.Users.Login;
-[Route("api/auth/login")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/auth/login")]
 [ApiController]
 public class LoginController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [HttpPost]
     public async Task<IActionResult> Login(
         LoginRequest request,

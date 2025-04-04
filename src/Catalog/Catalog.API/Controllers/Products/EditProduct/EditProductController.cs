@@ -1,4 +1,5 @@
-﻿using Catalog.API.Extensions;
+﻿using Asp.Versioning;
+using Catalog.API.Extensions;
 using Catalog.Application.Products.EditProduct;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -6,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Products.EditProduct;
-[Route("api/products")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/products")]
 [ApiController]
 public class EditProductController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> EditProduct(long id, EditProductRequest request, CancellationToken cancellationToken)

@@ -1,4 +1,5 @@
-﻿using Catalog.API.Extensions;
+﻿using Asp.Versioning;
+using Catalog.API.Extensions;
 using Catalog.Application.Categories;
 using Catalog.Application.Categories.GetAllCategories;
 using MediatR;
@@ -7,10 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Categories.GetAllCategories;
-[Route("api/categories")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/categories")]
 [ApiController]
 public class GetAllCategoriesController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [HttpGet]
     public async Task<IActionResult> GetCategories(CancellationToken cancellationToken)
     {

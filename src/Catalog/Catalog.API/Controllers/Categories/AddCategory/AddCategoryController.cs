@@ -1,4 +1,5 @@
-﻿using Catalog.API.Extensions;
+﻿using Asp.Versioning;
+using Catalog.API.Extensions;
 using Catalog.Application.Categories.AddCategory;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -6,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 
 namespace Catalog.API.Controllers.Categories.AddCategory;
-[Route("api/categories")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/categories")]
 [ApiController]
 public class AddCategoryController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddCategory(AddCategoryRequest request, CancellationToken cancellationToken)

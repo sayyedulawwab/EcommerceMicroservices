@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Asp.Versioning;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.API.Extensions;
@@ -6,10 +7,12 @@ using Ordering.Application.Orders.GetAllOrders;
 using SharedKernel.Domain;
 
 namespace Ordering.API.Controllers.Orders.GetAllOrders;
-[Route("api/orders")]
+[ApiVersion(1)]
+[Route("api/v{v:apiVersion}/orders")]
 [ApiController]
 public class GetAllOrdersController(ISender sender) : ControllerBase
 {
+    [MapToApiVersion(1)]
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllOrders(CancellationToken cancellationToken)

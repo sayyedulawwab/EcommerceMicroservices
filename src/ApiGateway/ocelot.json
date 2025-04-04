@@ -5,9 +5,9 @@
   },
   "Routes": [
     {
-      "UpstreamPathTemplate": "/api/catalog/{everything}",
+      "UpstreamPathTemplate": "/api/catalog/v{version}/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamPathTemplate": "/api/v{version}/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -17,9 +17,9 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/api/b/{everything}",
+      "UpstreamPathTemplate": "/api/cart/v{version}/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamPathTemplate": "/api/v{version}/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -29,9 +29,9 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/api/o/{everything}",
+      "UpstreamPathTemplate": "/api/ordering/v{version}/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamPathTemplate": "/api/v{version}/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -41,9 +41,9 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/api/identity/{everything}",
+      "UpstreamPathTemplate": "/api/identity/v{version}/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamPathTemplate": "/api/v{version}/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
