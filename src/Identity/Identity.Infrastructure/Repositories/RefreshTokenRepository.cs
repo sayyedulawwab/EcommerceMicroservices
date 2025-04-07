@@ -17,4 +17,11 @@ internal sealed class RefreshTokenRepository(ApplicationDbContext dbContext) : R
 
         return refreshToken;
     }
+
+    public async Task DeleteByUserIdAsync(long userId)
+    {
+        await DbContext.Set<RefreshToken>()
+            .Where(r => r.UserId == userId)
+            .ExecuteDeleteAsync();
+    }
 }
