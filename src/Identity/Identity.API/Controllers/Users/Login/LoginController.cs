@@ -19,7 +19,25 @@ public class LoginController(ISender sender) : ControllerBase
     {
         var query = new LoginUserQuery(request.Email, request.Password);
 
-        Result<AccessTokenResponse> result = await sender.Send(query, cancellationToken);
+        Result<TokenResponse> result = await sender.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.ToActionResult();
+        }
+
+        return Ok(result.Value);
+    }
+
+    [MapToApiVersion(1)]
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> LoginWithRefreshToken(
+        LoginWithRefreshTokenRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new LoginUserWithRefreshTokenQuery(request.RefreshToken);
+
+        Result<TokenResponse> result = await sender.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {

@@ -6,11 +6,13 @@ using SharedKernel.Domain;
 namespace Identity.Application.Users.Login;
 internal sealed class LoginUserQueryHandler(
     IUserRepository userRepository,
+    IRefreshTokenRepository refreshTokenRepository,
+    IUnitOfWork unitOfWork,
     IPasswordHasher passwordHasher,
     IJwtService jwtService)
-    : IQueryHandler<LoginUserQuery, AccessTokenResponse>
+    : IQueryHandler<LoginUserQuery, TokenResponse>
 {
-    public async Task<Result<AccessTokenResponse>> Handle(
+    public async Task<Result<TokenResponse>> Handle(
         LoginUserQuery request,
         CancellationToken cancellationToken)
     {
@@ -19,28 +21,28 @@ internal sealed class LoginUserQueryHandler(
 
         if (user is null)
         {
-            return Result.Failure<AccessTokenResponse>(UserErrors.NotFound);
+            return Result.Failure<TokenResponse>(UserErrors.NotFound);
         }
 
         bool isPasswordValid = passwordHasher.Verify(request.Password, user.PasswordHash);
 
         if (!isPasswordValid)
         {
-            return Result.Failure<AccessTokenResponse>(UserErrors.InvalidCredentials);
+            return Result.Failure<TokenResponse>(UserErrors.InvalidCredentials);
         }
 
-
-        Result<string> result = jwtService.GetAccessToken(
+        string accessToken = jwtService.GetAccessToken(
             request.Email,
             user.Id,
             cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return Result.Failure<AccessTokenResponse>(UserErrors.InvalidCredentials);
-        }
+        var refreshToken = RefreshToken.Create(jwtService.GenerateRefreshToken(), user.Id, DateTime.UtcNow.AddDays(7));
 
-        return new AccessTokenResponse(result.Value);
+        refreshTokenRepository.Add(refreshToken);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new TokenResponse(accessToken, refreshToken.Token);
     }
 
 }
