@@ -42,40 +42,12 @@ services:
     networks:
       - app-network
 
-  # jaegar-agent:
-  #   image: jaegertracing/jaeger:2.2.0
-  #   container_name: jaegar-agent
-  #   ports:
-  #     - 4317:4317
-  #     - 4318:4318
-  #     - 5778:5778
-  #     - 9411:9411
-  #     - 16686:16686
-  #   networks:
-  #     - app-network
-
-  seq-logging:
-        image: datalust/seq:latest
-        container_name: seq-logging
-        volumes:
-          - ./.containers/seq/data:/data
-        environment:
-          - ACCEPT_EULA=Y
-        networks:
-          - app-network
-        ports:
-          - 5341:5341
-          - 8081:80
-
   identity-api:
     image: ${DOCKER_REGISTRY-}identityapi
     container_name: Identity.API
     build:
       context: .
       dockerfile: src/Identity/Identity.API/Dockerfile
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
-      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5006:8080
       - 5007:8081
@@ -92,9 +64,6 @@ services:
     build:
       context: .
       dockerfile: src/Catalog/Catalog.API/Dockerfile
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
-      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5000:8080
       - 5001:8081
@@ -111,9 +80,6 @@ services:
     build:
       context: .
       dockerfile: src/Cart/Cart.API/Dockerfile
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
-      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5002:8080
       - 5003:8081
@@ -131,9 +97,6 @@ services:
     build:
       context: .
       dockerfile: src/Ordering/Ordering.API/Dockerfile
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
-      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5004:8080
       - 5005:8081
@@ -150,9 +113,6 @@ services:
     build:
       context: .
       dockerfile: src/Payment/Payment.Processor/Dockerfile
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://seq-logging:5341/ingest/otlp/v1/traces
-      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
     ports:
       - 5008:8080
       - 5009:8081

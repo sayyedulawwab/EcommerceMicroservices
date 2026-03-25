@@ -7,6 +7,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Ordering.API;
 using Ordering.API.Extensions;
+using Ordering.API.Logging;
 using Ordering.Application;
 using Ordering.Application.Orders.UpdateOrderStatus;
 using Ordering.Infrastructure;
@@ -16,6 +17,50 @@ using System.Diagnostics;
 using System.Globalization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+
+Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+Activity.ForceDefaultIdFormat = true;
+
+builder.Host.UseSerilog((context, loggerConfigruration) => loggerConfigruration.ReadFrom.Configuration(builder.Configuration)
+.Enrich.With<ActivityEnricher>(), writeToProviders: true);
+
+string otlpLogsEndpoint = builder.Configuration["Otlp:LogsEndpoint"] ?? string.Empty;
+string otlpTracesEndpoint = builder.Configuration["Otlp:TracesEndpoint"] ?? string.Empty;
+string otlpMetricsEndpoint = builder.Configuration["Otlp:MetricsEndpoint"] ?? string.Empty;
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService(builder.Environment.ApplicationName).AddAttributes(new Dictionary<string, object>
+    {
+        ["environment.name"] = builder.Environment.EnvironmentName,
+        ["service.name"] = builder.Environment.ApplicationName
+    }))
+    .WithLogging(logging => logging
+            .AddOtlpExporter(exporterOptions =>
+            {
+                exporterOptions.Endpoint = new Uri(otlpLogsEndpoint);
+                exporterOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+            }))
+    .WithTracing(tracing => tracing
+            .AddSource(builder.Environment.ApplicationName)
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddOtlpExporter(exporterOptions =>
+            {
+                exporterOptions.Endpoint = new Uri(otlpTracesEndpoint);
+                exporterOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+            }))
+    .WithMetrics(metrics => metrics
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddOtlpExporter((exporterOptions, metricReaderOptions) =>
+            {
+                exporterOptions.Endpoint = new Uri(otlpMetricsEndpoint);
+                exporterOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+                metricReaderOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 60000; // 60 seconds
+            }));
 
 // Add services to the container.
 
@@ -44,35 +89,6 @@ builder.Services.AddMassTransit(busConfigurator =>
 
     });
 });
-
-builder.Logging.ClearProviders();
-
-builder.Host.UseSerilog((context, loggerConfigruration) => loggerConfigruration.ReadFrom.Configuration(builder.Configuration)
-    .WriteTo.OpenTelemetry(options =>
-    {
-        options.Endpoint = "http://seq-logging:5341/ingest/otlp/v1/logs";
-        options.Protocol = OtlpProtocol.HttpProtobuf;
-        options.ResourceAttributes = new Dictionary<string, object>
-        {
-            ["service.name"] = "Ordering.API",
-            ["deployment.environment"] = "Development"
-        };
-    }), true, writeToProviders: false);
-
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => resource.AddService("Ordering.API"))
-    .WithTracing(tracing => tracing
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation()
-        .AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName)
-        .AddOtlpExporter());
-
-//builder.Logging.AddOpenTelemetry(logging =>
-//{
-//    logging.IncludeScopes = true;
-//    logging.IncludeFormattedMessage = true;
-//    logging.AddOtlpExporter();
-//});
 
 builder.Services.AddApiVersioning(options =>
 {

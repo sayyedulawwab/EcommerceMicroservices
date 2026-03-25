@@ -1,3 +1,3 @@
-﻿namespace Identity.API.Controllers.Users.Login;
+﻿namespace Identity.API.Controllers.Users.RevokeRefreshTokens;
 
 public record RevokeRefreshTokensRequest(long UserId);
