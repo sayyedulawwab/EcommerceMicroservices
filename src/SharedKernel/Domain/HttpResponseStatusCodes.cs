@@ -1,4 +1,5 @@
 ﻿namespace SharedKernel.Domain;
+
 public enum HttpResponseStatusCodes
 {
     BadRequest = 400,

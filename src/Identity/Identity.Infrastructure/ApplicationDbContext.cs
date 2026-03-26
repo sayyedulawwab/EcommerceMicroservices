@@ -6,6 +6,7 @@ using SharedKernel.Exceptions;
 using System.Data;
 
 namespace Identity.Infrastructure;
+
 public sealed class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatcher domainEventsDispatcher) : DbContext(options), IUnitOfWork
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)

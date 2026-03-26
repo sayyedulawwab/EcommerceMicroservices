@@ -6,6 +6,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Identity.API.Controllers.Users.Login;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/auth/login")]
 [ApiController]

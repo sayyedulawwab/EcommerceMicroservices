@@ -1,12 +1,12 @@
 ﻿using Asp.Versioning;
 using Identity.API.Extensions;
-using Identity.Application.Users.Register;
 using Identity.Application.Users.RevokeRefreshTokens;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Identity.API.Controllers.Users.RevokeRefreshTokens;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/users/{:id}/refresh-tokens")]
 [ApiController]

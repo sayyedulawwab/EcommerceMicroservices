@@ -1,4 +1,5 @@
 ﻿namespace Catalog.Application.Products;
+
 public class PagedList<T>
 {
     private PagedList(IEnumerable<T> items, int page, int pageSize, long totalCount)

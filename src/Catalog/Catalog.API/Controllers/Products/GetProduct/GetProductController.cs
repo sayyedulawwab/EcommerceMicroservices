@@ -1,7 +1,5 @@
 ﻿using Asp.Versioning;
 using Catalog.API.Extensions;
-using Catalog.Application.Categories;
-using Catalog.Application.Categories.GetCategoryById;
 using Catalog.Application.Products;
 using Catalog.Application.Products.GetProductById;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +7,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.API.Controllers.Products.GetProduct;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/products")]
 [ApiController]

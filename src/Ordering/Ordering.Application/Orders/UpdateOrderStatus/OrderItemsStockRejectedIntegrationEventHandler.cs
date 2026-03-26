@@ -4,6 +4,7 @@ using SharedKernel.Events;
 using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
+
 public sealed class OrderItemsStockRejectedIntegrationEventHandler(
     ILogger<OrderItemsStockRejectedIntegrationEventHandler> logger,
     ICommandHandler<UpdateOrderStatusToCanceledCommand, long> handler)

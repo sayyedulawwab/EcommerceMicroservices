@@ -1,4 +1,5 @@
 ﻿namespace Cart.Application.Abstractions.Caching;
+
 public interface ICacheService
 {
     Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)

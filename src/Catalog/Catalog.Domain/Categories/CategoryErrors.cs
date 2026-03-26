@@ -1,6 +1,7 @@
 ﻿using SharedKernel.Domain;
 
 namespace Catalog.Domain.Categories;
+
 public static class CategoryErrors
 {
     public static Error NoCategories => Error.NotFound(

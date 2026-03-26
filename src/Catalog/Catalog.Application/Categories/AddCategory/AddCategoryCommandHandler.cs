@@ -4,6 +4,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Categories.AddCategory;
+
 internal sealed class AddCategoryCommandHandler(
     ICategoryRepository categoryRepository,
     IUnitOfWork unitOfWork,

@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 
 namespace Identity.Infrastructure.Auth;
+
 internal sealed class PasswordHasher : IPasswordHasher
 {
     private const int SaltSize = 32; // 256 bits for salt

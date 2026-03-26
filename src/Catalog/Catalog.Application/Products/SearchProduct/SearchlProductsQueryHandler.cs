@@ -4,6 +4,7 @@ using SharedKernel.Messaging;
 using System.Linq.Expressions;
 
 namespace Catalog.Application.Products.SearchProduct;
+
 internal sealed class SearchlProductsQueryHandler(IProductRepository productRepository)
     : IQueryHandler<SearchProductsQuery, PagedList<ProductResponse>>
 {

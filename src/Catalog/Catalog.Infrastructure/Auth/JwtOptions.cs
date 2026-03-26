@@ -1,4 +1,5 @@
 ﻿namespace Catalog.Infrastructure.Auth;
+
 public sealed class JwtOptions
 {
     public string Issuer { get; set; }

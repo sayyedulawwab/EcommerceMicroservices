@@ -4,6 +4,7 @@ using SharedKernel.Events;
 using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
+
 public sealed class OrderPaymentSucceededIntegrationEventHandler(
     ILogger<OrderPaymentSucceededIntegrationEventHandler> logger,
     ICommandHandler<UpdateOrderStatusToPaidCommand, long> handler)

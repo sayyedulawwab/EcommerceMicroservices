@@ -3,6 +3,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Categories.DeleteCategory;
+
 internal sealed class DeleteCategoryCommandHandler(
     ICategoryRepository categoryRepository,
     IUnitOfWork unitOfWork)

@@ -4,6 +4,7 @@ using Ordering.Domain.Orders;
 using SharedKernel.Domain;
 
 namespace Ordering.Infrastructure.Configurations;
+
 internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 {
     public void Configure(EntityTypeBuilder<Order> builder)

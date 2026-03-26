@@ -1,6 +1,7 @@
 ﻿using SharedKernel.Domain;
 
 namespace Identity.Domain.Users;
+
 public sealed class User : Entity<long>
 {
     private User(string firstName, string lastName, string email, string passwordHash, bool isAdmin, DateTime createdOnUtc)

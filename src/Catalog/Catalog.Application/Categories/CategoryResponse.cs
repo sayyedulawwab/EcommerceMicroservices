@@ -1,4 +1,5 @@
 ﻿namespace Catalog.Application.Categories;
+
 public sealed class CategoryResponse
 {
     public long Id { get; init; }

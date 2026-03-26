@@ -1,6 +1,7 @@
 ﻿using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.SearchProduct;
+
 public record SearchProductsQuery(
     long? CategoryId,
     decimal? MinPrice,

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 
 namespace Catalog.Application.Products.EditProduct;
+
 public class EditProductCommandValidator : AbstractValidator<EditProductCommand>
 {
     public EditProductCommandValidator()

@@ -3,6 +3,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.GetAllOrders;
+
 internal sealed class GetAllOrdersQueryHandler(IOrderRepository orderRepository)
     : IQueryHandler<GetAllOrdersQuery, IReadOnlyList<OrderResponse>>
 {

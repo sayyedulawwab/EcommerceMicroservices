@@ -1,12 +1,12 @@
 ﻿using Asp.Versioning;
 using Catalog.Application.Products;
-using Catalog.Application.Products.GetProductById;
 using Catalog.Application.Products.SearchProduct;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.API.Controllers.Products.SearchProduct;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/products")]
 [ApiController]

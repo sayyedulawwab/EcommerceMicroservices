@@ -3,6 +3,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.GetProductById;
+
 internal sealed class GetProductByIdQueryHandler(IProductRepository productRepository)
     : IQueryHandler<GetProductByIdQuery, ProductResponse>
 {

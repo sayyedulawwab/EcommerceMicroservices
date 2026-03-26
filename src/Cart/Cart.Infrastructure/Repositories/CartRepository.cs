@@ -2,6 +2,7 @@
 using Cart.Domain.Carts;
 
 namespace Cart.Infrastructure.Repositories;
+
 internal sealed class CartRepository(ICacheService cacheService) : ICartRepository
 {
     public async Task AddAsync(Domain.Carts.Cart cart)

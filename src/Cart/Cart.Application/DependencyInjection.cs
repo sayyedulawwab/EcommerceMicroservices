@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Messaging;
 
 namespace Cart.Application;
+
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)

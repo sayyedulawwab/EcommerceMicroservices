@@ -3,6 +3,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.DeleteProduct;
+
 internal sealed class DeleteProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
     : ICommandHandler<DeleteProductCommand, long>
 {

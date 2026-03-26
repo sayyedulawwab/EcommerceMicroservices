@@ -1,6 +1,7 @@
 ﻿using SharedKernel.Domain;
 
 namespace Cart.Domain.Carts;
+
 public sealed class Cart : Entity<Guid>
 {
     public Cart(Guid id, long userId, Money totalPrice, DateTime createdOnUtc) : base(id)

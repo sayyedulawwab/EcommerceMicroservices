@@ -2,6 +2,7 @@
 using Ordering.Domain.Orders;
 
 namespace Ordering.Infrastructure.Repositories;
+
 internal sealed class OrderRepository(ApplicationDbContext dbContext) : Repository<Order>(dbContext), IOrderRepository
 {
     public override async Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken cancellationToken = default)

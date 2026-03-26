@@ -3,6 +3,7 @@ using Payment.Processor.Application.Abstractions;
 using SharedKernel.Events;
 
 namespace Payment.Processor.Application.Events;
+
 public sealed class OrderStatusChangedToStockConfirmedIntegrationEventHandler(
     ILogger<OrderStatusChangedToStockConfirmedIntegrationEventHandler> logger,
     IPaymentService paymentService)

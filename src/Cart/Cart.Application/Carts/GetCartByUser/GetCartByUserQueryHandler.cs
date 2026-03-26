@@ -3,6 +3,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Cart.Application.Carts.GetCartByUser;
+
 internal sealed class GetCartByUserQueryHandler(ICartRepository cartRepository) : IQueryHandler<GetCartByUserQuery, CartResponse>
 {
     public async Task<Result<CartResponse>> Handle(GetCartByUserQuery request, CancellationToken cancellationToken)

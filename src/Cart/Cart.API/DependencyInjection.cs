@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi;
 
 namespace Cart.API;
 
@@ -8,6 +8,8 @@ public static class DependencyInjection
     {
         services.AddSwaggerGen(option =>
         {
+            option.SwaggerDoc("v1", new OpenApiInfo { Title = "Cart.API", Version = "v1" });
+
             option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
@@ -18,19 +20,9 @@ public static class DependencyInjection
                 Scheme = "Bearer"
             });
 
-            option.AddSecurityRequirement(new OpenApiSecurityRequirement
+            option.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type=ReferenceType.SecurityScheme,
-                            Id="Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
             });
 
         });

@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 
 namespace Catalog.Domain.Products;
+
 public interface IProductRepository
 {
     Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken cancellationToken = default);

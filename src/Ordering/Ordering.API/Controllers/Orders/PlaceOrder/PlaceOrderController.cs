@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Security.Claims;
 
 namespace Ordering.API.Controllers.Orders.PlaceOrder;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/orders")]
 [ApiController]

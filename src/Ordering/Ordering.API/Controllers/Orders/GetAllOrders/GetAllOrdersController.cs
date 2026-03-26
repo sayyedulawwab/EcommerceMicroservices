@@ -7,6 +7,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Ordering.API.Controllers.Orders.GetAllOrders;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/orders")]
 [ApiController]

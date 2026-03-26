@@ -1,12 +1,12 @@
 ﻿using Asp.Versioning;
 using Identity.API.Extensions;
-using Identity.Application.Users.Login;
 using Identity.Application.Users.Register;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Identity.API.Controllers.Users.Register;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/auth/register")]
 [ApiController]

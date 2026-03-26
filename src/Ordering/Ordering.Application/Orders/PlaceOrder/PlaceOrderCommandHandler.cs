@@ -6,6 +6,7 @@ using SharedKernel.Events;
 using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.PlaceOrder;
+
 internal sealed class PlaceOrderCommandHandler(
     IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,

@@ -1,7 +1,6 @@
 ﻿using Identity.Application.Abstractions.Auth;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SharedKernel.Domain;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Identity.Infrastructure.Auth;
+
 internal sealed class JwtService(IOptions<JwtOptions> jwtOptions) : IJwtService
 {
     public string GetAccessToken(string email, long userId, CancellationToken cancellationToken = default)

@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using Catalog.API.Extensions;
 using Catalog.Application.Categories;
-using Catalog.Application.Categories.GetAllCategories;
 using Catalog.Application.Categories.GetCategoryById;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +8,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.API.Controllers.Categories.GetCategory;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/categories")]
 [ApiController]

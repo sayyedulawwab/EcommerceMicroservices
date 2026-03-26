@@ -1,6 +1,7 @@
 ﻿using SharedKernel.Domain;
 
 namespace Catalog.Domain.Products;
+
 public static class ProductErrors
 {
     public static Error NotFound() => Error.NotFound(

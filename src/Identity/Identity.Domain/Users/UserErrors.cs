@@ -1,6 +1,7 @@
 ﻿using SharedKernel.Domain;
 
 namespace Identity.Domain.Users;
+
 public static class UserErrors
 {
     public static readonly Error AlreadyExists = Error.Conflict(

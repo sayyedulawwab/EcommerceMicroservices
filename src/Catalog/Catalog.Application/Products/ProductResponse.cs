@@ -1,4 +1,5 @@
 ﻿namespace Catalog.Application.Products;
+
 public sealed class ProductResponse
 {
     public long Id { get; init; }

@@ -4,6 +4,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
+
 internal sealed class UpdateOrderStatusToCanceledCommandHandler(
     IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,

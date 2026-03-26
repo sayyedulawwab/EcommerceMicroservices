@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Catalog.Infrastructure.Repositories;
+
 internal sealed class ProductRepository(ApplicationDbContext dbContext) : Repository<Product>(dbContext), IProductRepository
 {
     public async Task<(IReadOnlyList<Product>, int TotalRecords)> FindAsync(Expression<Func<Product, bool>>? predicate = null, Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = null, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)

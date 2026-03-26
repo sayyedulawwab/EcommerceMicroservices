@@ -4,6 +4,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Identity.Application.Users.Login;
+
 internal sealed class LoginUserWithRefreshTokenQueryHandler(
     IRefreshTokenRepository refreshTokenRepository,
     IUnitOfWork unitOfWork,

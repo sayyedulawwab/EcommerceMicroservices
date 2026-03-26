@@ -1,6 +1,7 @@
 ﻿using SharedKernel.Domain;
 
 namespace Ordering.Domain.Orders;
+
 public sealed class Order : Entity<long>
 {
     public Order(long userID, Money totalPrice, OrderStatus status, DateTime createdOnUtc)

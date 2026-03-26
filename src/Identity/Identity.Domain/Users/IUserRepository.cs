@@ -1,4 +1,5 @@
 ﻿namespace Identity.Domain.Users;
+
 public interface IUserRepository
 {
     void Add(User user);

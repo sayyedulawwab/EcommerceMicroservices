@@ -5,6 +5,7 @@ using SharedKernel.Events;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.Events;
+
 public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
     ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger,
     ICommandHandler<UpdateProductStockCommand, long> handler)

@@ -3,6 +3,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.UpdateProductStock;
+
 internal sealed class UpdateProductStockCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
     : ICommandHandler<UpdateProductStockCommand, long>
 {

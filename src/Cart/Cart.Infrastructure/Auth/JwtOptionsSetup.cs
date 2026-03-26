@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 
 namespace Cart.Infrastructure.Auth;
+
 internal sealed class JwtOptionsSetup(IConfiguration configuration) : IConfigureOptions<JwtOptions>
 {
     private const string SectionName = "Jwt";

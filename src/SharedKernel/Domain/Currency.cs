@@ -1,4 +1,5 @@
 ﻿namespace SharedKernel.Domain;
+
 public record Currency
 {
     public static readonly Currency None = new("");

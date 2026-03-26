@@ -1,6 +1,5 @@
 ﻿using Asp.Versioning;
 using Catalog.API.Extensions;
-using Catalog.Application.Products.DeleteProduct;
 using Catalog.Application.Products.EditProduct;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +7,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.API.Controllers.Products.EditProduct;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/products")]
 [ApiController]

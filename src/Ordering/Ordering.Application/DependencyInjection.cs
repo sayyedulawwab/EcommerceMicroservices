@@ -4,6 +4,7 @@ using Ordering.Application.Abstractions.Decorators;
 using SharedKernel.Messaging;
 
 namespace Ordering.Application;
+
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)

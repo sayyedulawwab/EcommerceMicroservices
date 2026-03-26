@@ -1,10 +1,10 @@
 ﻿using Catalog.Domain.Products;
 using MassTransit;
-using MassTransit.Middleware;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 
 namespace Catalog.Application.Products.Events;
+
 public sealed class OrderPlacedIntegrationEventHandler(
     ILogger<OrderPlacedIntegrationEventHandler> logger,
     IProductRepository productRepository)

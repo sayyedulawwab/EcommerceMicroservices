@@ -7,6 +7,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.API.Controllers.Categories.GetAllCategories;
+
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/categories")]
 [ApiController]

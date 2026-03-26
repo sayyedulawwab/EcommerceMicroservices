@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 
 namespace Identity.Infrastructure.Auth;
+
 public class PasswordHashData
 {
     public int Iterations { get; set; }

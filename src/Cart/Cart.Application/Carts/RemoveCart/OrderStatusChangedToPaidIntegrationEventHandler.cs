@@ -4,6 +4,7 @@ using SharedKernel.Events;
 using SharedKernel.Messaging;
 
 namespace Cart.Application.Carts.RemoveCart;
+
 public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
     ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger,
     ICommandHandler<RemoveCartCommand> handler)

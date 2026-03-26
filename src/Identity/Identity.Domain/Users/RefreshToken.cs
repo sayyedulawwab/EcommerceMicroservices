@@ -1,11 +1,7 @@
 ﻿using SharedKernel.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Identity.Domain.Users;
+
 public sealed class RefreshToken : Entity<long>
 {
     private RefreshToken(string token, long userId, DateTime expiresOnUtc)

@@ -5,6 +5,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Identity.Application.Users.Register;
+
 internal sealed class RegisterUserCommandHandler(
     IPasswordHasher passwordHasher,
     IUserRepository userRepository,

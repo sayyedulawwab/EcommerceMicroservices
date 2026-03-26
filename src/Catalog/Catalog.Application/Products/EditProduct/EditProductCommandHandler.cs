@@ -4,6 +4,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.EditProduct;
+
 internal sealed class EditProductCommandHandler(
     IProductRepository productRepository,
     IUnitOfWork unitOfWork,

@@ -4,6 +4,7 @@ using SharedKernel.Events;
 using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
+
 public sealed class OrderItemsStockConfirmedIntegrationEventHandler(
     ILogger<OrderItemsStockConfirmedIntegrationEventHandler> logger,
     ICommandHandler<UpdateOrderStatusToStockConfirmedCommand, long> handler)

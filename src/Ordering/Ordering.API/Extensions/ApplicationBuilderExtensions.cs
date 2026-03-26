@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Ordering.API.Middleware;
-using Ordering.Infrastructure;
+﻿using Microsoft.OpenApi;
 
 namespace Ordering.API.Extensions;
 
@@ -8,8 +6,9 @@ public static class ApplicationBuilderExtensions
 {
     public static IApplicationBuilder UseSwaggerWithUi(this WebApplication app)
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
+        app.UseSwagger(options => options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1);
+        app.MapSwagger();
+        app.UseSwaggerUI(options => options.SwaggerEndpoint("v1/swagger.json", "Ordering API V1"));
 
         return app;
     }

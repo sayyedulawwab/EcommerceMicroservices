@@ -1,7 +1,6 @@
 ﻿using Bogus;
 using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
-using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 
 namespace Catalog.Infrastructure.Data;

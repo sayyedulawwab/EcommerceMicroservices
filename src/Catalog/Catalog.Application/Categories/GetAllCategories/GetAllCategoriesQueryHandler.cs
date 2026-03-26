@@ -3,6 +3,7 @@ using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Categories.GetAllCategories;
+
 internal sealed class GetAllCategoriesQueryHandler(ICategoryRepository categoryRepository)
     : IQueryHandler<GetAllCategoriesQuery, IReadOnlyList<CategoryResponse>>
 {

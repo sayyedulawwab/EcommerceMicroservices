@@ -6,6 +6,7 @@ using SharedKernel.Events;
 using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
+
 internal sealed class UpdateOrderStatusToStockConfirmedCommandHandler(
     IOrderRepository orderRepository,
     IUnitOfWork unitOfWork,
