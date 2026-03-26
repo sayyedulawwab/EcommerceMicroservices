@@ -6,8 +6,9 @@ using Ocelot.Middleware;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
-builder.Services.AddOcelot(builder.Configuration);
+builder.Services
+    .AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 builder.Services.AddServices();
 
@@ -19,9 +20,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerWithUi();
 }
 
-//app.UseHttpsRedirection();
-
-await app.UseOcelot();
+app.MapReverseProxy();
 
 app.MapControllers();
 
