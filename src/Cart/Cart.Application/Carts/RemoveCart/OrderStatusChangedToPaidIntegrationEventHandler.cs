@@ -1,13 +1,12 @@
 ﻿using MassTransit;
-using MassTransit.Middleware;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
+using SharedKernel.Messaging;
 
 namespace Cart.Application.Carts.RemoveCart;
 public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
     ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger,
-    ISender sender)
+    ICommandHandler<RemoveCartCommand> handler)
     : IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>
 {
     public async Task Consume(ConsumeContext<OrderStatusChangedToPaidIntegrationEvent> context)
@@ -16,6 +15,6 @@ public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
 
         var command = new RemoveCartCommand(context.Message.UserId);
 
-        await sender.Send(command, context.CancellationToken);
+        await handler.Handle(command, context.CancellationToken);
     }
 }

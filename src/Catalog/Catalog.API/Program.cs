@@ -6,15 +6,12 @@ using Catalog.Application;
 using Catalog.Application.Products.Events;
 using Catalog.Infrastructure;
 using MassTransit;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
-using Serilog.Sinks.OpenTelemetry;
 using System.Diagnostics;
-using System.Globalization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

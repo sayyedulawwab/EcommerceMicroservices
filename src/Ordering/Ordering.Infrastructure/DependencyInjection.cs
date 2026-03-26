@@ -8,6 +8,7 @@ using Ordering.Infrastructure.Auth;
 using Ordering.Infrastructure.Clock;
 using Ordering.Infrastructure.Repositories;
 using SharedKernel.Domain;
+using SharedKernel.DomainEvents;
 
 namespace Ordering.Infrastructure;
 public static class DependencyInjection
@@ -15,6 +16,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
 
         AddAuthentication(services);
         AddPersistence(services, configuration);

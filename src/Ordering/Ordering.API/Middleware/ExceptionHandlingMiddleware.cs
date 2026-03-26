@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ordering.Application.Exceptions;
+using SharedKernel.Exceptions;
 
 namespace Ordering.API.Middleware;
 

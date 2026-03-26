@@ -1,12 +1,12 @@
 ﻿using MassTransit;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
+using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
 public sealed class OrderPaymentFailedIntegrationEventHandler(
     ILogger<OrderPaymentFailedIntegrationEventHandler> logger,
-    ISender sender)
+    ICommandHandler<UpdateOrderStatusToCanceledCommand, long> handler)
     : IIntegrationEventHandler<OrderPaymentFailedIntegrationEvent>
 {
     public async Task Consume(ConsumeContext<OrderPaymentFailedIntegrationEvent> context)
@@ -15,6 +15,6 @@ public sealed class OrderPaymentFailedIntegrationEventHandler(
 
         var command = new UpdateOrderStatusToCanceledCommand(context.Message.OrderId);
 
-        await sender.Send(command, default);
+        await handler.Handle(command, default);
     }
 }

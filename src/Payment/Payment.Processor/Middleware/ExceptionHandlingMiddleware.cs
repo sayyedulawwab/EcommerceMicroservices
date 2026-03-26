@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Payment.Processor.Exceptions;
+using SharedKernel.Exceptions;
 
 namespace Payment.Processor.Middleware;
 

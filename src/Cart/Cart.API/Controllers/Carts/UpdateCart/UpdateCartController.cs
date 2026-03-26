@@ -1,9 +1,9 @@
 ﻿using Asp.Versioning;
 using Cart.API.Extensions;
 using Cart.Application.Carts.UpdateCart;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
+using SharedKernel.Messaging;
 using System.Globalization;
 using System.Security.Claims;
 
@@ -11,11 +11,11 @@ namespace Cart.API.Controllers.Carts.UpdateCart;
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/carts")]
 [ApiController]
-public class UpdateCartController(ISender sender) : ControllerBase
+public class UpdateCartController() : ControllerBase
 {
     [MapToApiVersion(1)]
     [HttpPut]
-    public async Task<IActionResult> UpdateCart([FromBody] UpdateCartRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateCart([FromBody] UpdateCartRequest request, ICommandHandler<UpdateCartCommand, Guid> handler, CancellationToken cancellationToken)
     {
         Claim? userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
 
@@ -32,7 +32,7 @@ public class UpdateCartController(ISender sender) : ControllerBase
 
         var command = new UpdateCartCommand(userId, cartItems);
 
-        Result<Guid> result = await sender.Send(command, cancellationToken);
+        Result<Guid> result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
         {

@@ -54,7 +54,6 @@ services:
     depends_on:
       - mssql-database
       - rabbitmq-broker
-      - seq-logging
     networks:
       - app-network
 
@@ -70,7 +69,6 @@ services:
     depends_on:
       - mssql-database
       - rabbitmq-broker
-      - seq-logging
     networks:
       - app-network
 
@@ -87,7 +85,6 @@ services:
       - mssql-database
       - rabbitmq-broker
       - redis-caching
-      - seq-logging
     networks:
       - app-network
 
@@ -103,7 +100,6 @@ services:
     depends_on:
       - mssql-database
       - rabbitmq-broker
-      - seq-logging
     networks:
       - app-network
 
@@ -119,7 +115,6 @@ services:
     depends_on:
       - mssql-database
       - rabbitmq-broker
-      - seq-logging
     networks:
       - app-network
 

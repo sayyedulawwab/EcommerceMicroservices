@@ -1,7 +1,7 @@
 ﻿using Ordering.Application.Abstractions.Clock;
-using Ordering.Application.Abstractions.Messaging;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
+using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
 internal sealed class UpdateOrderStatusToCanceledCommandHandler(

@@ -1,9 +1,9 @@
 ﻿using MassTransit;
 using Ordering.Application.Abstractions.Clock;
-using Ordering.Application.Abstractions.Messaging;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
 using SharedKernel.Events;
+using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
 internal sealed class UpdateOrderStatusToStockConfirmedCommandHandler(

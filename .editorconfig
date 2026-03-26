@@ -395,6 +395,9 @@ dotnet_diagnostic.S2094.severity = none
 # S2325: Methods and properties that don't access instance data should be static
 dotnet_diagnostic.S2325.severity = none
 
+# S2326: Generic type parameter is not used in interface
+dotnet_diagnostic.S2326.severity = none
+
 # S2365: Properties should not make collection or array copies
 dotnet_diagnostic.S2365.severity = none
 

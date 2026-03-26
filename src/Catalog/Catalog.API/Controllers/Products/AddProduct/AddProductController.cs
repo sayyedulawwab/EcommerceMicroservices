@@ -1,21 +1,23 @@
 ﻿using Asp.Versioning;
 using Catalog.API.Extensions;
+using Catalog.Application.Categories;
+using Catalog.Application.Categories.GetCategoryById;
 using Catalog.Application.Products.AddProduct;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
+using SharedKernel.Messaging;
 
 namespace Catalog.API.Controllers.Products.AddProduct;
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/products")]
 [ApiController]
-public class AddProductController(ISender sender) : ControllerBase
+public class AddProductController() : ControllerBase
 {
     [MapToApiVersion(1)]
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> AddProduct(AddProductRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddProduct(AddProductRequest request, ICommandHandler<AddProductCommand, long> handler, CancellationToken cancellationToken)
     {
         var command = new AddProductCommand(
             request.Name,
@@ -25,7 +27,7 @@ public class AddProductController(ISender sender) : ControllerBase
             request.Quantity,
             request.CategoryId);
 
-        Result<long> result = await sender.Send(command, cancellationToken);
+        Result<long> result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
         {

@@ -1,6 +1,5 @@
 using Asp.Versioning;
 using MassTransit;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -12,9 +11,7 @@ using Ordering.Application;
 using Ordering.Application.Orders.UpdateOrderStatus;
 using Ordering.Infrastructure;
 using Serilog;
-using Serilog.Sinks.OpenTelemetry;
 using System.Diagnostics;
-using System.Globalization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

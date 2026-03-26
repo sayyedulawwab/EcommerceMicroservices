@@ -1,9 +1,9 @@
 ﻿using Asp.Versioning;
 using Cart.API.Extensions;
 using Cart.Application.Carts.GetCartByUser;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
+using SharedKernel.Messaging;
 using System.Globalization;
 using System.Security.Claims;
 
@@ -11,11 +11,11 @@ namespace Cart.API.Controllers.Carts.GetCartByUser;
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/carts")]
 [ApiController]
-public class GetCartByUserController(ISender sender) : ControllerBase
+public class GetCartByUserController() : ControllerBase
 {
     [MapToApiVersion(1)]
     [HttpGet]
-    public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCart(IQueryHandler<GetCartByUserQuery, CartResponse> handler, CancellationToken cancellationToken)
     {
         Claim? userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
 
@@ -28,7 +28,7 @@ public class GetCartByUserController(ISender sender) : ControllerBase
 
         var query = new GetCartByUserQuery(userId);
 
-        Result<CartResponse> result = await sender.Send(query, cancellationToken);
+        Result<CartResponse> result = await handler.Handle(query, cancellationToken);
 
         if (result.IsFailure)
         {

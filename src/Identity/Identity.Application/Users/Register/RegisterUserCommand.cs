@@ -1,4 +1,4 @@
-﻿using Identity.Application.Abstractions.Messaging;
+﻿using SharedKernel.Messaging;
 
 namespace Identity.Application.Users.Register;
 

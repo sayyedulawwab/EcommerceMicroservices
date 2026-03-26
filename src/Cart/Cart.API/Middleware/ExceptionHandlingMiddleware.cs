@@ -1,5 +1,5 @@
-﻿using Cart.Application.Exceptions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Exceptions;
 
 namespace Cart.API.Middleware;
 

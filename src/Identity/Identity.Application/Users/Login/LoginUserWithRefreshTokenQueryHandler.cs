@@ -1,13 +1,7 @@
 ﻿using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Messaging;
 using Identity.Domain.Users;
-using MassTransit.Internals;
 using SharedKernel.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SharedKernel.Messaging;
 
 namespace Identity.Application.Users.Login;
 internal sealed class LoginUserWithRefreshTokenQueryHandler(

@@ -1,5 +1,4 @@
 using MassTransit;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -10,9 +9,7 @@ using Payment.Processor.Extensions;
 using Payment.Processor.Infrastructure;
 using Payment.Processor.Logging;
 using Serilog;
-using Serilog.Sinks.OpenTelemetry;
 using System.Diagnostics;
-using System.Globalization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

@@ -1,13 +1,12 @@
 ﻿using MassTransit;
-using MassTransit.Middleware;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
+using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.UpdateOrderStatus;
 public sealed class OrderItemsStockConfirmedIntegrationEventHandler(
     ILogger<OrderItemsStockConfirmedIntegrationEventHandler> logger,
-    ISender sender)
+    ICommandHandler<UpdateOrderStatusToStockConfirmedCommand, long> handler)
     : IIntegrationEventHandler<OrderItemsStockConfirmedIntegrationEvent>
 {
     public async Task Consume(ConsumeContext<OrderItemsStockConfirmedIntegrationEvent> context)
@@ -16,6 +15,6 @@ public sealed class OrderItemsStockConfirmedIntegrationEventHandler(
 
         var command = new UpdateOrderStatusToStockConfirmedCommand(context.Message.OrderId);
 
-        await sender.Send(command, default);
+        await handler.Handle(command, default);
     }
 }

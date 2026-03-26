@@ -1,2 +1,4 @@
-﻿namespace Cart.Application.Carts.RemoveCart;
-public record RemoveCartCommand(long UserId) : Abstractions.Messaging.ICommand;
+﻿using SharedKernel.Messaging;
+
+namespace Cart.Application.Carts.RemoveCart;
+public record RemoveCartCommand(long UserId) : ICommand;

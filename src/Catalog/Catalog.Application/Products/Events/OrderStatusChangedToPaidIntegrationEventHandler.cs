@@ -1,14 +1,13 @@
 ﻿using Catalog.Application.Products.UpdateProductStock;
 using MassTransit;
-using MassTransit.Middleware;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
+using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.Events;
 public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
     ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger,
-    ISender sender)
+    ICommandHandler<UpdateProductStockCommand, long> handler)
     : IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>
 {
     public async Task Consume(ConsumeContext<OrderStatusChangedToPaidIntegrationEvent> context)
@@ -19,7 +18,7 @@ public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
         {
             var command = new UpdateProductStockCommand(orderStockItem.ProductId, orderStockItem.Quantity);
 
-            await sender.Send(command, context.CancellationToken);
+            await handler.Handle(command, context.CancellationToken);
         }
     }
 }

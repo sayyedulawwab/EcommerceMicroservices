@@ -1,8 +1,8 @@
 ﻿using Identity.Application.Abstractions.Auth;
 using Identity.Application.Abstractions.Clock;
-using Identity.Application.Abstractions.Messaging;
 using Identity.Domain.Users;
 using SharedKernel.Domain;
+using SharedKernel.Messaging;
 
 namespace Identity.Application.Users.Register;
 internal sealed class RegisterUserCommandHandler(

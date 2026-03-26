@@ -1,25 +1,25 @@
 ﻿using Asp.Versioning;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.API.Extensions;
 using Ordering.Application.Orders.GetAllOrders;
 using SharedKernel.Domain;
+using SharedKernel.Messaging;
 
 namespace Ordering.API.Controllers.Orders.GetAllOrders;
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/orders")]
 [ApiController]
-public class GetAllOrdersController(ISender sender) : ControllerBase
+public class GetAllOrdersController() : ControllerBase
 {
     [MapToApiVersion(1)]
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetAllOrders(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllOrders(IQueryHandler<GetAllOrdersQuery, IReadOnlyList<OrderResponse>> handler, CancellationToken cancellationToken)
     {
         var query = new GetAllOrdersQuery();
 
-        Result<IReadOnlyList<OrderResponse>> result = await sender.Send(query, cancellationToken);
+        Result<IReadOnlyList<OrderResponse>> result = await handler.Handle(query, cancellationToken);
 
         if (result.IsFailure)
         {

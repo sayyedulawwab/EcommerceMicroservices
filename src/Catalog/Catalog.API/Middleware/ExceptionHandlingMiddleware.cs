@@ -1,5 +1,5 @@
-﻿using Catalog.Application.Exceptions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Exceptions;
 
 namespace Catalog.API.Middleware;
 

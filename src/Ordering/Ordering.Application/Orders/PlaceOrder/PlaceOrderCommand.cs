@@ -1,4 +1,4 @@
-﻿using Ordering.Application.Abstractions.Messaging;
+﻿using SharedKernel.Messaging;
 
 namespace Ordering.Application.Orders.PlaceOrder;
 

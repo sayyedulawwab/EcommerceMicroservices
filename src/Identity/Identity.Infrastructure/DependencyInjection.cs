@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Domain;
+using SharedKernel.DomainEvents;
 
 namespace Identity.Infrastructure;
 public static class DependencyInjection
@@ -16,6 +17,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
 
         AddPersistence(services, configuration);
         AddAuthentication(services);

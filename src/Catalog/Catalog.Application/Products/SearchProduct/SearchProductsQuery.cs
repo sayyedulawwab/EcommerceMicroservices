@@ -1,4 +1,4 @@
-﻿using Catalog.Application.Abstractions.Messaging;
+﻿using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.SearchProduct;
 public record SearchProductsQuery(

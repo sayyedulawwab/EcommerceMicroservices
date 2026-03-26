@@ -1,7 +1,6 @@
-﻿using Catalog.Application.Abstractions.Messaging;
-using Catalog.Domain.Products;
+﻿using Catalog.Domain.Products;
 using SharedKernel.Domain;
-using System.Globalization;
+using SharedKernel.Messaging;
 using System.Linq.Expressions;
 
 namespace Catalog.Application.Products.SearchProduct;

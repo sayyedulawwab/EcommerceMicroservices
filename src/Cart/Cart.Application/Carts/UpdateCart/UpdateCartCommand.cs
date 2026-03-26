@@ -1,4 +1,4 @@
-﻿using Cart.Application.Abstractions.Messaging;
+﻿using SharedKernel.Messaging;
 
 namespace Cart.Application.Carts.UpdateCart;
 

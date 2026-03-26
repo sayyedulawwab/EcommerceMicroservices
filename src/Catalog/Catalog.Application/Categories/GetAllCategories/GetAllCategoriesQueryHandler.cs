@@ -1,6 +1,6 @@
-﻿using Catalog.Application.Abstractions.Messaging;
-using Catalog.Domain.Categories;
+﻿using Catalog.Domain.Categories;
 using SharedKernel.Domain;
+using SharedKernel.Messaging;
 
 namespace Catalog.Application.Categories.GetAllCategories;
 internal sealed class GetAllCategoriesQueryHandler(ICategoryRepository categoryRepository)

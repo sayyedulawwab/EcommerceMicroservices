@@ -1,11 +1,11 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Ordering.Application.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
+using SharedKernel.DomainEvents;
+using SharedKernel.Exceptions;
 using System.Data;
 
 namespace Ordering.Infrastructure;
-public sealed class ApplicationDbContext(DbContextOptions options, IPublisher publisher) : DbContext(options), IUnitOfWork
+public sealed class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatcher domainEventsDispatcher) : DbContext(options), IUnitOfWork
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,9 +45,6 @@ public sealed class ApplicationDbContext(DbContextOptions options, IPublisher pu
             })
             .ToList();
 
-        foreach (IDomainEvent? domainEvent in domainEvents)
-        {
-            await publisher.Publish(domainEvent);
-        }
+        await domainEventsDispatcher.DispatchAsync(domainEvents);
     }
 }

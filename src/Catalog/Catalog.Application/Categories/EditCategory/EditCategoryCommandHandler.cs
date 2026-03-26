@@ -1,7 +1,7 @@
 ﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Application.Abstractions.Messaging;
 using Catalog.Domain.Categories;
 using SharedKernel.Domain;
+using SharedKernel.Messaging;
 
 namespace Catalog.Application.Categories.EditCategory;
 internal sealed class EditCategoryCommandHandler(
