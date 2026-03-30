@@ -13,7 +13,7 @@ services:
     image: rabbitmq:4.0.5-management-alpine
     container_name: rabbitmq-broker
     ports:
-      - 5672:5672
+      - 15673:5672
       - 15672:15672
     volumes:
       - ./.containers/rabbitmq/data/:/var/lib/rabbitmq/

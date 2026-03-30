@@ -1,20 +1,47 @@
 ﻿using Asp.Versioning;
 using Cart.API.Extensions;
+using Cart.Application.Carts.GetCartByUser;
 using Cart.Application.Carts.UpdateCart;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 using System.Globalization;
 using System.Security.Claims;
 
-namespace Cart.API.Controllers.Carts.UpdateCart;
+namespace Cart.API.Controllers.Carts;
 
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/carts")]
 [ApiController]
-public class UpdateCartController() : ControllerBase
+[Authorize]
+public class CartsController : ControllerBase
 {
-    [MapToApiVersion(1)]
+    [HttpGet]
+    public async Task<IActionResult> GetCart(IQueryHandler<GetCartByUserQuery, CartResponse> handler, CancellationToken cancellationToken)
+    {
+        Claim? userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim is null)
+        {
+            return BadRequest("User not found");
+        }
+
+        long userId = long.Parse(userIdClaim.Value, CultureInfo.InvariantCulture);
+
+        var query = new GetCartByUserQuery(userId);
+
+        Result<CartResponse> result = await handler.Handle(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.ToActionResult();
+        }
+
+        return Ok(result.Value);
+    }
+
     [HttpPut]
     public async Task<IActionResult> UpdateCart([FromBody] UpdateCartRequest request, ICommandHandler<UpdateCartCommand, Guid> handler, CancellationToken cancellationToken)
     {
@@ -41,5 +68,4 @@ public class UpdateCartController() : ControllerBase
         }
         return Created(string.Empty, result.Value);
     }
-
 }

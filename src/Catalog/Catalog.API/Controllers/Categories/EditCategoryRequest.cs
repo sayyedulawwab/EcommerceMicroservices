@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Catalog.API.Controllers.Categories.EditCategory;
+namespace Catalog.API.Controllers.Categories;
 
 public record EditCategoryRequest
 {

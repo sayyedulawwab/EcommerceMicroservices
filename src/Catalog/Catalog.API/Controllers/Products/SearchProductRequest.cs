@@ -1,4 +1,4 @@
-﻿namespace Catalog.API.Controllers.Products.SearchProduct;
+﻿namespace Catalog.API.Controllers.Products;
 
 public record SearchProductRequest(long? CategoryId,
                                     decimal? MinPrice,

@@ -1,6 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Cart.API.Controllers.Carts.UpdateCart;
+namespace Cart.API.Controllers.Carts;
+
+public record UpdateCartRequest
+{
+    [JsonRequired] public long UserId { get; init; }
+    public List<CartItemRequest> CartItems { get; init; }
+}
 
 public record CartItemRequest
 {
@@ -10,10 +16,4 @@ public record CartItemRequest
     public string PriceCurrency { get; init; }
     [JsonRequired] public int Quantity { get; init; }
 
-}
-
-public record UpdateCartRequest
-{
-    [JsonRequired] public long UserId { get; init; }
-    public List<CartItemRequest> CartItems { get; init; }
 }
