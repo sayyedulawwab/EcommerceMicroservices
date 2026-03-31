@@ -1,0 +1,51 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.Props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/ApiGateway/ApiGateway.csproj" />
+  </Folder>
+  <Folder Name="/src/Cart/">
+    <Project Path="src/Cart/Cart.API/Cart.API.csproj" />
+    <Project Path="src/Cart/Cart.Application/Cart.Application.csproj" />
+    <Project Path="src/Cart/Cart.Domain/Cart.Domain.csproj" />
+    <Project Path="src/Cart/Cart.Infrastructure/Cart.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Catalog/">
+    <Project Path="src/Catalog/Catalog.API/Catalog.API.csproj" />
+    <Project Path="src/Catalog/Catalog.Application/Catalog.Application.csproj" />
+    <Project Path="src/Catalog/Catalog.Domain/Catalog.Domain.csproj" />
+    <Project Path="src/Catalog/Catalog.Infrastructure/Catalog.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Identity/">
+    <Project Path="src/Identity/Identity.API/Identity.API.csproj" />
+    <Project Path="src/Identity/Identity.Application/Identity.Application.csproj" />
+    <Project Path="src/Identity/Identity.Domain/Identity.Domain.csproj" />
+    <Project Path="src/Identity/Identity.Infrastructure/Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Ordering/">
+    <Project Path="src/Ordering/Ordering.API/Ordering.API.csproj" />
+    <Project Path="src/Ordering/Ordering.Application/Ordering.Application.csproj" />
+    <Project Path="src/Ordering/Ordering.Domain/Ordering.Domain.csproj" />
+    <Project Path="src/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Payment/">
+    <Project Path="src/Payment/Payment.Processor/Payment.Processor.csproj" />
+  </Folder>
+  <Folder Name="/src/SharedKernel/">
+    <Project Path="src/SharedKernel/SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Cart/" />
+  <Folder Name="/tests/Catalog/">
+    <Project Path="tests/Catalog/Catalog.Application.UnitTests/Catalog.Application.UnitTests.csproj" />
+    <Project Path="tests/Catalog/Catalog.Domain.UnitTests/Catalog.Domain.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Identity/" />
+  <Folder Name="/tests/Ordering/" />
+  <Folder Name="/tests/Payment/" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>

@@ -5,22 +5,28 @@ namespace Identity.Infrastructure.Auth;
 
 internal sealed class PasswordHasher : IPasswordHasher
 {
-    private const int SaltSize = 32; // 256 bits for salt
-    private const int KeySize = 32; // 256 bits for hash
-    private const int Iterations = 100_000; // Adjust based on your system performance
+    private const int SaltSize = 32; // 256 bits
+    private const int KeySize = 32; // 256 bits
+    private const int Iterations = 100_000;
 
     public string GenerateSalt()
     {
         byte[] salt = new byte[SaltSize];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(salt);
+        RandomNumberGenerator.Fill(salt);
+
         return Convert.ToBase64String(salt);
     }
 
     public string Hash(string password, string salt)
     {
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, Convert.FromBase64String(salt), Iterations, HashAlgorithmName.SHA256);
-        byte[] hash = pbkdf2.GetBytes(KeySize);
+        byte[] saltBytes = Convert.FromBase64String(salt);
+
+        byte[] hash = Rfc2898DeriveBytes.Pbkdf2(
+            password,
+            saltBytes,
+            Iterations,
+            HashAlgorithmName.SHA256,
+            KeySize);
 
         var hashData = new PasswordHashData
         {
@@ -36,10 +42,17 @@ internal sealed class PasswordHasher : IPasswordHasher
     {
         var hashData = PasswordHashData.Parse(storedPasswordHash);
 
-        using var pbkdf2 = new Rfc2898DeriveBytes(enteredPassword, Convert.FromBase64String(hashData.Salt), hashData.Iterations, HashAlgorithmName.SHA256);
-        byte[] enteredPasswordHash = pbkdf2.GetBytes(KeySize);
+        byte[] saltBytes = Convert.FromBase64String(hashData.Salt);
 
-        // Verify if the computed hash matches the stored hash
-        return hashData.Hash == Convert.ToBase64String(enteredPasswordHash);
+        byte[] enteredHash = Rfc2898DeriveBytes.Pbkdf2(
+            enteredPassword,
+            saltBytes,
+            hashData.Iterations,
+            HashAlgorithmName.SHA256,
+            KeySize);
+
+        return CryptographicOperations.FixedTimeEquals(
+            enteredHash,
+            Convert.FromBase64String(hashData.Hash));
     }
 }

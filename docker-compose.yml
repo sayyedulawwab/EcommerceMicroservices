@@ -1,7 +1,7 @@
 services:
 
   redis-caching:
-    image: redis:7.4.2-alpine
+    image: redis:alpine
     container_name: redis-caching
     restart: always
     ports:
@@ -10,7 +10,7 @@ services:
       - app-network
 
   rabbitmq-broker:
-    image: rabbitmq:4.0.5-management-alpine
+    image: rabbitmq:4.2.5-management-alpine
     container_name: rabbitmq-broker
     ports:
       - 15673:5672
