@@ -6,8 +6,8 @@ I have drawn out the above diagram to get the big picture of the architecture of
 ![Ecommerce Microservice](https://raw.githubusercontent.com/sayyedulawwab/EcommerceMicroservices/refs/heads/main/EcommerceMicroservice.png)
 
 ## Technologies Used
-- ASP.NET Core 8 Web API, Microsoft SQL Server, Entity Framework Core 8, FluentValidation, MediatR, Redis, RabbitMQ, MassTransit, Docker, Ocelot API Gateway
-- Architecture Patterns: Clean architecture, Domain-driven design (DDD), CQRS by implementing Mediator pattern using MediatR package, Event-Driven Architecture (EDA)
+- .NET 10, Entity Framework Core 10, FluentValidation, Microsoft SQL Server, Redis, RabbitMQ, MassTransit, Docker, YARP
+- Architecture Patterns: Clean architecture, Domain-driven design (DDD), CQRS, Event-Driven Architecture (EDA), Microservices
 
 ## Get started
 To get started, follow these steps:
