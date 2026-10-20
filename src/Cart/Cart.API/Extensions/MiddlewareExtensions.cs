@@ -8,6 +8,13 @@ public static class MiddlewareExtensions
     {
         app.UseMiddleware<ExceptionHandlingMiddleware>();
     }
+    public static IApplicationBuilder UseCsrfProtection(this IApplicationBuilder app)
+    {
+        app.UseMiddleware<CsrfProtectionMiddleware>();
+
+        return app;
+    }
+
     public static IApplicationBuilder UseRequestContextLogging(this IApplicationBuilder app)
     {
         app.UseMiddleware<RequestContextLoggingMiddleware>();

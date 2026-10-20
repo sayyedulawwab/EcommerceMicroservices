@@ -8,7 +8,7 @@ internal sealed class RemoveCartCommandHandler(ICartRepository cartRepository) :
 {
     public async Task<Result> Handle(RemoveCartCommand request, CancellationToken cancellationToken)
     {
-        await cartRepository.RemoveAsync(request.UserId);
+        await cartRepository.RemoveAsync(request.UserId, cancellationToken);
 
         return Result.Success();
     }

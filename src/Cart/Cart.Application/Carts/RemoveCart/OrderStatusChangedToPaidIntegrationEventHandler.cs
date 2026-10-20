@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Logging;
+using SharedKernel.Domain;
 using SharedKernel.Events;
 using SharedKernel.Messaging;
 
@@ -16,6 +17,11 @@ public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
 
         var command = new RemoveCartCommand(context.Message.UserId);
 
-        await handler.Handle(command, context.CancellationToken);
+        Result result = await handler.Handle(command, context.CancellationToken);
+
+        if (result.IsFailure)
+        {
+            logger.LogWarning("Clearing the cart of User Id: {UserId} failed: {@Error}", context.Message.UserId, result.Error);
+        }
     }
 }

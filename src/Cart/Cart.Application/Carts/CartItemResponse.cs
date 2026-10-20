@@ -1,4 +1,4 @@
-﻿namespace Cart.Application.Carts.GetCartByUser;
+namespace Cart.Application.Carts;
 
 public sealed class CartItemResponse
 {
@@ -9,4 +9,3 @@ public sealed class CartItemResponse
     public int Quantity { get; init; }
     public DateTime CreatedOnUtc { get; init; }
 }
-
