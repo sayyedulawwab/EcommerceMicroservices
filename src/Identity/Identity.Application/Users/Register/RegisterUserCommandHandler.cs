@@ -9,13 +9,14 @@ namespace Identity.Application.Users.Register;
 internal sealed class RegisterUserCommandHandler(
     IPasswordHasher passwordHasher,
     IUserRepository userRepository,
+    UserTokenIssuer userTokenIssuer,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<RegisterUserCommand, long>
 {
     public async Task<Result<long>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        User? existingUserByEmail = await userRepository.GetByEmail(request.Email);
+        User? existingUserByEmail = await userRepository.GetByEmail(request.Email, cancellationToken);
 
         if (existingUserByEmail is not null)
         {
@@ -34,6 +35,8 @@ internal sealed class RegisterUserCommandHandler(
             dateTimeProvider.UtcNow);
 
         userRepository.Add(user);
+
+        userTokenIssuer.Issue(user, UserTokenPurpose.EmailConfirmation);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

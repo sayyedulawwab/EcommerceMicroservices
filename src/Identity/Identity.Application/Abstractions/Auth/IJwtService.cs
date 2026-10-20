@@ -1,7 +1,10 @@
-﻿namespace Identity.Application.Abstractions.Auth;
+using Identity.Domain.Users;
+
+namespace Identity.Application.Abstractions.Auth;
 
 public interface IJwtService
 {
-    string GetAccessToken(string email, long userId, CancellationToken cancellationToken = default);
-    string GenerateRefreshToken();
+    AccessToken CreateAccessToken(User user);
 }
+
+public sealed record AccessToken(string Token, DateTime ExpiresOnUtc);
