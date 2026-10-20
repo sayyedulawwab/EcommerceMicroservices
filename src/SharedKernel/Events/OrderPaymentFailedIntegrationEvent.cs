@@ -1,3 +1,3 @@
 ﻿namespace SharedKernel.Events;
 
-public record OrderPaymentSucceededIntegrationEvent(long OrderId) : IntegrationEvent;
+public record OrderPaymentFailedIntegrationEvent(long OrderId, string Reason) : IntegrationEvent;
