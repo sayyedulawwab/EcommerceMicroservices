@@ -1,14 +1,19 @@
-﻿using Microsoft.OpenApi;
-
 namespace ApiGateway.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
+    private static readonly string[] Services = ["identity", "catalog", "cart", "ordering"];
+
+    /// <summary>One Swagger UI for every service; each document is proxied from its service (see the *-swagger-route routes).</summary>
     public static IApplicationBuilder UseSwaggerWithUi(this WebApplication app)
     {
-        app.UseSwagger(options => options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1);
-        app.MapSwagger();
-        app.UseSwaggerUI(options => options.SwaggerEndpoint("v1/swagger.json", "API Gateway V1"));
+        app.UseSwaggerUI(options =>
+        {
+            foreach (string service in Services)
+            {
+                options.SwaggerEndpoint($"/swagger/{service}/v1/swagger.json", $"{service} API V1");
+            }
+        });
 
         return app;
     }

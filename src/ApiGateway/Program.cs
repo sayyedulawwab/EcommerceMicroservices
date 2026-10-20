@@ -8,7 +8,7 @@ builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-builder.Services.AddServices();
+builder.Services.AddServices(builder.Configuration);
 
 WebApplication app = builder.Build();
 
@@ -18,8 +18,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerWithUi();
 }
 
+app.UseCors(DependencyInjection.FrontendCorsPolicy);
+
 app.MapReverseProxy();
 
-app.MapControllers();
+app.MapHealthChecks("/health");
 
 await app.RunAsync();
