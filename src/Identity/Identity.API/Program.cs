@@ -4,6 +4,7 @@ using Identity.API.Extensions;
 using Identity.API.Logging;
 using Identity.Application;
 using Identity.Infrastructure;
+using Identity.Infrastructure.Data;
 using MassTransit;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -60,7 +61,7 @@ builder.Services.AddOpenTelemetry()
 
 // Add services to the container.
 builder.Services.AddApplication()
-    .AddPresentation()
+    .AddPresentation(builder.Configuration)
     .AddInfrastructure(builder.Configuration);
 
 
@@ -104,16 +105,24 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 
+await AdminSeeder.SeedAdminUserAsync(app.Services);
+
 app.UseRequestContextLogging();
 
 app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 
+app.UseCsrfProtection();
+
 //app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health");
 
 await app.RunAsync();

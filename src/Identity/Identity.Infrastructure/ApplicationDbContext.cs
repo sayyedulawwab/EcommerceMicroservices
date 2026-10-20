@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using SharedKernel.Domain;
 using SharedKernel.DomainEvents;
 using SharedKernel.Exceptions;
@@ -30,6 +31,22 @@ public sealed class ApplicationDbContext(DbContextOptions options, IDomainEvents
         {
             throw new ConcurrencyException("Concurrency exception occurred.", ex);
         }
+    }
+
+    public async Task ExecuteInTransactionAsync(Func<CancellationToken, Task> operation, CancellationToken cancellationToken = default)
+    {
+        if (Database.CurrentTransaction is not null)
+        {
+            await operation(cancellationToken);
+
+            return;
+        }
+
+        await using IDbContextTransaction transaction = await Database.BeginTransactionAsync(cancellationToken);
+
+        await operation(cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
     }
 
     private async Task PublishDomainEventsAsync()

@@ -1,8 +1,12 @@
 ﻿using Identity.Application.Abstractions.Auth;
 using Identity.Application.Abstractions.Clock;
+using Identity.Application.Abstractions.Email;
 using Identity.Domain.Users;
 using Identity.Infrastructure.Auth;
+using Identity.Infrastructure.BackgroundJobs;
 using Identity.Infrastructure.Clock;
+using Identity.Infrastructure.Data;
+using Identity.Infrastructure.Email;
 using Identity.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +23,14 @@ public static class DependencyInjection
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
         services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
+        services.AddSingleton(TimeProvider.System);
+
+        services.Configure<AccountOptions>(configuration.GetSection(AccountOptions.SectionName));
+        services.Configure<AdminUserOptions>(configuration.GetSection(AdminUserOptions.SectionName));
+        services.Configure<TokenCleanupOptions>(configuration.GetSection(TokenCleanupOptions.SectionName));
+
+        services.AddSingleton<IEmailSender, LoggingEmailSender>();
+        services.AddHostedService<TokenCleanupService>();
 
         AddPersistence(services, configuration);
         AddAuthentication(services);
@@ -36,7 +48,10 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IUserTokenRepository, UserTokenRepository>();
 
+        services.AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>();
     }
 
     private static void AddAuthentication(IServiceCollection services)
@@ -50,6 +65,7 @@ public static class DependencyInjection
         services.ConfigureOptions<JwtBearerOptionsSetup>();
 
         services.AddSingleton<IJwtService, JwtService>();
+        services.AddSingleton<ISecureTokenService, SecureTokenService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
     }
 }

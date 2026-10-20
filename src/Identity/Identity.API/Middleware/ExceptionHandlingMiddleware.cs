@@ -40,6 +40,12 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
     {
         return exception switch
         {
+            ConcurrencyException => new ExceptionDetails(
+                StatusCodes.Status409Conflict,
+                "ConcurrencyConflict",
+                "Conflict",
+                "The resource was changed by another request. Reload it and try again.",
+                null),
             ValidationException validationException => new ExceptionDetails(
                 StatusCodes.Status400BadRequest,
                 "ValidationFailure",

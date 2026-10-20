@@ -2,35 +2,44 @@
 
 namespace Identity.Domain.Users;
 
+/// <summary>
+/// One link in a rotation chain. Every refresh revokes the presented token and issues a new one in the same
+/// <see cref="FamilyId"/> (one family per login session). Only the SHA-256 hash of the token is stored.
+/// </summary>
 public sealed class RefreshToken : Entity<long>
 {
-    private RefreshToken(string token, long userId, DateTime expiresOnUtc)
+    private RefreshToken(string tokenHash, long userId, Guid familyId, DateTime expiresOnUtc, DateTime createdOnUtc)
     {
-        Token = token;
+        TokenHash = tokenHash;
         UserId = userId;
+        FamilyId = familyId;
         ExpiresOnUtc = expiresOnUtc;
+        CreatedOnUtc = createdOnUtc;
     }
 
     private RefreshToken()
     {
     }
-    public string Token { get; private set; }
+
+    public string TokenHash { get; private set; }
     public long UserId { get; private set; }
+    public Guid FamilyId { get; private set; }
     public DateTime ExpiresOnUtc { get; private set; }
+    public DateTime CreatedOnUtc { get; private set; }
+    public DateTime? RevokedOnUtc { get; private set; }
     public User User { get; }
 
-    public static RefreshToken Create(string token, long userId, DateTime expiresOnUtc)
-    {
-        var refreshToken = new RefreshToken(token, userId, expiresOnUtc);
+    public bool IsRevoked => RevokedOnUtc.HasValue;
 
-        return refreshToken;
+    public static RefreshToken Create(string tokenHash, long userId, Guid familyId, DateTime expiresOnUtc, DateTime createdOnUtc)
+    {
+        return new RefreshToken(tokenHash, userId, familyId, expiresOnUtc, createdOnUtc);
     }
 
-    public static RefreshToken Update(RefreshToken refreshToken, string token, DateTime expiresOnUtc)
-    {
-        refreshToken.Token = token;
-        refreshToken.ExpiresOnUtc = expiresOnUtc;
+    public bool IsExpired(DateTime utcNow) => ExpiresOnUtc <= utcNow;
 
-        return refreshToken;
+    public void Revoke(DateTime utcNow)
+    {
+        RevokedOnUtc ??= utcNow;
     }
 }

@@ -15,11 +15,15 @@ internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refre
         builder.Property(r => r.Id)
                .ValueGeneratedOnAdd();
 
-        builder.Property(r => r.Token).HasMaxLength(200);
+        builder.Property(r => r.TokenHash).HasMaxLength(64);
 
-        builder.HasIndex(r => r.Token).IsUnique();
+        builder.HasIndex(r => r.TokenHash).IsUnique();
+
+        builder.HasIndex(r => r.FamilyId);
 
         builder.Property(r => r.ExpiresOnUtc);
+        builder.Property(r => r.CreatedOnUtc);
+        builder.Property(r => r.RevokedOnUtc);
 
         builder.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId);
     }
