@@ -16,37 +16,35 @@ internal sealed class PlaceOrderCommandHandler(
 {
     public async Task<Result<long>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
     {
+        var lines = request.OrderItems
+            .Select(item => new OrderLine(item.ProductId, item.Quantity))
+            .ToList();
 
-        var order = Order.Create(request.UserId, OrderStatus.Placed, dateTimeProvider.UtcNow);
+        Result<Order> orderResult = Order.Place(request.UserId, lines, dateTimeProvider.UtcNow);
 
-
-        foreach (OrderItemCommand item in request.OrderItems)
+        if (orderResult.IsFailure)
         {
-            order.AddOrderItem(order.Id,
-                item.ProductId,
-                item.ProductName,
-                new Money(item.PriceAmount, Currency.Create(item.PriceCurrency)),
-                item.Quantity,
-                dateTimeProvider.UtcNow);
+            return Result.Failure<long>(orderResult.Error);
         }
 
-        orderRepository.Add(order);
+        Order order = orderResult.Value;
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        // The event needs the database-generated order id, so the order is saved first. The second save stores the
+        // event in the outbox; the transaction makes the order and its event commit together.
+        await unitOfWork.ExecuteInTransactionAsync(async ct =>
+        {
+            orderRepository.Add(order);
 
-        // publish event
+            await unitOfWork.SaveChangesAsync(ct);
 
-        var orderStockItems = request.OrderItems.Select(orderItem => new OrderStockItem(
-            orderItem.ProductId,
-            orderItem.ProductName,
-            orderItem.PriceAmount,
-            orderItem.PriceCurrency,
-            orderItem.Quantity)).ToList();
+            var orderStockItems = order.OrderItems
+                .Select(item => new OrderStockItem(item.ProductId, item.Quantity))
+                .ToList();
 
+            await publishEndpoint.Publish(new OrderPlacedIntegrationEvent(order.Id, order.UserId, orderStockItems), ct);
 
-        var integrationEvent = new OrderPlacedIntegrationEvent(order.Id, orderStockItems);
-
-        await publishEndpoint.Publish(integrationEvent, cancellationToken);
+            await unitOfWork.SaveChangesAsync(ct);
+        }, cancellationToken);
 
         return order.Id;
     }

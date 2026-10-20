@@ -1,4 +1,4 @@
-﻿namespace Ordering.Application.Orders.GetAllOrders;
+namespace Ordering.Application.Orders;
 
 public sealed class OrderItemResponse
 {
@@ -10,4 +10,3 @@ public sealed class OrderItemResponse
     public int Quantity { get; init; }
     public DateTime CreatedOnUtc { get; init; }
 }
-

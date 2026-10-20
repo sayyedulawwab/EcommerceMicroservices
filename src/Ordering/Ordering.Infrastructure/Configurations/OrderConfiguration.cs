@@ -18,6 +18,11 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Property(order => order.Status);
 
+        builder.Property(order => order.CancellationReason)
+               .HasMaxLength(Order.MaxCancellationReasonLength);
+
+        builder.HasIndex(order => order.UserId);
+
         builder.OwnsOne(order => order.TotalPrice, priceBuilder =>
         {
             priceBuilder.Property(money => money.Amount)
@@ -32,9 +37,12 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(order => order.CreatedOnUtc);
         builder.Property(order => order.UpdatedOnUtc);
 
-        //builder.HasOne<User>()
-        //    .WithMany()
-        //    .HasForeignKey(order => order.UserId);
+        builder.HasMany(order => order.OrderItems)
+               .WithOne()
+               .HasForeignKey(orderItem => orderItem.OrderId);
 
+        // A payment result and a customer cancellation can race on the same order; the loser retries or gets a 409.
+        builder.Property<byte[]>("RowVersion")
+               .IsRowVersion();
     }
 }

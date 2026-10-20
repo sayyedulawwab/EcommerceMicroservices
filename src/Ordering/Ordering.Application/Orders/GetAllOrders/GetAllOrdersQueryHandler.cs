@@ -11,26 +11,6 @@ internal sealed class GetAllOrdersQueryHandler(IOrderRepository orderRepository)
     {
         IReadOnlyList<Order> orders = await orderRepository.GetAllAsync(cancellationToken);
 
-        IEnumerable<OrderResponse> ordersResponse = orders.Select(order => new OrderResponse
-        {
-            Id = order.Id,
-            UserId = order.UserId,
-            OrderItems = order.OrderItems.Select(oi => new OrderItemResponse
-            {
-                OrderId = oi.OrderId,
-                ProductId = oi.ProductId,
-                ProductName = oi.ProductName,
-                ProductPriceAmount = oi.Price.Amount,
-                ProductPriceCurrency = oi.Price.Currency.Code,
-                Quantity = oi.Quantity,
-                CreatedOnUtc = oi.CreatedOnUtc
-            }).ToList(),
-            TotalPriceAmount = order.TotalPrice.Amount,
-            TotalPriceCurrency = order.TotalPrice.Currency.Code,
-            Status = order.Status.ToString(),
-            CreatedOnUtc = order.CreatedOnUtc
-        });
-
-        return ordersResponse.ToList();
+        return orders.Select(OrderResponse.FromOrder).ToList();
     }
 }
