@@ -7,7 +7,7 @@ using System.Text;
 namespace EcommerceMicroservices.IntegrationTests.Infrastructure;
 
 /// <summary>
-/// Signs access tokens with the services' shared Jwt settings (appsettings.json), so tests can call Catalog, Cart and
+/// Signs access tokens with the services' shared Jwt settings (Audience and Issuer in appsettings.json, SecretKey in appsettings.Development.json), so tests can call Catalog, Cart and
 /// Ordering with an Authorization header without going through Identity.
 /// </summary>
 public static class TestJwt

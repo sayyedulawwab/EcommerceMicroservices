@@ -4,6 +4,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__EcommerceDB=Server=mssql-database,1433;Database=CatalogDB;User=sa;Password=Passw0rd;TrustServerCertificate=True;
+      - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:
       - "8080"
       - "8081"
@@ -15,6 +17,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Redis=redis-caching:6379
+      - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:
       - "8080"
       - "8081"
@@ -27,6 +31,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__EcommerceDB=Server=mssql-database,1433;Database=OrderingDB;User=sa;Password=Passw0rd;TrustServerCertificate=True;
+      - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:
       - "8080"
       - "8081"
@@ -39,6 +45,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:
       - "8080"
       - "8081"
@@ -51,6 +58,10 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ReverseProxy__Clusters__catalog-cluster__Destinations__catalog__Address=http://catalog-api:8080/
+      - ReverseProxy__Clusters__cart-cluster__Destinations__cart__Address=http://cart-api:8080/
+      - ReverseProxy__Clusters__ordering-cluster__Destinations__ordering__Address=http://ordering-api:8080/
+      - ReverseProxy__Clusters__identity-cluster__Destinations__identity__Address=http://identity-api:8080/
     ports:
       - "8080"
       - "8081"
@@ -63,6 +74,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__EcommerceDB=Server=mssql-database,1433;Database=IdentityDB;User=sa;Password=Passw0rd;TrustServerCertificate=True;
+      - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:
       - "8080"
       - "8081"

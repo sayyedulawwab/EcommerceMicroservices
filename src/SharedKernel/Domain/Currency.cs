@@ -6,6 +6,12 @@ public record Currency
     public static readonly Currency Usd = new("USD");
     public static readonly Currency Bdt = new("BDT");
 
+    // Lets Cart rebuild a cached Currency with Newtonsoft.Json, which needs a default constructor.
+    private Currency()
+    {
+        Code = string.Empty;
+    }
+
     private Currency(string code)
     {
         Code = code;

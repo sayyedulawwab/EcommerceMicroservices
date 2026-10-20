@@ -29,6 +29,11 @@ public sealed class OrderSagaTests(SystemFixture system)
             Ct);
         Assert.Equal(HttpStatusCode.OK, addToCart.StatusCode);
 
+        // The cart is read back from Redis, which rebuilds the cached Money and Currency values.
+        JsonElement storedCart = await cart.GetFromJsonAsync<JsonElement>("/api/v1/carts", Ct);
+        Assert.Equal(1, storedCart.GetProperty("cartItems").GetArrayLength());
+        Assert.Equal("BDT", storedCart.GetProperty("totalPriceCurrency").GetString());
+
         using HttpClient ordering = SystemFixture.CreateClient(system.Ordering, userToken);
         long orderId = await PlaceOrderAsync(ordering, productId, quantity: 2);
 
