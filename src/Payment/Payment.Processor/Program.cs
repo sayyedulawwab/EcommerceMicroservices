@@ -57,11 +57,23 @@ builder.Services.AddOpenTelemetry()
                 metricReaderOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 60000; // 60 seconds
             }));
 
+builder.Services.Configure<PaymentOptions>(builder.Configuration.GetSection(PaymentOptions.SectionName));
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+builder.Services.AddHealthChecks();
 
 builder.Services.AddMassTransit(busConfigurator =>
 {
-    busConfigurator.SetKebabCaseEndpointNameFormatter();
+    // Queue names are prefixed with the service name so every service that consumes an event gets its own queue.
+    busConfigurator.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("payment", false));
+
+    // No database here, so no transactional outbox: the in-memory outbox at least holds published events back
+    // until the consumer has finished, and retries transient failures.
+    busConfigurator.AddConfigureEndpointsCallback((context, _, endpointConfigurator) =>
+    {
+        endpointConfigurator.UseMessageRetry(retry => retry.Exponential(5, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(2)));
+        endpointConfigurator.UseInMemoryOutbox(context);
+    });
 
     busConfigurator.AddConsumer<OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
 
@@ -82,5 +94,7 @@ WebApplication app = builder.Build();
 app.UseRequestContextLogging();
 
 app.UseSerilogRequestLogging();
+
+app.MapHealthChecks("/health");
 
 await app.RunAsync();

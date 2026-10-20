@@ -1,4 +1,4 @@
-﻿using MassTransit;
+using MassTransit;
 using Payment.Processor.Application.Abstractions;
 using SharedKernel.Events;
 
@@ -13,19 +13,21 @@ public sealed class OrderStatusChangedToStockConfirmedIntegrationEventHandler(
     {
         logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", context.Message, context.Message.OrderId);
 
-        bool isPaymentSuccess = await paymentService.ProcessPaymentAsync();
+        PaymentResult result = await paymentService.ProcessPaymentAsync(
+            context.Message.OrderId,
+            context.Message.TotalAmount,
+            context.Message.Currency,
+            context.CancellationToken);
 
-        if (isPaymentSuccess)
+        if (result.Succeeded)
         {
-            var integrationEvent = new OrderPaymentSucceededIntegrationEvent(context.Message.OrderId);
-
-            await context.Publish(integrationEvent);
+            await context.Publish(new OrderPaymentSucceededIntegrationEvent(context.Message.OrderId));
         }
         else
         {
-            var integrationEvent = new OrderPaymentFailedIntegrationEvent(context.Message.OrderId);
+            logger.LogWarning("Payment for Order Id: {OrderId} failed: {Reason}", context.Message.OrderId, result.FailureReason);
 
-            await context.Publish(integrationEvent);
+            await context.Publish(new OrderPaymentFailedIntegrationEvent(context.Message.OrderId, result.FailureReason ?? "Payment failed"));
         }
     }
 }

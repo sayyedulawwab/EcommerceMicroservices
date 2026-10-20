@@ -1,6 +1,6 @@
-﻿namespace Payment.Processor.Application.Abstractions;
+namespace Payment.Processor.Application.Abstractions;
 
 public interface IPaymentService
 {
-    Task<bool> ProcessPaymentAsync();
+    Task<PaymentResult> ProcessPaymentAsync(long orderId, decimal amount, string currency, CancellationToken cancellationToken = default);
 }
