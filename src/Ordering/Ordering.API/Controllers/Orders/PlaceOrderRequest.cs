@@ -1,4 +1,14 @@
-﻿namespace Ordering.API.Controllers.Orders;
+using System.Text.Json.Serialization;
 
-public record OrderItemRequest(long ProductId, string ProductName, decimal PriceAmount, string PriceCurrency, int Quantity);
-public record PlaceOrderRequest(List<OrderItemRequest> OrderItems);
+namespace Ordering.API.Controllers.Orders;
+
+public record OrderItemRequest
+{
+    [JsonRequired] public long ProductId { get; init; }
+    [JsonRequired] public int Quantity { get; init; }
+}
+
+public record PlaceOrderRequest
+{
+    public List<OrderItemRequest> OrderItems { get; init; } = [];
+}

@@ -8,7 +8,20 @@ internal sealed class OrderRepository(ApplicationDbContext dbContext) : Reposito
     public override async Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await DbContext
-            .Set<Order>().Include(order => order.OrderItems).ToListAsync(cancellationToken);
+            .Set<Order>()
+            .Include(order => order.OrderItems)
+            .OrderByDescending(order => order.CreatedOnUtc)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Order>> GetByUserIdAsync(long userId, CancellationToken cancellationToken = default)
+    {
+        return await DbContext
+            .Set<Order>()
+            .Where(order => order.UserId == userId)
+            .Include(order => order.OrderItems)
+            .OrderByDescending(order => order.CreatedOnUtc)
+            .ToListAsync(cancellationToken);
     }
 
     public override async Task<Order?> GetByIdAsync(long id, CancellationToken cancellationToken = default)

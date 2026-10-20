@@ -35,6 +35,9 @@ public static class DependencyInjection
 
         services.AddScoped<IOrderRepository, OrderRepository>();
 
+        services.AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>();
+
     }
     private static void AddAuthentication(IServiceCollection services)
     {

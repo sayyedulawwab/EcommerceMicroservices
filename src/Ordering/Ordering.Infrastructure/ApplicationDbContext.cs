@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using SharedKernel.Domain;
 using SharedKernel.DomainEvents;
-using SharedKernel.Exceptions;
+using ConcurrencyException = SharedKernel.Exceptions.ConcurrencyException;
 using System.Data;
 
 namespace Ordering.Infrastructure;
@@ -11,6 +13,11 @@ public sealed class ApplicationDbContext(DbContextOptions options, IDomainEvents
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DependencyInjection).Assembly);
+
+        // MassTransit transactional outbox (published events) and inbox (consumed message de-duplication).
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
 
         base.OnModelCreating(modelBuilder);
     }
@@ -29,6 +36,22 @@ public sealed class ApplicationDbContext(DbContextOptions options, IDomainEvents
         {
             throw new ConcurrencyException("Concurrency exception occurred.", ex);
         }
+    }
+
+    public async Task ExecuteInTransactionAsync(Func<CancellationToken, Task> operation, CancellationToken cancellationToken = default)
+    {
+        if (Database.CurrentTransaction is not null)
+        {
+            await operation(cancellationToken);
+
+            return;
+        }
+
+        await using IDbContextTransaction transaction = await Database.BeginTransactionAsync(cancellationToken);
+
+        await operation(cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
     }
 
     private async Task PublishDomainEventsAsync()

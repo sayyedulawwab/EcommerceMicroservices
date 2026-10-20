@@ -8,7 +8,7 @@ using Ordering.API;
 using Ordering.API.Extensions;
 using Ordering.API.Logging;
 using Ordering.Application;
-using Ordering.Application.Orders.UpdateOrderStatus;
+using Ordering.Application.Orders.Events;
 using Ordering.Infrastructure;
 using Serilog;
 using System.Diagnostics;
@@ -67,7 +67,20 @@ builder.Services.AddApplication()
 
 builder.Services.AddMassTransit(busConfigurator =>
 {
-    busConfigurator.SetKebabCaseEndpointNameFormatter();
+    // Queue names are prefixed with the service name so every service that consumes an event gets its own queue.
+    busConfigurator.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("ordering", false));
+
+    busConfigurator.AddEntityFrameworkOutbox<ApplicationDbContext>(outboxConfigurator =>
+    {
+        outboxConfigurator.UseSqlServer();
+        outboxConfigurator.UseBusOutbox();
+    });
+
+    busConfigurator.AddConfigureEndpointsCallback((context, _, endpointConfigurator) =>
+    {
+        endpointConfigurator.UseMessageRetry(retry => retry.Exponential(5, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(2)));
+        endpointConfigurator.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+    });
 
     busConfigurator.AddConsumer<OrderItemsStockConfirmedIntegrationEventHandler>();
     busConfigurator.AddConsumer<OrderItemsStockRejectedIntegrationEventHandler>();
@@ -117,10 +130,16 @@ app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 
+app.UseCsrfProtection();
+
 //app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health");
 
 await app.RunAsync();
