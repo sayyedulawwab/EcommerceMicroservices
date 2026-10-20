@@ -8,6 +8,7 @@ using Catalog.Application.Categories.GetAllCategories;
 using Catalog.Application.Categories.GetCategoryById;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Auth;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
@@ -17,6 +18,7 @@ namespace Catalog.API.Controllers.Categories;
 [Route("api/v{v:apiVersion}/categories")]
 public class CategoriesController : BaseController
 {
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost]
     public async Task<IActionResult> AddCategory(AddCategoryRequest request, ICommandHandler<AddCategoryCommand, long> handler, CancellationToken cancellationToken)
     {
@@ -29,7 +31,7 @@ public class CategoriesController : BaseController
             return result.Error.ToActionResult();
         }
 
-        return Created();
+        return Created(string.Empty, new { id = result.Value });
     }
 
     [AllowAnonymous]
@@ -64,6 +66,7 @@ public class CategoriesController : BaseController
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut("{id}")]
     public async Task<IActionResult> EditCategory(long id, EditCategoryRequest request, ICommandHandler<EditCategoryCommand, long> handler, CancellationToken cancellationToken)
     {
@@ -79,6 +82,7 @@ public class CategoriesController : BaseController
         return Ok(new { id = result.Value });
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCategory(long id, ICommandHandler<DeleteCategoryCommand, long> handler, CancellationToken cancellationToken)
     {

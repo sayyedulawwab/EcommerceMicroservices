@@ -47,10 +47,32 @@ public sealed class Product : Entity<long>
         return product;
     }
 
-    public void RemoveStock(int quantityDesired)
+    public bool HasStock(int quantity) => quantity > 0 && Quantity >= quantity;
+
+    public Result ReserveStock(int quantity)
     {
-        int removed = Math.Min(quantityDesired, this.Quantity);
-        this.Quantity -= removed;
+        if (quantity <= 0)
+        {
+            return Result.Failure(ProductErrors.InvalidQuantity(Id));
+        }
+
+        if (!HasStock(quantity))
+        {
+            return Result.Failure(ProductErrors.InsufficientStock(Id));
+        }
+
+        Quantity -= quantity;
+
+        return Result.Success();
     }
 
+    public void ReleaseStock(int quantity)
+    {
+        if (quantity <= 0)
+        {
+            return;
+        }
+
+        Quantity += quantity;
+    }
 }

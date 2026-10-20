@@ -1,6 +1,7 @@
-﻿using Catalog.Application.Products.UpdateProductStock;
+using Catalog.Application.Products.CommitStock;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using SharedKernel.Domain;
 using SharedKernel.Events;
 using SharedKernel.Messaging;
 
@@ -8,18 +9,18 @@ namespace Catalog.Application.Products.Events;
 
 public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
     ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger,
-    ICommandHandler<UpdateProductStockCommand, long> handler)
+    ICommandHandler<CommitStockCommand> handler)
     : IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>
 {
     public async Task Consume(ConsumeContext<OrderStatusChangedToPaidIntegrationEvent> context)
     {
         logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", context.Message, context.Message.OrderId);
 
-        foreach (OrderStockItem orderStockItem in context.Message.OrderStockItems)
-        {
-            var command = new UpdateProductStockCommand(orderStockItem.ProductId, orderStockItem.Quantity);
+        Result result = await handler.Handle(new CommitStockCommand(context.Message.OrderId), context.CancellationToken);
 
-            await handler.Handle(command, context.CancellationToken);
+        if (result.IsFailure)
+        {
+            logger.LogWarning("Committing stock for Order Id: {OrderId} failed: {@Error}", context.Message.OrderId, result.Error);
         }
     }
 }

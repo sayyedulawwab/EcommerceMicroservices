@@ -11,6 +11,8 @@ internal sealed class EditCategoryCommandHandler(
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<EditCategoryCommand, long>
 {
+    private const int MaxCategoryDepth = 100;
+
     public async Task<Result<long>> Handle(EditCategoryCommand request, CancellationToken cancellationToken)
     {
         Category? category = await categoryRepository.GetByIdAsync(request.Id, cancellationToken);
@@ -18,6 +20,16 @@ internal sealed class EditCategoryCommandHandler(
         if (category is null)
         {
             return Result.Failure<long>(CategoryErrors.NotFound(request.Id));
+        }
+
+        if (request.ParentCategoryId is long parentCategoryId)
+        {
+            Result parentResult = await ValidateParentAsync(request.Id, parentCategoryId, cancellationToken);
+
+            if (parentResult.IsFailure)
+            {
+                return Result.Failure<long>(parentResult.Error);
+            }
         }
 
         category = Category.Update(category, request.Name, request.Description, request.ParentCategoryId, dateTimeProvider.UtcNow);
@@ -28,5 +40,34 @@ internal sealed class EditCategoryCommandHandler(
 
         return category.Id;
 
+    }
+
+    // Walks up from the new parent; reaching the edited category means the change would create a cycle.
+    private async Task<Result> ValidateParentAsync(long categoryId, long parentCategoryId, CancellationToken cancellationToken)
+    {
+        long? currentId = parentCategoryId;
+
+        for (int depth = 0; currentId is long id && depth < MaxCategoryDepth; depth++)
+        {
+            if (id == categoryId)
+            {
+                return Result.Failure(CategoryErrors.CircularParent(categoryId));
+            }
+
+            Category? current = await categoryRepository.GetByIdAsync(id, cancellationToken);
+
+            if (current is null)
+            {
+                return depth == 0
+                    ? Result.Failure(CategoryErrors.ParentNotFound(parentCategoryId))
+                    : Result.Success();
+            }
+
+            currentId = current.ParentCategoryId;
+        }
+
+        return currentId is null
+            ? Result.Success()
+            : Result.Failure(CategoryErrors.CircularParent(categoryId));
     }
 }

@@ -23,6 +23,8 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.Property(category => category.ParentCategoryId);
 
+        builder.HasIndex(category => category.ParentCategoryId);
+
         builder.Property(category => category.CreatedOnUtc);
 
         builder.Property(category => category.UpdatedOnUtc);

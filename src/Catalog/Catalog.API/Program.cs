@@ -67,9 +67,23 @@ builder.Services.AddApplication()
 
 builder.Services.AddMassTransit(busConfigurator =>
 {
-    busConfigurator.SetKebabCaseEndpointNameFormatter();
+    // Queue names are prefixed with the service name so every service that consumes an event gets its own queue.
+    busConfigurator.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("catalog", false));
+
+    busConfigurator.AddEntityFrameworkOutbox<ApplicationDbContext>(outboxConfigurator =>
+    {
+        outboxConfigurator.UseSqlServer();
+        outboxConfigurator.UseBusOutbox();
+    });
+
+    busConfigurator.AddConfigureEndpointsCallback((context, _, endpointConfigurator) =>
+    {
+        endpointConfigurator.UseMessageRetry(retry => retry.Exponential(5, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(2)));
+        endpointConfigurator.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+    });
 
     busConfigurator.AddConsumer<OrderPlacedIntegrationEventHandler>();
+    busConfigurator.AddConsumer<OrderCancelledIntegrationEventHandler>();
     busConfigurator.AddConsumer<OrderStatusChangedToPaidIntegrationEventHandler>();
 
     busConfigurator.UsingRabbitMq((context, configurator) =>
@@ -114,10 +128,16 @@ app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 
+app.UseCsrfProtection();
+
 //app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health");
 
 await app.RunAsync();

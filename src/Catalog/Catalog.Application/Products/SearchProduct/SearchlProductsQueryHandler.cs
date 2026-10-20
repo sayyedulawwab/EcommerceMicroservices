@@ -8,15 +8,19 @@ namespace Catalog.Application.Products.SearchProduct;
 internal sealed class SearchlProductsQueryHandler(IProductRepository productRepository)
     : IQueryHandler<SearchProductsQuery, PagedList<ProductResponse>>
 {
+    private const int MaxPageSize = 100;
+
     public async Task<Result<PagedList<ProductResponse>>> Handle(SearchProductsQuery request, CancellationToken cancellationToken)
     {
-
+        int page = Math.Max(1, request.Page);
+        int pageSize = Math.Clamp(request.PageSize, 1, MaxPageSize);
+        string? keyword = string.IsNullOrWhiteSpace(request.Keyword) ? null : request.Keyword.Trim();
 
         Expression<Func<Product, bool>>? filter = product =>
             (!request.CategoryId.HasValue || product.CategoryId == request.CategoryId) &&
             (!request.MinPrice.HasValue || product.Price.Amount >= request.MinPrice) &&
             (!request.MaxPrice.HasValue || product.Price.Amount <= request.MaxPrice) &&
-            (string.IsNullOrEmpty(request.Keyword) || request.Keyword == null);
+            (keyword == null || product.Name.Contains(keyword) || product.Description.Contains(keyword));
 
 
         Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = request.SortOrder?.ToUpperInvariant() switch
@@ -32,13 +36,7 @@ internal sealed class SearchlProductsQueryHandler(IProductRepository productRepo
 
 
         (IReadOnlyList<Product> products, int totalRecords) = await productRepository.FindAsync(
-            filter, orderBy, request.Page, request.PageSize, cancellationToken);
-
-
-        if (products is null)
-        {
-            return Result.Failure<PagedList<ProductResponse>>(ProductErrors.NotFound());
-        }
+            filter, orderBy, page, pageSize, cancellationToken);
 
         var productResponse = products.Select(product => new ProductResponse()
         {
@@ -53,17 +51,17 @@ internal sealed class SearchlProductsQueryHandler(IProductRepository productRepo
             UpdatedOnUtc = product.UpdatedOnUtc,
         }).ToList();
 
-        var pagedProducts = PagedList<ProductResponse>.Create(productResponse, request.Page, request.PageSize, totalRecords);
+        var pagedProducts = PagedList<ProductResponse>.Create(productResponse, page, pageSize, totalRecords);
 
         return pagedProducts;
     }
 
 
     private static Expression<Func<Product, object>> GetSortExpression(string sortColumn) =>
-    sortColumn switch
+    sortColumn.ToUpperInvariant() switch
     {
-        "Name" => p => p.Name,
-        "PriceAmount" => p => p.Price.Amount,
+        "NAME" => p => p.Name,
+        "PRICEAMOUNT" => p => p.Price.Amount,
         _ => p => p.CreatedOnUtc, // Default to CreatedOnUtc if invalid
     };
 }

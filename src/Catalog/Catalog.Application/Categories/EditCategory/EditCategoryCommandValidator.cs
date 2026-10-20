@@ -6,6 +6,9 @@ public class EditCategoryCommandValidator : AbstractValidator<EditCategoryComman
 {
     public EditCategoryCommandValidator()
     {
+        RuleFor(c => c.Id)
+            .GreaterThan(0);
+
         RuleFor(c => c.Name)
             .NotEmpty()
             .MaximumLength(200);
@@ -15,8 +18,8 @@ public class EditCategoryCommandValidator : AbstractValidator<EditCategoryComman
             .MaximumLength(1000);
 
         RuleFor(c => c.ParentCategoryId)
-            .NotNull()
-            .GreaterThanOrEqualTo(0);
+            .GreaterThan(0)
+            .When(c => c.ParentCategoryId.HasValue);
 
     }
 }

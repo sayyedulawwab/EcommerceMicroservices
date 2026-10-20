@@ -13,6 +13,8 @@ public interface IProductRepository
         CancellationToken cancellationToken = default);
 
     Task<Product?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Product>> GetByIdsAsync(IReadOnlyCollection<long> ids, CancellationToken cancellationToken = default);
+    Task<bool> AnyInCategoryAsync(long categoryId, CancellationToken cancellationToken = default);
 
     void Add(Product product);
     void Update(Product product);

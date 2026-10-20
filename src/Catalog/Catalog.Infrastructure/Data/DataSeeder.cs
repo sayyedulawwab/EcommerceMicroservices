@@ -25,14 +25,22 @@ public static class DataSeeder
 
         var faker = new Faker();
 
-        // Seed product categories
-        for (int i = 0; i < 10; i++)
-        {
-            string name = faker.Commerce.Department();
-            string description = faker.Commerce.Department();
-            int parentCategoryId = faker.Random.Int();
+        // Seed top-level product categories, then one child category under each
+        var rootCategories = new List<Category>();
 
-            var category = Category.Create(name, description, parentCategoryId, DateTime.UtcNow);
+        for (int i = 0; i < 5; i++)
+        {
+            var category = Category.Create(faker.Commerce.Department(), faker.Commerce.Department(), null, DateTime.UtcNow);
+
+            rootCategories.Add(category);
+            context.Set<Category>().Add(category);
+        }
+
+        context.SaveChanges();
+
+        foreach (Category rootCategory in rootCategories)
+        {
+            var category = Category.Create(faker.Commerce.Department(), faker.Commerce.Department(), rootCategory.Id, DateTime.UtcNow);
 
             context.Set<Category>().Add(category);
         }

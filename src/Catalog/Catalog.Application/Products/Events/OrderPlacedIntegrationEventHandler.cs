@@ -1,54 +1,44 @@
-﻿using Catalog.Domain.Products;
+﻿using Catalog.Application.Products.ReserveStock;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using SharedKernel.Domain;
 using SharedKernel.Events;
+using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.Events;
 
 public sealed class OrderPlacedIntegrationEventHandler(
     ILogger<OrderPlacedIntegrationEventHandler> logger,
-    IProductRepository productRepository)
+    ICommandHandler<ReserveStockCommand, ReserveStockResult> handler)
     : IIntegrationEventHandler<OrderPlacedIntegrationEvent>
 {
     public async Task Consume(ConsumeContext<OrderPlacedIntegrationEvent> context)
     {
         logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", context.Message, context.Message.OrderId);
 
-        // check stock
-        var rejectedOrderStockItems = new List<OrderStockItem>();
+        var command = new ReserveStockCommand(context.Message.OrderId, context.Message.OrderStockItems);
 
-        foreach (OrderStockItem orderStockItem in context.Message.OrderStockItems)
+        Result<ReserveStockResult> result = await handler.Handle(command, context.CancellationToken);
+
+        if (result.IsFailure)
         {
-            Product? product = await productRepository.GetByIdAsync(orderStockItem.ProductId, context.CancellationToken);
+            logger.LogWarning("Stock reservation for Order Id: {OrderId} failed: {@Error}", context.Message.OrderId, result.Error);
 
-            if (product is null)
-            {
-                logger.LogWarning("Product with Id: {ProductId} not found", orderStockItem.ProductId);
-                rejectedOrderStockItems.Add(orderStockItem);
-                continue;
-            }
+            await context.Publish(new OrderItemsStockRejectedIntegrationEvent(context.Message.OrderId, result.Error.Description, []));
 
-            bool hasStock = product.Quantity >= orderStockItem.Quantity;
-
-            if (!hasStock)
-            {
-                rejectedOrderStockItems.Add(orderStockItem);
-            }
+            return;
         }
 
-        if (rejectedOrderStockItems.Any())
+        if (result.Value.IsReserved)
         {
-            var integrationEvent = new OrderItemsStockRejectedIntegrationEvent(context.Message.OrderId);
-
-            // publish stock available event
-            await context.Publish(integrationEvent);
+            await context.Publish(new OrderItemsStockConfirmedIntegrationEvent(context.Message.OrderId, [.. result.Value.Items]));
         }
         else
         {
-            var integrationEvent = new OrderItemsStockConfirmedIntegrationEvent(context.Message.OrderId);
-
-            // publish stock available event
-            await context.Publish(integrationEvent);
+            await context.Publish(new OrderItemsStockRejectedIntegrationEvent(
+                context.Message.OrderId,
+                result.Value.RejectionReason ?? "Stock rejected",
+                [.. result.Value.RejectedProductIds]));
         }
     }
 }

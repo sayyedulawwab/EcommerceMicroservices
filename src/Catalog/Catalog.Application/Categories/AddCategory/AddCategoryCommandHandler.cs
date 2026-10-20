@@ -13,6 +13,12 @@ internal sealed class AddCategoryCommandHandler(
 {
     public async Task<Result<long>> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
+        if (request.ParentCategoryId is long parentCategoryId &&
+            !await categoryRepository.ExistsAsync(parentCategoryId, cancellationToken))
+        {
+            return Result.Failure<long>(CategoryErrors.ParentNotFound(parentCategoryId));
+        }
+
         var category = Category.Create(request.Name, request.Description, request.ParentCategoryId, dateTimeProvider.UtcNow);
 
         categoryRepository.Add(category);
