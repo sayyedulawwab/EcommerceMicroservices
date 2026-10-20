@@ -1,34 +1,22 @@
-﻿using Microsoft.OpenApi;
-
 namespace ApiGateway;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    public const string FrontendCorsPolicy = "frontend";
+
+    public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSwaggerGen(option =>
-        {
-            option.SwaggerDoc("v1", new OpenApiInfo { Title = "ApiGateway", Version = "v1" });
+        string[] allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 
-            option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                In = ParameterLocation.Header,
-                Description = "Enter a valid JSON web token here",
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                BearerFormat = "JWT",
-                Scheme = "Bearer"
-            });
+        // The frontend is on another site and authenticates with cookies, so only listed origins may send
+        // credentialed requests. Services reject cookie-authenticated writes that skip the preflight (see CsrfProtectionMiddleware).
+        services.AddCors(options => options.AddPolicy(FrontendCorsPolicy, policy => policy
+            .WithOrigins(allowedOrigins)
+            .AllowCredentials()
+            .AllowAnyMethod()
+            .WithHeaders("Content-Type", "X-Requested-With", "X-Api-Version", "X-Correlation-Id", "Authorization")));
 
-            option.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-            {
-                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
-            });
-
-        });
-
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
+        services.AddHealthChecks();
 
         return services;
     }
