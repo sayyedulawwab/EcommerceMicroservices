@@ -6,7 +6,9 @@ using Catalog.Application.Products.DeleteProduct;
 using Catalog.Application.Products.EditProduct;
 using Catalog.Application.Products.GetProductById;
 using Catalog.Application.Products.SearchProduct;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Auth;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
@@ -16,6 +18,7 @@ namespace Catalog.API.Controllers.Products;
 [Route("api/v{v:apiVersion}/products")]
 public class ProductsController : BaseController
 {
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost]
     public async Task<IActionResult> AddProduct(AddProductRequest request, ICommandHandler<AddProductCommand, long> handler, CancellationToken cancellationToken)
     {
@@ -34,9 +37,10 @@ public class ProductsController : BaseController
             return result.Error.ToActionResult();
         }
 
-        return Created();
+        return Created(string.Empty, new { id = result.Value });
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProduct(long id, IQueryHandler<GetProductByIdQuery, ProductResponse> handler, CancellationToken cancellationToken)
     {
@@ -52,6 +56,7 @@ public class ProductsController : BaseController
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut("{id}")]
     public async Task<IActionResult> EditProduct(long id, EditProductRequest request, ICommandHandler<EditProductCommand, long> handler, CancellationToken cancellationToken)
     {
@@ -68,6 +73,7 @@ public class ProductsController : BaseController
         return Ok(new { id = result.Value });
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProduct(long id, ICommandHandler<DeleteProductCommand, long> handler, CancellationToken cancellationToken)
     {
@@ -83,6 +89,7 @@ public class ProductsController : BaseController
         return Ok(new { id = result.Value });
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> Search([FromQuery] SearchProductRequest request, IQueryHandler<SearchProductsQuery, PagedList<ProductResponse>> handler, CancellationToken cancellationToken)
     {
@@ -92,6 +99,11 @@ public class ProductsController : BaseController
 
         Result<PagedList<ProductResponse>> result = await handler.Handle(query, cancellationToken);
 
-        return result.IsSuccess ? Ok(result.Value) : NotFound();
+        if (result.IsFailure)
+        {
+            return result.Error.ToActionResult();
+        }
+
+        return Ok(result.Value);
     }
 }

@@ -14,9 +14,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.13" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageReference Include="Moq" Version="4.21.0" />
     <PackageReference Include="xunit.v3" Version="4.0.2" />
@@ -24,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Catalog\Catalog.Application\Catalog.Application.csproj" />
-    <ProjectReference Include="..\..\..\src\Catalog\Catalog.Domain\Catalog.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

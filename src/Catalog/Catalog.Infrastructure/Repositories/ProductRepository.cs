@@ -6,6 +6,18 @@ namespace Catalog.Infrastructure.Repositories;
 
 internal sealed class ProductRepository(ApplicationDbContext dbContext) : Repository<Product>(dbContext), IProductRepository
 {
+    public async Task<IReadOnlyList<Product>> GetByIdsAsync(IReadOnlyCollection<long> ids, CancellationToken cancellationToken = default)
+    {
+        return await DbContext.Set<Product>()
+            .Where(product => ids.Contains(product.Id))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> AnyInCategoryAsync(long categoryId, CancellationToken cancellationToken = default)
+    {
+        return await DbContext.Set<Product>().AnyAsync(product => product.CategoryId == categoryId, cancellationToken);
+    }
+
     public async Task<(IReadOnlyList<Product>, int TotalRecords)> FindAsync(Expression<Func<Product, bool>>? predicate = null, Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = null, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
         IQueryable<Product> query = DbContext.Set<Product>();

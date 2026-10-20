@@ -24,6 +24,8 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(product => product.Quantity);
 
+        builder.HasIndex(product => product.CategoryId);
+
         builder.OwnsOne(product => product.Price, priceBuilder =>
         {
             priceBuilder.Property(money => money.Amount)
@@ -37,6 +39,10 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(product => product.CreatedOnUtc);
         builder.Property(product => product.UpdatedOnUtc);
+
+        // Concurrent stock reservations for the same product must not overwrite each other.
+        builder.Property<byte[]>("RowVersion")
+               .IsRowVersion();
 
         //builder.HasOne<Category>()
         //       .WithMany()

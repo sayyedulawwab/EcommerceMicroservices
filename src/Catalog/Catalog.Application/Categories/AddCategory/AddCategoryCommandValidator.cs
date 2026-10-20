@@ -15,7 +15,7 @@ public class AddCategoryCommandValidator : AbstractValidator<AddCategoryCommand>
             .MaximumLength(1000);
 
         RuleFor(c => c.ParentCategoryId)
-            .NotNull()
-            .GreaterThanOrEqualTo(0);
+            .GreaterThan(0)
+            .When(c => c.ParentCategoryId.HasValue);
     }
 }

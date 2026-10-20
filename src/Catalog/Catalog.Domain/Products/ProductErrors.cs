@@ -8,8 +8,15 @@ public static class ProductErrors
        "Product.NotFound",
        $"The Products with this filter was not found");
 
-    public static Error SoldOut(long id) => Error.NotFound(
-       "Product.SoldOut",
-       $"Empty stock, product item {id} is sold out");
+    public static Error InsufficientStock(long id) => Error.Conflict(
+       "Product.InsufficientStock",
+       $"Product {id} does not have enough stock");
 
+    public static Error InvalidQuantity(long id) => Error.BadRequest(
+       "Product.InvalidQuantity",
+       $"The requested quantity for product {id} must be greater than zero");
+
+    public static Error CategoryNotFound(long categoryId) => Error.BadRequest(
+       "Product.CategoryNotFound",
+       $"The category with the Id = '{categoryId}' does not exist");
 }
