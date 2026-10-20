@@ -37,14 +37,28 @@
     <Project Path="src/SharedKernel/SharedKernel.csproj" />
   </Folder>
   <Folder Name="/tests/" />
-  <Folder Name="/tests/Cart/" />
+  <Folder Name="/tests/Cart/">
+    <Project Path="tests/Cart/Cart.Application.UnitTests/Cart.Application.UnitTests.csproj" />
+    <Project Path="tests/Cart/Cart.Domain.UnitTests/Cart.Domain.UnitTests.csproj" />
+  </Folder>
   <Folder Name="/tests/Catalog/">
     <Project Path="tests/Catalog/Catalog.Application.UnitTests/Catalog.Application.UnitTests.csproj" />
     <Project Path="tests/Catalog/Catalog.Domain.UnitTests/Catalog.Domain.UnitTests.csproj" />
   </Folder>
-  <Folder Name="/tests/Identity/" />
-  <Folder Name="/tests/Ordering/" />
-  <Folder Name="/tests/Payment/" />
+  <Folder Name="/tests/Identity/">
+    <Project Path="tests/Identity/Identity.Application.UnitTests/Identity.Application.UnitTests.csproj" />
+    <Project Path="tests/Identity/Identity.Domain.UnitTests/Identity.Domain.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/IntegrationTests/">
+    <Project Path="tests/IntegrationTests/EcommerceMicroservices.IntegrationTests/EcommerceMicroservices.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Ordering/">
+    <Project Path="tests/Ordering/Ordering.Application.UnitTests/Ordering.Application.UnitTests.csproj" />
+    <Project Path="tests/Ordering/Ordering.Domain.UnitTests/Ordering.Domain.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Payment/">
+    <Project Path="tests/Payment/Payment.Processor.UnitTests/Payment.Processor.UnitTests.csproj" />
+  </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>

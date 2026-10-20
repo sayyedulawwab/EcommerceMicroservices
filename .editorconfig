@@ -6,6 +6,8 @@ root = true
 # Ignore paths
 [**/Migrations/**]
 generated_code = true
+# EF scaffolds `new Guid("00000000-...")` as the default value of new non-nullable Guid columns
+dotnet_diagnostic.S4581.severity = none
 
 #### Core EditorConfig Options ####
 
