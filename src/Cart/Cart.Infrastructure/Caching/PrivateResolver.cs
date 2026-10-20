@@ -14,7 +14,7 @@ public class PrivateResolver : DefaultContractResolver
         {
             var property = member as PropertyInfo;
 
-            bool hasPrivateSetter = property?.GetGetMethod(true) != null;
+            bool hasPrivateSetter = property?.GetSetMethod(true) != null;
 
             prop.Writable = hasPrivateSetter;
         }

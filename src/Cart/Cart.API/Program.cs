@@ -66,7 +66,12 @@ builder.Services.AddApplication()
 
 builder.Services.AddMassTransit(busConfigurator =>
 {
-    busConfigurator.SetKebabCaseEndpointNameFormatter();
+    // Queue names are prefixed with the service name so every service that consumes an event gets its own queue.
+    busConfigurator.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("cart", false));
+
+    // Clearing a cart is idempotent, so a retry is all Cart needs (it has no database for an outbox).
+    busConfigurator.AddConfigureEndpointsCallback((_, _, endpointConfigurator) =>
+        endpointConfigurator.UseMessageRetry(retry => retry.Exponential(5, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(2))));
 
     busConfigurator.AddConsumer<OrderStatusChangedToPaidIntegrationEventHandler>();
 
@@ -111,10 +116,16 @@ app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 
+app.UseCsrfProtection();
+
 //app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health");
 
 await app.RunAsync();

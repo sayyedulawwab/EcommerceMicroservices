@@ -2,6 +2,9 @@
 
 namespace Cart.Domain.Carts;
 
+/// <summary>
+/// A shopping cart. Names and prices here are what the client showed the user; the order uses Catalog's prices.
+/// </summary>
 public sealed class Cart : Entity<Guid>
 {
     public Cart(Guid id, long userId, Money totalPrice, DateTime createdOnUtc) : base(id)
@@ -19,6 +22,7 @@ public sealed class Cart : Entity<Guid>
     public long UserId { get; private set; }
     public Money TotalPrice { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
+    public DateTime? UpdatedOnUtc { get; private set; }
     public List<CartItem> CartItems { get; private set; } = [];
 
 
@@ -29,24 +33,80 @@ public sealed class Cart : Entity<Guid>
         return cart;
     }
 
-    public void AddCartItem(Guid cartId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc)
+    /// <summary>Adds the product, or increases its quantity if it is already in the cart.</summary>
+    public Result AddItem(long productId, string productName, Money price, int quantity, DateTime utcNow)
     {
-        var cartItem = CartItem.Create(cartId, productId, productName, price, quantity, createdOnUtc);
+        CartItem? existingItem = CartItems.Find(item => item.ProductId == productId);
+        int newQuantity = (existingItem?.Quantity ?? 0) + quantity;
 
-        CartItems.Add(cartItem);
-
-        if (TotalPrice.IsZero())
+        if (quantity <= 0 || newQuantity > CartItem.MaxQuantity)
         {
-            TotalPrice = new Money(cartItem.Price.Amount, cartItem.Price.Currency);
+            return Result.Failure(CartErrors.InvalidQuantity(productId));
+        }
+
+        if (CartItems.Count > 0 && CartItems[0].Price.Currency != price.Currency)
+        {
+            return Result.Failure(CartErrors.MixedCurrencies);
+        }
+
+        if (existingItem is null)
+        {
+            CartItems.Add(CartItem.Create(Id, productId, productName, price, quantity, utcNow));
         }
         else
         {
-            if (TotalPrice.Currency != cartItem.Price.Currency)
-            {
-                throw new InvalidOperationException("Currencies have to be equal");
-            }
-
-            TotalPrice += new Money(cartItem.Price.Amount * cartItem.Quantity, cartItem.Price.Currency);
+            existingItem.Update(productName, price, newQuantity);
         }
+
+        return Changed(utcNow);
+    }
+
+    /// <summary>Sets the quantity of a product in the cart; zero removes it.</summary>
+    public Result SetItemQuantity(long productId, int quantity, DateTime utcNow)
+    {
+        if (quantity < 0 || quantity > CartItem.MaxQuantity)
+        {
+            return Result.Failure(CartErrors.InvalidQuantity(productId));
+        }
+
+        CartItem? item = CartItems.Find(cartItem => cartItem.ProductId == productId);
+
+        if (item is null)
+        {
+            return Result.Failure(CartErrors.ItemNotFound(productId));
+        }
+
+        if (quantity == 0)
+        {
+            CartItems.Remove(item);
+        }
+        else
+        {
+            item.Update(item.ProductName, item.Price, quantity);
+        }
+
+        return Changed(utcNow);
+    }
+
+    public Result RemoveItem(long productId, DateTime utcNow)
+    {
+        int removed = CartItems.RemoveAll(item => item.ProductId == productId);
+
+        return removed == 0
+            ? Result.Failure(CartErrors.ItemNotFound(productId))
+            : Changed(utcNow);
+    }
+
+    private Result Changed(DateTime utcNow)
+    {
+        TotalPrice = CartItems.Count == 0
+            ? Money.Zero()
+            : CartItems
+                .Select(item => item.LineTotal)
+                .Aggregate(Money.Zero(CartItems[0].Price.Currency), (total, lineTotal) => total + lineTotal);
+
+        UpdatedOnUtc = utcNow;
+
+        return Result.Success();
     }
 }

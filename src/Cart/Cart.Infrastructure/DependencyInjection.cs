@@ -32,6 +32,9 @@ public static class DependencyInjection
         services.AddSingleton<ICacheService, CacheService>();
         services.AddScoped<ICartRepository, CartRepository>();
 
+        services.AddHealthChecks()
+            .AddCheck<CacheHealthCheck>("redis");
+
         return services;
     }
 
