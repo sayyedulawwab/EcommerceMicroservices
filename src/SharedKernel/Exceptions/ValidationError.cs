@@ -1,4 +1,5 @@
 ﻿using SharedKernel.Domain;
+using System.Net;
 
 namespace SharedKernel.Exceptions;
 
@@ -8,7 +9,7 @@ public sealed record ValidationError : Error
         : base(
             "Validation.General",
             "One or more validation errors occurred",
-            HttpResponseStatusCodes.BadRequest)
+            HttpStatusCode.BadRequest)
     {
         Errors = errors;
     }

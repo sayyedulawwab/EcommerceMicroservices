@@ -15,8 +15,15 @@ public record Currency
 
     public static Currency FromCode(string code)
     {
+        if (code == None.Code)
+        {
+            return None;
+        }
+
         return All.FirstOrDefault(c => c.Code == code) ?? throw new ApplicationException("The currency code is invalid");
     }
+
+    public static bool IsSupported(string? code) => All.Any(c => c.Code == code);
 
     public static readonly IReadOnlyCollection<Currency> All =
     [
