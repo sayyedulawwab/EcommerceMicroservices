@@ -32,7 +32,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
 
             context.Response.StatusCode = exceptionDetails.Status;
 
-            await context.Response.WriteAsJsonAsync(problemDetails);
+            await context.Response.WriteAsJsonAsync(problemDetails, context.RequestAborted);
         }
     }
 

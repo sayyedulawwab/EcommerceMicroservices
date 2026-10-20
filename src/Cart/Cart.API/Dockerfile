@@ -13,7 +13,7 @@ ARG BUILD_CONFIGURATION=Release
 
 COPY ["src/Cart/Cart.API/Cart.API.csproj", "src/Cart/Cart.API/"]
 COPY ["src/Cart/Cart.Application/Cart.Application.csproj", "src/Cart/Cart.Application/"]
-COPY ["src/SharedLibrary/SharedLibrary.csproj", "src/SharedLibrary/"]
+COPY ["src/SharedKernel/SharedKernel.csproj", "src/SharedKernel/"]
 COPY ["src/Cart/Cart.Domain/Cart.Domain.csproj", "src/Cart/Cart.Domain/"]
 COPY ["src/Cart/Cart.Infrastructure/Cart.Infrastructure.csproj", "src/Cart/Cart.Infrastructure/"]
 RUN dotnet restore "./src/Cart/Cart.API/Cart.API.csproj"

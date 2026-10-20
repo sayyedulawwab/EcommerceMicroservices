@@ -13,7 +13,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 
 COPY ["src/Payment/Payment.Processor/Payment.Processor.csproj", "src/Payment/Payment.Processor/"]
-COPY ["src/SharedLibrary/SharedLibrary.csproj", "src/SharedLibrary/"]
+COPY ["src/SharedKernel/SharedKernel.csproj", "src/SharedKernel/"]
 RUN dotnet restore "./src/Payment/Payment.Processor/Payment.Processor.csproj"
 COPY . .
 WORKDIR "/src/Payment/Payment.Processor"

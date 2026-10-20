@@ -1,7 +1,5 @@
 using ApiGateway;
 using ApiGateway.Extensions;
-using Ocelot.DependencyInjection;
-using Ocelot.Middleware;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

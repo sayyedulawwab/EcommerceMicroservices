@@ -88,7 +88,6 @@ builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1);
     options.ReportApiVersions = true;
-    options.AssumeDefaultVersionWhenUnspecified = true;
     options.ApiVersionReader = ApiVersionReader.Combine(
         new UrlSegmentApiVersionReader(),
         new HeaderApiVersionReader("X-Api-Version"));

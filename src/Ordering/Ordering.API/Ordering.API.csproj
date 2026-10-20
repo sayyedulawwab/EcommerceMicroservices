@@ -18,23 +18,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.2.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.13">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.1" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.20.0" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.20.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.20.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.20.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.20.0" />
 	<PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
 	<PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
 	<PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
 	<PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="SonarAnalyzer.CSharp" Version="10.22.0.136894" />
+    <PackageReference Update="SonarAnalyzer.CSharp" Version="10.35.0.4138" />
   </ItemGroup>
 
 </Project>

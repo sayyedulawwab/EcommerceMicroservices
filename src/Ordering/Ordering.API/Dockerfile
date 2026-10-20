@@ -13,7 +13,7 @@ ARG BUILD_CONFIGURATION=Release
 
 COPY ["src/Ordering/Ordering.API/Ordering.API.csproj", "src/Ordering/Ordering.API/"]
 COPY ["src/Ordering/Ordering.Application/Ordering.Application.csproj", "src/Ordering/Ordering.Application/"]
-COPY ["src/SharedLibrary/SharedLibrary.csproj", "src/SharedLibrary/"]
+COPY ["src/SharedKernel/SharedKernel.csproj", "src/SharedKernel/"]
 COPY ["src/Ordering/Ordering.Domain/Ordering.Domain.csproj", "src/Ordering/Ordering.Domain/"]
 COPY ["src/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj", "src/Ordering/Ordering.Infrastructure/"]
 RUN dotnet restore "./src/Ordering/Ordering.API/Ordering.API.csproj"

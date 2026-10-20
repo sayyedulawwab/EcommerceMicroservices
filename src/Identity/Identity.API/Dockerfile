@@ -15,6 +15,7 @@ ARG BUILD_CONFIGURATION=Release
 COPY ["src/Identity/Identity.API/Identity.API.csproj", "src/Identity/Identity.API/"]
 COPY ["src/Identity/Identity.Application/Identity.Application.csproj", "src/Identity/Identity.Application/"]
 COPY ["src/Identity/Identity.Domain/Identity.Domain.csproj", "src/Identity/Identity.Domain/"]
+COPY ["src/SharedKernel/SharedKernel.csproj", "src/SharedKernel/"]
 COPY ["src/Identity/Identity.Infrastructure/Identity.Infrastructure.csproj", "src/Identity/Identity.Infrastructure/"]
 RUN dotnet restore "./src/Identity/Identity.API/Identity.API.csproj"
 COPY . .

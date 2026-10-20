@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="SonarAnalyzer.CSharp" Version="10.22.0.136894" />
+    <PackageReference Update="SonarAnalyzer.CSharp" Version="10.35.0.4138" />
   </ItemGroup>
 
 </Project>

@@ -13,7 +13,7 @@ ARG BUILD_CONFIGURATION=Release
 
 COPY ["src/Catalog/Catalog.API/Catalog.API.csproj", "src/Catalog/Catalog.API/"]
 COPY ["src/Catalog/Catalog.Application/Catalog.Application.csproj", "src/Catalog/Catalog.Application/"]
-COPY ["src/SharedLibrary/SharedLibrary.csproj", "src/SharedLibrary/"]
+COPY ["src/SharedKernel/SharedKernel.csproj", "src/SharedKernel/"]
 COPY ["src/Catalog/Catalog.Domain/Catalog.Domain.csproj", "src/Catalog/Catalog.Domain/"]
 COPY ["src/Catalog/Catalog.Infrastructure/Catalog.Infrastructure.csproj", "src/Catalog/Catalog.Infrastructure/"]
 RUN dotnet restore "./src/Catalog/Catalog.API/Catalog.API.csproj"
