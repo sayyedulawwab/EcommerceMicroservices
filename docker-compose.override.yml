@@ -4,6 +4,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - Otlp__LogsEndpoint=http://otel-collector:4318/v1/logs
+      - Otlp__TracesEndpoint=http://otel-collector:4318/v1/traces
+      - Otlp__MetricsEndpoint=http://otel-collector:4318/v1/metrics
       - ConnectionStrings__EcommerceDB=Server=mssql-database,1433;Database=CatalogDB;User=sa;Password=Passw0rd;TrustServerCertificate=True;
       - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:
@@ -17,6 +20,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - Otlp__LogsEndpoint=http://otel-collector:4318/v1/logs
+      - Otlp__TracesEndpoint=http://otel-collector:4318/v1/traces
+      - Otlp__MetricsEndpoint=http://otel-collector:4318/v1/metrics
       - ConnectionStrings__Redis=redis-caching:6379
       - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:
@@ -31,6 +37,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - Otlp__LogsEndpoint=http://otel-collector:4318/v1/logs
+      - Otlp__TracesEndpoint=http://otel-collector:4318/v1/traces
+      - Otlp__MetricsEndpoint=http://otel-collector:4318/v1/metrics
       - ConnectionStrings__EcommerceDB=Server=mssql-database,1433;Database=OrderingDB;User=sa;Password=Passw0rd;TrustServerCertificate=True;
       - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:
@@ -45,6 +54,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - Otlp__LogsEndpoint=http://otel-collector:4318/v1/logs
+      - Otlp__TracesEndpoint=http://otel-collector:4318/v1/traces
+      - Otlp__MetricsEndpoint=http://otel-collector:4318/v1/metrics
       - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:
       - "8080"
@@ -58,6 +70,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - Otlp__LogsEndpoint=http://otel-collector:4318/v1/logs
+      - Otlp__TracesEndpoint=http://otel-collector:4318/v1/traces
+      - Otlp__MetricsEndpoint=http://otel-collector:4318/v1/metrics
       - ReverseProxy__Clusters__catalog-cluster__Destinations__catalog__Address=http://catalog-api:8080/
       - ReverseProxy__Clusters__cart-cluster__Destinations__cart__Address=http://cart-api:8080/
       - ReverseProxy__Clusters__ordering-cluster__Destinations__ordering__Address=http://ordering-api:8080/
@@ -74,6 +89,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - Otlp__LogsEndpoint=http://otel-collector:4318/v1/logs
+      - Otlp__TracesEndpoint=http://otel-collector:4318/v1/traces
+      - Otlp__MetricsEndpoint=http://otel-collector:4318/v1/metrics
       - ConnectionStrings__EcommerceDB=Server=mssql-database,1433;Database=IdentityDB;User=sa;Password=Passw0rd;TrustServerCertificate=True;
       - MessageBroker__Host=amqp://rabbitmq-broker:5672
     ports:

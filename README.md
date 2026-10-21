@@ -14,12 +14,16 @@ To get started, follow these steps:
 - Clone this repository to your local machine.
 - Install Docker Desktop for windows.
 
-In terminal
-- Navigate to the project directory in your terminal.
-- Run the command docker-compose up.
+Start the infrastructure (SQL Server, RabbitMQ, Redis, and the OpenTelemetry Collector with Loki, Tempo, Prometheus and Grafana) once and leave it running. It is its own compose project (`ecommerce-microservices-infra`) and creates the shared Docker network, so stopping or rebuilding the services doesn't restart it:
+- `docker compose -f infra.compose.yml up -d`
 
-In Visual Studio
-- Run the Docker Compose command from toolbar.
+Then run the services and the gateway:
+- In a terminal: `docker compose -f docker-compose.yml -f docker-compose.override.yml up --build`
+- In Visual Studio: run the **Docker Compose** profile from the toolbar.
+
+Grafana runs at `http://localhost:13000` (`admin`/`admin`) with logs, traces and metrics from every service.
+
+Stop the infrastructure with `docker compose -f infra.compose.yml down`.
 
 ## Using the API
 - Everything goes through the gateway at `http://localhost:7000/api/{service}/v1/...` (`identity`, `catalog`, `cart`, `ordering`). In Development, `http://localhost:7000/swagger` shows every service's API in one Swagger UI.

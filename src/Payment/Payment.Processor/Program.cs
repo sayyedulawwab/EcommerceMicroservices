@@ -39,6 +39,7 @@ builder.Services.AddOpenTelemetry()
             }))
     .WithTracing(tracing => tracing
             .AddSource(builder.Environment.ApplicationName)
+            .AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName)
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddOtlpExporter(exporterOptions =>
@@ -50,6 +51,7 @@ builder.Services.AddOpenTelemetry()
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddRuntimeInstrumentation()
+            .AddMeter(MassTransit.Monitoring.InstrumentationOptions.MeterName)
             .AddOtlpExporter((exporterOptions, metricReaderOptions) =>
             {
                 exporterOptions.Endpoint = new Uri(otlpMetricsEndpoint);

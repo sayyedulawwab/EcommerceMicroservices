@@ -7,8 +7,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Solution file is `EcommerceMicroservices.slnx` (.NET 10 SDK).
 
 ```bash
-# Run the whole system (SQL Server, Redis, RabbitMQ, all services, gateway)
-docker-compose up --build
+# Run the system. Infra (SQL Server, Redis, RabbitMQ) is a separate compose project that creates the shared
+# external network `ecommerce-microservices-network`; start it first and leave it running.
+docker compose -f infra.compose.yml up -d
+# Services + gateway (or the VS "Docker Compose" profile). No depends_on on infra: it lives in another project.
+docker compose -f docker-compose.yml -f docker-compose.override.yml up --build
 
 # Build
 dotnet build EcommerceMicroservices.slnx
@@ -90,8 +93,8 @@ Every cancellation publishes `OrderCancelled`, and releasing stock is idempotent
 - `mssql-database` has a healthcheck and the services wait for it (`service_healthy`). Without it a service can start before SQL Server accepts logins and crash in `EnsureDeleted()`.
 - Cart rebuilds cached carts with Newtonsoft.Json (`CacheService`), so cached types such as `Currency` need a (private) parameterless constructor.
 - The `logs/` folder in service containers is owned by root, so the non-root `app` user can't write the Serilog files there. Console output is not configured, so container logs are empty.
-- Each service uses Serilog and exports OpenTelemetry logs, traces, and metrics over OTLP to `Otlp:*Endpoint` (default `localhost:14318`). Each service and the gateway expose `/health`.
-- Host ports: gateway 7000, Catalog 5000, Cart 5002, Ordering 5004, Identity 5006, Payment 5008, RabbitMQ UI 15672 / AMQP 15673, Redis 16379, SQL Server 1433 (`sa`/`Passw0rd`). Redis isn't published on 6379 because Windows (Hyper-V/WinNAT) often reserves the 63xx range. Run `netsh interface ipv4 show excludedportrange protocol=tcp` if a port fails to bind.
+- Each service uses Serilog and exports OpenTelemetry logs, traces, and metrics over OTLP to `Otlp:*Endpoint`: `localhost:24318` from `appsettings.Development.json` for host runs, `otel-collector:4318` from `docker-compose.override.yml` under compose. The gateway exports too (no Serilog), and tracing includes MassTransit's source and meter, so one trace follows an order from the gateway through every consumer and outbox hop. The collector (`otel/otel-collector.yml`) sends logs to Loki, traces to Tempo, and metrics to Prometheus (scraped with `honor_labels`, so `job` is the service name); Grafana has all three provisioned. Each service and the gateway expose `/health`.
+- Host ports: gateway 7000, Catalog 5000, Cart 5002, Ordering 5004, Identity 5006, Payment 5008, RabbitMQ UI 15672 / AMQP 15673, Redis 16379, SQL Server 1433 (`sa`/`Passw0rd`), OTLP 24318, Grafana 13000 (`admin`/`admin`), Prometheus 19090, Loki 13100, Tempo 13200. The observability ports and container names (`microservices-*`) are offset so this stack can run next to another project's. Redis isn't published on 6379 because Windows (Hyper-V/WinNAT) often reserves the 63xx range. Run `netsh interface ipv4 show excludedportrange protocol=tcp` if a port fails to bind.
 
 ### Tests
 

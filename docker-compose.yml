@@ -1,52 +1,5 @@
 services:
 
-  redis-caching:
-    image: redis:alpine
-    container_name: redis-caching
-    restart: always
-    ports:
-      - 16379:6379
-    networks:
-      - app-network
-
-  rabbitmq-broker:
-    image: rabbitmq:4.2.5-management-alpine
-    container_name: rabbitmq-broker
-    ports:
-      - 15673:5672
-      - 15672:15672
-    volumes:
-      - ./.containers/rabbitmq/data/:/var/lib/rabbitmq/
-      - ./.containers/rabbitmq/log/:/var/log/rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    networks:
-      - app-network
-
-  mssql-database:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: mssql-database
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Passw0rd"
-      MSSQL_DATA_DIR: /var/opt/mssql/data
-      MSSQL_PID: "Developer"
-      MSSQL_TCP_PORT: 1433
-    ports:
-      - 1433:1433
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q 'SELECT 1' || exit 1"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-    volumes:
-      - ./.containers/data:/var/opt/mssql/data
-      - ./.containers/log:/var/opt/mssql/log
-      - ./.containers/secrets:/var/opt/mssql/secrets
-    networks:
-      - app-network
-
   identity-api:
     image: ${DOCKER_REGISTRY-}identityapi
     container_name: Identity.API
@@ -56,11 +9,6 @@ services:
     ports:
       - 5006:8080
       - 5007:8081
-    depends_on:
-      mssql-database:
-        condition: service_healthy
-      rabbitmq-broker:
-        condition: service_started
     networks:
       - app-network
 
@@ -73,11 +21,6 @@ services:
     ports:
       - 5000:8080
       - 5001:8081
-    depends_on:
-      mssql-database:
-        condition: service_healthy
-      rabbitmq-broker:
-        condition: service_started
     networks:
       - app-network
 
@@ -90,13 +33,6 @@ services:
     ports:
       - 5002:8080
       - 5003:8081
-    depends_on:
-      mssql-database:
-        condition: service_healthy
-      rabbitmq-broker:
-        condition: service_started
-      redis-caching:
-        condition: service_started
     networks:
       - app-network
 
@@ -109,11 +45,6 @@ services:
     ports:
       - 5004:8080
       - 5005:8081
-    depends_on:
-      mssql-database:
-        condition: service_healthy
-      rabbitmq-broker:
-        condition: service_started
     networks:
       - app-network
 
@@ -126,11 +57,6 @@ services:
     ports:
       - 5008:8080
       - 5009:8081
-    depends_on:
-      mssql-database:
-        condition: service_healthy
-      rabbitmq-broker:
-        condition: service_started
     networks:
       - app-network
 
@@ -154,4 +80,5 @@ services:
 
 networks:
   app-network:
-    driver: bridge
+    external: true
+    name: ecommerce-microservices-network

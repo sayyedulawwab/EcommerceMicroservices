@@ -4,12 +4,12 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "catalog.api": "StartDebugging",
-        "cart.api": "StartDebugging",
-        "ordering.api": "StartDebugging",
-        "payment.processor": "StartDebugging",
-        "apigateway": "StartDebugging",
-        "identity.api": "StartDebugging"
+        "catalog-api": "StartDebugging",
+        "cart-api": "StartDebugging",
+        "ordering-api": "StartDebugging",
+        "payment-processor": "StartDebugging",
+        "api-gateway": "StartDebugging",
+        "identity-api": "StartDebugging"
       }
     }
   }
