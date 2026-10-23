@@ -13,10 +13,6 @@ public sealed class OrderItem : Entity<long>
         CreatedOnUtc = createdOnUtc;
     }
 
-    private OrderItem()
-    {
-    }
-
     public long OrderId { get; } // set by EF Core from the Order relationship
     public long ProductId { get; private set; }
 

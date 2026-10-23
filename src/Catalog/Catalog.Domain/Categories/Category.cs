@@ -11,9 +11,6 @@ public sealed class Category : Entity<long>
         ParentCategoryId = parentCategoryId;
         CreatedOnUtc = createdOnUtc;
     }
-    private Category()
-    {
-    }
 
     public string Name { get; private set; }
     public string Description { get; private set; }

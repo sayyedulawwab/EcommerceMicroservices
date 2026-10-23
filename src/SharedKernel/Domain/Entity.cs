@@ -8,9 +8,11 @@ public abstract class Entity<TEntityId> : IEntity
         Id = id;
     }
 
+    #pragma warning disable CS8618 // Used by EF Core to materialize the entity
     protected Entity()
     {
     }
+    #pragma warning restore CS8618
 
     public TEntityId Id { get; init; }
 

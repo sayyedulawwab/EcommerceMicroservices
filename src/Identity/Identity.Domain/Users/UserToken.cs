@@ -19,9 +19,11 @@ public sealed class UserToken : Entity<long>
         CreatedOnUtc = createdOnUtc;
     }
 
+    #pragma warning disable CS8618 // Used by EF Core, which can't bind the User navigation through the constructor
     private UserToken()
     {
     }
+    #pragma warning restore CS8618
 
     public long UserId { get; private set; }
     public UserTokenPurpose Purpose { get; private set; }

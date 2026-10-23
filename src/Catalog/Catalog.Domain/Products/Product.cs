@@ -14,9 +14,11 @@ public sealed class Product : Entity<long>
         CreatedOnUtc = createdOnUtc;
     }
 
+    #pragma warning disable CS8618 // Used by EF Core, which can't bind the owned Money through the constructor
     private Product()
     {
     }
+    #pragma warning restore CS8618
 
     public long CategoryId { get; private set; }
     public string Name { get; private set; }
@@ -32,7 +34,6 @@ public sealed class Product : Entity<long>
 
         return product;
     }
-
 
     public static Product Update(Product product, string name, string description, Money price, int quantity, long categoryId, DateTime updatedOnUtc)
     {

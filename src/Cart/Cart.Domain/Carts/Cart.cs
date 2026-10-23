@@ -15,16 +15,17 @@ public sealed class Cart : Entity<Guid>
 
     }
 
+    #pragma warning disable CS8618 // Used by Newtonsoft.Json to deserialize the cart from Redis
     private Cart()
     {
     }
+    #pragma warning restore CS8618
 
     public long UserId { get; private set; }
     public Money TotalPrice { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
     public DateTime? UpdatedOnUtc { get; private set; }
     public List<CartItem> CartItems { get; private set; } = [];
-
 
     public static Cart Create(long userId, DateTime createdOnUtc)
     {
