@@ -2,11 +2,11 @@
 
 namespace Cart.Domain.Carts;
 
-public sealed class CartItem : Entity<Guid>
+public sealed class CartItem : Entity<CartItemId>
 {
     public const int MaxQuantity = 1000;
 
-    private CartItem(Guid id, Guid cartId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc) : base(id)
+    private CartItem(CartItemId id, CartId cartId, Guid productId, string productName, Money price, int quantity, DateTime createdOnUtc) : base(id)
     {
         CartId = cartId;
         ProductId = productId;
@@ -22,8 +22,8 @@ public sealed class CartItem : Entity<Guid>
     }
     #pragma warning restore CS8618
 
-    public Guid CartId { get; private set; }
-    public long ProductId { get; private set; }
+    public CartId CartId { get; private set; }
+    public Guid ProductId { get; private set; }
     public string ProductName { get; private set; }
     public Money Price { get; private set; }
     public int Quantity { get; private set; }
@@ -31,9 +31,9 @@ public sealed class CartItem : Entity<Guid>
 
     public Money LineTotal => new(Price.Amount * Quantity, Price.Currency);
 
-    public static CartItem Create(Guid cartId, long productId, string productName, Money price, int quantity, DateTime createdOnUtc)
+    public static CartItem Create(CartId cartId, Guid productId, string productName, Money price, int quantity, DateTime createdOnUtc)
     {
-        var cartItem = new CartItem(Guid.NewGuid(), cartId, productId, productName, price, quantity, createdOnUtc);
+        var cartItem = new CartItem(CartItemId.New(), cartId, productId, productName, price, quantity, createdOnUtc);
 
         return cartItem;
     }

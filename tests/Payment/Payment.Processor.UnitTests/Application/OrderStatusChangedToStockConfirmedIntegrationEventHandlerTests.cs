@@ -9,8 +9,8 @@ namespace Payment.Processor.UnitTests.Application;
 
 public sealed class OrderStatusChangedToStockConfirmedIntegrationEventHandlerTests
 {
-    private const long OrderId = 42;
-    private const long UserId = 7;
+    private static readonly Guid OrderId = Guid.CreateVersion7();
+    private static readonly Guid UserId = Guid.CreateVersion7();
     private const decimal TotalAmount = 99.5m;
     private const string Currency = "USD";
 
@@ -82,6 +82,6 @@ public sealed class OrderStatusChangedToStockConfirmedIntegrationEventHandlerTes
 
     private void SetupPaymentResult(PaymentResult result) =>
         _paymentServiceMock
-            .Setup(s => s.ProcessPaymentAsync(It.IsAny<long>(), It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.ProcessPaymentAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(result);
 }

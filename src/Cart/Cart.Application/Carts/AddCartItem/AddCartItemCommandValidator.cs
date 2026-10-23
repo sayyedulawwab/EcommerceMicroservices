@@ -6,7 +6,7 @@ public class AddCartItemCommandValidator : AbstractValidator<AddCartItemCommand>
 {
     public AddCartItemCommandValidator()
     {
-        RuleFor(c => c.UserId).GreaterThan(0);
+        RuleFor(c => c.UserId).NotEmpty();
         CartItemRules.ProductId(RuleFor(c => c.ProductId));
         CartItemRules.ProductName(RuleFor(c => c.ProductName));
         CartItemRules.PriceAmount(RuleFor(c => c.PriceAmount));

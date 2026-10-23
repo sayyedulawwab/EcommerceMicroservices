@@ -10,7 +10,7 @@ public class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderCommand>
     public PlaceOrderCommandValidator()
     {
         RuleFor(c => c.UserId)
-            .GreaterThan(0);
+            .NotEmpty();
 
         RuleFor(c => c.OrderItems)
             .NotEmpty()
@@ -19,7 +19,7 @@ public class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderCommand>
 
         RuleForEach(c => c.OrderItems).ChildRules(item =>
         {
-            item.RuleFor(i => i.ProductId).GreaterThan(0);
+            item.RuleFor(i => i.ProductId).NotEmpty();
             item.RuleFor(i => i.Quantity).InclusiveBetween(1, MaxQuantityPerItem);
         });
     }

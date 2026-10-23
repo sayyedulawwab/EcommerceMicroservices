@@ -11,11 +11,16 @@ internal sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderIte
     {
         builder.ToTable("OrderItems");
 
-        builder.HasKey(orderItem => orderItem.Id);
+        builder.HasKey(orderItem => orderItem.Id).IsClustered(false);
 
         builder.Property(orderItem => orderItem.Id)
-               .ValueGeneratedOnAdd();
-        builder.Property(orderItem => orderItem.OrderId);
+               .HasConversion(orderItemId => orderItemId.Value, value => new OrderItemId(value));
+
+        builder.Property<long>("ClusterId").UseIdentityColumn();
+        builder.HasIndex("ClusterId").IsClustered();
+
+        builder.Property(orderItem => orderItem.OrderId)
+               .HasConversion(orderId => orderId.Value, value => new OrderId(value));
         builder.Property(orderItem => orderItem.ProductId);
         builder.Property(orderItem => orderItem.ProductName);
         builder.Property(orderItem => orderItem.Quantity);

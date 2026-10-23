@@ -2,4 +2,4 @@ using SharedKernel.Messaging;
 
 namespace Identity.Application.Users.GetProfile;
 
-public record GetUserProfileQuery(long UserId) : IQuery<UserProfileResponse>;
+public record GetUserProfileQuery(Guid UserId) : IQuery<UserProfileResponse>;

@@ -18,9 +18,9 @@ public sealed class OrderSagaTests(SystemFixture system)
     public async Task PlacedOrder_IsPricedByCatalog_Paid_StockCommitted_AndCartCleared()
     {
         using HttpClient admin = SystemFixture.CreateClient(system.Catalog, TestJwt.Create(TestJwt.NewUserId(), isAdmin: true));
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 100, quantity: 10);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 100, quantity: 10);
 
-        long userId = TestJwt.NewUserId();
+        Guid userId = TestJwt.NewUserId();
         string userToken = TestJwt.Create(userId);
         using HttpClient cart = SystemFixture.CreateClient(system.Cart, userToken);
         HttpResponseMessage addToCart = await cart.PostAsJsonAsync(
@@ -35,7 +35,7 @@ public sealed class OrderSagaTests(SystemFixture system)
         Assert.Equal("BDT", storedCart.GetProperty("totalPriceCurrency").GetString());
 
         using HttpClient ordering = SystemFixture.CreateClient(system.Ordering, userToken);
-        long orderId = await PlaceOrderAsync(ordering, productId, quantity: 2);
+        Guid orderId = await PlaceOrderAsync(ordering, productId, quantity: 2);
 
         JsonElement order = await WaitForFinalStatusAsync(ordering, orderId);
 
@@ -58,10 +58,10 @@ public sealed class OrderSagaTests(SystemFixture system)
     public async Task OrderForMoreThanTheStock_IsCancelled_AndStockIsUntouched()
     {
         using HttpClient admin = SystemFixture.CreateClient(system.Catalog, TestJwt.Create(TestJwt.NewUserId(), isAdmin: true));
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 3);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 3);
 
         using HttpClient ordering = SystemFixture.CreateClient(system.Ordering, TestJwt.Create(TestJwt.NewUserId()));
-        long orderId = await PlaceOrderAsync(ordering, productId, quantity: 4);
+        Guid orderId = await PlaceOrderAsync(ordering, productId, quantity: 4);
 
         JsonElement order = await WaitForFinalStatusAsync(ordering, orderId);
 
@@ -74,10 +74,10 @@ public sealed class OrderSagaTests(SystemFixture system)
     public async Task FailedPayment_CancelsTheOrder_AndReleasesTheReservedStock()
     {
         using HttpClient admin = SystemFixture.CreateClient(system.Catalog, TestJwt.Create(TestJwt.NewUserId(), isAdmin: true));
-        long productId = await CatalogApi.CreateProductAsync(admin, price: SystemFixture.PaymentLimit, quantity: 5);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: SystemFixture.PaymentLimit, quantity: 5);
 
         using HttpClient ordering = SystemFixture.CreateClient(system.Ordering, TestJwt.Create(TestJwt.NewUserId()));
-        long orderId = await PlaceOrderAsync(ordering, productId, quantity: 2);
+        Guid orderId = await PlaceOrderAsync(ordering, productId, quantity: 2);
 
         JsonElement order = await WaitForFinalStatusAsync(ordering, orderId);
 
@@ -94,10 +94,10 @@ public sealed class OrderSagaTests(SystemFixture system)
     public async Task PaidOrder_CanBeShippedAndDeliveredByAnAdmin_ButNotCancelledByTheCustomer()
     {
         using HttpClient catalogAdmin = SystemFixture.CreateClient(system.Catalog, TestJwt.Create(TestJwt.NewUserId(), isAdmin: true));
-        long productId = await CatalogApi.CreateProductAsync(catalogAdmin, price: 25, quantity: 5);
+        Guid productId = await CatalogApi.CreateProductAsync(catalogAdmin, price: 25, quantity: 5);
 
         using HttpClient customer = SystemFixture.CreateClient(system.Ordering, TestJwt.Create(TestJwt.NewUserId()));
-        long orderId = await PlaceOrderAsync(customer, productId, quantity: 1);
+        Guid orderId = await PlaceOrderAsync(customer, productId, quantity: 1);
         Assert.Equal("Paid", (await WaitForFinalStatusAsync(customer, orderId)).GetProperty("status").GetString());
 
         HttpResponseMessage customerCancel = await PostAsync(customer, $"/api/v1/orders/{orderId}/cancel");
@@ -119,11 +119,11 @@ public sealed class OrderSagaTests(SystemFixture system)
     public async Task Customers_OnlySeeTheirOwnOrders()
     {
         using HttpClient catalogAdmin = SystemFixture.CreateClient(system.Catalog, TestJwt.Create(TestJwt.NewUserId(), isAdmin: true));
-        long productId = await CatalogApi.CreateProductAsync(catalogAdmin, price: 5, quantity: 5);
+        Guid productId = await CatalogApi.CreateProductAsync(catalogAdmin, price: 5, quantity: 5);
 
         using HttpClient owner = SystemFixture.CreateClient(system.Ordering, TestJwt.Create(TestJwt.NewUserId()));
         using HttpClient stranger = SystemFixture.CreateClient(system.Ordering, TestJwt.Create(TestJwt.NewUserId()));
-        long orderId = await PlaceOrderAsync(owner, productId, quantity: 1);
+        Guid orderId = await PlaceOrderAsync(owner, productId, quantity: 1);
 
         HttpResponseMessage strangerView = await stranger.GetAsync($"/api/v1/orders/{orderId}", Ct);
         JsonElement strangerOrders = await stranger.GetFromJsonAsync<JsonElement>("/api/v1/orders", Ct);
@@ -131,12 +131,12 @@ public sealed class OrderSagaTests(SystemFixture system)
 
         Assert.Equal(HttpStatusCode.NotFound, strangerView.StatusCode);
         Assert.Equal(0, strangerOrders.GetArrayLength());
-        Assert.Contains(ownerOrders.EnumerateArray(), o => o.GetProperty("id").GetInt64() == orderId);
+        Assert.Contains(ownerOrders.EnumerateArray(), o => o.GetProperty("id").GetGuid() == orderId);
     }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
-    private static async Task<long> PlaceOrderAsync(HttpClient ordering, long productId, int quantity)
+    private static async Task<Guid> PlaceOrderAsync(HttpClient ordering, Guid productId, int quantity)
     {
         HttpResponseMessage response = await ordering.PostAsJsonAsync(
             "/api/v1/orders",
@@ -145,10 +145,10 @@ public sealed class OrderSagaTests(SystemFixture system)
 
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
 
-        return await CatalogApi.ReadIdAsync(response);
+        return await OrderingApi.ReadIdAsync(response);
     }
 
-    private static Task<JsonElement> WaitForFinalStatusAsync(HttpClient ordering, long orderId)
+    private static Task<JsonElement> WaitForFinalStatusAsync(HttpClient ordering, Guid orderId)
     {
         return Eventually.UntilAsync(
             () => ordering.GetFromJsonAsync<JsonElement>($"/api/v1/orders/{orderId}", Ct),

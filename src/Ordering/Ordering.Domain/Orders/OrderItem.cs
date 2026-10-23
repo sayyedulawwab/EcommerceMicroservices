@@ -2,10 +2,12 @@
 
 namespace Ordering.Domain.Orders;
 
-public sealed class OrderItem : Entity<long>
+public sealed class OrderItem : Entity<OrderItemId>
 {
-    private OrderItem(long productId, int quantity, DateTime createdOnUtc)
+    private OrderItem(OrderItemId id, OrderId orderId, Guid productId, int quantity, DateTime createdOnUtc)
+        : base(id)
     {
+        OrderId = orderId;
         ProductId = productId;
         ProductName = string.Empty;
         Price = Money.Zero();
@@ -13,8 +15,8 @@ public sealed class OrderItem : Entity<long>
         CreatedOnUtc = createdOnUtc;
     }
 
-    public long OrderId { get; } // set by EF Core from the Order relationship
-    public long ProductId { get; private set; }
+    public OrderId OrderId { get; }
+    public Guid ProductId { get; private set; }
 
     // Name and price are unknown until Catalog confirms the stock; they come from Catalog, never from the client.
     public string ProductName { get; private set; }
@@ -24,9 +26,9 @@ public sealed class OrderItem : Entity<long>
 
     public Money LineTotal => new(Price.Amount * Quantity, Price.Currency);
 
-    public static OrderItem Create(long productId, int quantity, DateTime createdOnUtc)
+    public static OrderItem Create(OrderId orderId, Guid productId, int quantity, DateTime createdOnUtc)
     {
-        return new OrderItem(productId, quantity, createdOnUtc);
+        return new OrderItem(OrderItemId.New(), orderId, productId, quantity, createdOnUtc);
     }
 
     internal void SetPrice(string productName, Money price)

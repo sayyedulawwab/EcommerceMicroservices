@@ -14,7 +14,7 @@ internal sealed class UpdateUserProfileCommandHandler(
 {
     public async Task<Result> Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
     {
-        User? user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
+        User? user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == new UserId(request.UserId), cancellationToken);
 
         if (user is null)
         {

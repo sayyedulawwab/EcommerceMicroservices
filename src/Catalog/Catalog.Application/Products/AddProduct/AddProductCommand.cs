@@ -2,4 +2,4 @@
 
 namespace Catalog.Application.Products.AddProduct;
 
-public record AddProductCommand(string Name, string Description, string PriceCurrency, decimal PriceAmount, int Quantity, long CategoryId) : ICommand<long>;
+public record AddProductCommand(string Name, string Description, string PriceCurrency, decimal PriceAmount, int Quantity, Guid CategoryId) : ICommand<Guid>;

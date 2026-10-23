@@ -20,7 +20,7 @@ internal sealed class ChangePasswordCommandHandler(
 {
     public async Task<Result<AuthTokens>> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
-        User? user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
+        User? user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == new UserId(request.UserId), cancellationToken);
 
         if (user is null)
         {

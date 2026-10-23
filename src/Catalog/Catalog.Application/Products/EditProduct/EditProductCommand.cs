@@ -2,4 +2,4 @@
 
 namespace Catalog.Application.Products.EditProduct;
 
-public record EditProductCommand(long Id, string Name, string Description, string PriceCurrency, decimal PriceAmount, int Quantity, long CategoryId) : ICommand<long>;
+public record EditProductCommand(Guid Id, string Name, string Description, string PriceCurrency, decimal PriceAmount, int Quantity, Guid CategoryId) : ICommand<Guid>;

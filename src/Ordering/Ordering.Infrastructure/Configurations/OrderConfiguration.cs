@@ -11,10 +11,13 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
     {
         builder.ToTable("Orders");
 
-        builder.HasKey(order => order.Id);
+        builder.HasKey(order => order.Id).IsClustered(false);
 
         builder.Property(order => order.Id)
-               .ValueGeneratedOnAdd();
+               .HasConversion(orderId => orderId.Value, value => new OrderId(value));
+
+        builder.Property<long>("ClusterId").UseIdentityColumn();
+        builder.HasIndex("ClusterId").IsClustered();
 
         builder.Property(order => order.Status);
 

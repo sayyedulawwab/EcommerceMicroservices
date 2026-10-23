@@ -30,7 +30,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(
         RegisterRequest request,
-        ICommandHandler<RegisterUserCommand, long> handler,
+        ICommandHandler<RegisterUserCommand, Guid> handler,
         CancellationToken cancellationToken)
     {
         var command = new RegisterUserCommand(
@@ -39,7 +39,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
             request.Email,
             request.Password);
 
-        Result<long> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
         {

@@ -6,6 +6,7 @@ public sealed class CategoryTests
 {
     private static readonly DateTime CreatedOn = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     private static readonly DateTime UpdatedOn = new(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly CategoryId ParentId = CategoryId.New();
 
     [Fact]
     public void Create_NullParent_CreatesRootCategory()
@@ -22,15 +23,15 @@ public sealed class CategoryTests
     [Fact]
     public void Create_WithParent_SetsParent()
     {
-        var category = Category.Create("Laptops", "Portable computers", 3, CreatedOn);
+        var category = Category.Create("Laptops", "Portable computers", ParentId, CreatedOn);
 
-        Assert.Equal(3, category.ParentCategoryId);
+        Assert.Equal(ParentId, category.ParentCategoryId);
     }
 
     [Fact]
     public void Update_NullParent_ClearsParentAndSetsFields()
     {
-        var category = Category.Create("Laptops", "Portable computers", 3, CreatedOn);
+        var category = Category.Create("Laptops", "Portable computers", ParentId, CreatedOn);
 
         var updated = Category.Update(category, "Notebooks", "Thin laptops", null, UpdatedOn);
 
@@ -47,8 +48,8 @@ public sealed class CategoryTests
     {
         var category = Category.Create("Laptops", "Portable computers", null, CreatedOn);
 
-        var updated = Category.Update(category, "Laptops", "Portable computers", 9, UpdatedOn);
+        var updated = Category.Update(category, "Laptops", "Portable computers", ParentId, UpdatedOn);
 
-        Assert.Equal(9, updated.ParentCategoryId);
+        Assert.Equal(ParentId, updated.ParentCategoryId);
     }
 }

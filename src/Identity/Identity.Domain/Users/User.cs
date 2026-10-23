@@ -2,9 +2,10 @@
 
 namespace Identity.Domain.Users;
 
-public sealed class User : Entity<long>
+public sealed class User : Entity<UserId>
 {
-    private User(string firstName, string lastName, string email, string passwordHash, bool isAdmin, DateTime createdOnUtc)
+    private User(UserId id, string firstName, string lastName, string email, string passwordHash, bool isAdmin, DateTime createdOnUtc)
+        : base(id)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -25,7 +26,7 @@ public sealed class User : Entity<long>
 
     public static User Create(string firstName, string lastName, string email, string passwordHash, bool isAdmin, DateTime createdOnUtc)
     {
-        var user = new User(firstName, lastName, NormalizeEmail(email), passwordHash, isAdmin, createdOnUtc);
+        var user = new User(UserId.New(), firstName, lastName, NormalizeEmail(email), passwordHash, isAdmin, createdOnUtc);
 
         return user;
     }

@@ -10,10 +10,14 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.ToTable("Users");
 
-        builder.HasKey(user => user.Id);
+        builder.HasKey(user => user.Id).IsClustered(false);
 
         builder.Property(user => user.Id)
-               .ValueGeneratedOnAdd();
+               .HasConversion(id => id.Value, value => new UserId(value));
+
+        builder.Property<long>("ClusterId").UseIdentityColumn();
+
+        builder.HasIndex("ClusterId").IsClustered();
 
         builder.Property(user => user.FirstName)
                .HasMaxLength(200);

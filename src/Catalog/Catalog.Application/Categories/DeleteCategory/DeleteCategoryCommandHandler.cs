@@ -7,28 +7,30 @@ using SharedKernel.Messaging;
 namespace Catalog.Application.Categories.DeleteCategory;
 
 internal sealed class DeleteCategoryCommandHandler(IApplicationDbContext dbContext)
-    : ICommandHandler<DeleteCategoryCommand, long>
+    : ICommandHandler<DeleteCategoryCommand, Guid>
 {
-    public async Task<Result<long>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
     {
-        Category? category = await dbContext.Categories.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+        var categoryId = new CategoryId(request.Id);
+
+        Category? category = await dbContext.Categories.FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
 
         if (category is null)
         {
-            return Result.Failure<long>(CategoryErrors.NotFound(request.Id));
+            return Result.Failure<Guid>(CategoryErrors.NotFound(request.Id));
         }
 
-        if (await dbContext.Categories.AnyAsync(c => c.ParentCategoryId == request.Id, cancellationToken) ||
-            await dbContext.Products.AnyAsync(p => p.CategoryId == request.Id, cancellationToken))
+        if (await dbContext.Categories.AnyAsync(c => c.ParentCategoryId == categoryId, cancellationToken) ||
+            await dbContext.Products.AnyAsync(p => p.CategoryId == categoryId, cancellationToken))
         {
-            return Result.Failure<long>(CategoryErrors.InUse(request.Id));
+            return Result.Failure<Guid>(CategoryErrors.InUse(request.Id));
         }
 
         dbContext.Categories.Remove(category);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return category.Id;
+        return category.Id.Value;
 
     }
 }

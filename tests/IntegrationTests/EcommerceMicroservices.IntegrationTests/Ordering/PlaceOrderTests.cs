@@ -15,7 +15,7 @@ public sealed class PlaceOrderTests(SystemFixture system)
     [Fact]
     public async Task PlaceOrder_ValidRequest_StoresTheOrderForTheCaller_AndPublishesOrderPlacedWithMergedItems()
     {
-        long userId = TestJwt.NewUserId();
+        Guid userId = TestJwt.NewUserId();
         using HttpClient customer = OrderingApi.CustomerClient(system, userId);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderPlacedIntegrationEvent> placed = await BusProbe<OrderPlacedIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
@@ -28,7 +28,7 @@ public sealed class PlaceOrderTests(SystemFixture system)
             (OrderingTestData.KeyboardId, 2));
 
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
-        long orderId = await CatalogApi.ReadIdAsync(response);
+        Guid orderId = await OrderingApi.ReadIdAsync(response);
 
         OrderPlacedIntegrationEvent @event = await placed.WaitForAsync(e => e.OrderId == orderId, "OrderPlaced to be published");
         Assert.Equal(userId, @event.UserId);
@@ -37,11 +37,11 @@ public sealed class PlaceOrderTests(SystemFixture system)
         Assert.Equal(4, Assert.Single(@event.OrderStockItems, item => item.ProductId == OrderingTestData.MouseId).Quantity);
 
         JsonElement order = await OrderingApi.GetOrderAsync(admin, orderId);
-        Assert.Equal(userId, order.GetProperty("userId").GetInt64());
+        Assert.Equal(userId, order.GetProperty("userId").GetGuid());
         Assert.Equal(2, order.GetProperty("orderItems").GetArrayLength());
         Assert.Contains(
             order.GetProperty("orderItems").EnumerateArray(),
-            item => item.GetProperty("productId").GetInt64() == OrderingTestData.KeyboardId && item.GetProperty("quantity").GetInt32() == 3);
+            item => item.GetProperty("productId").GetGuid() == OrderingTestData.KeyboardId && item.GetProperty("quantity").GetInt32() == 3);
     }
 
     [Fact]
@@ -88,21 +88,19 @@ public sealed class PlaceOrderTests(SystemFixture system)
     public async Task PlaceOrder_MoreThanTheMaximumNumberOfItems_IsRejected_AndNothingIsStored()
     {
         using HttpClient customer = OrderingApi.CustomerClient(system, TestJwt.NewUserId());
-        (long ProductId, int Quantity)[] items = [.. Enumerable.Range(1, 101).Select(productId => ((long)productId, 1))];
+        (Guid ProductId, int Quantity)[] items = [.. Enumerable.Range(1, 101).Select(_ => (Guid.CreateVersion7(), 1))];
 
         HttpResponseMessage response = await OrderingApi.PlaceAsync(customer, items);
 
         await AssertRejectedAsync(customer, response);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-5)]
-    public async Task PlaceOrder_NonPositiveProductId_IsRejected_AndNothingIsStored(long productId)
+    [Fact]
+    public async Task PlaceOrder_EmptyProductId_IsRejected_AndNothingIsStored()
     {
         using HttpClient customer = OrderingApi.CustomerClient(system, TestJwt.NewUserId());
 
-        HttpResponseMessage response = await OrderingApi.PlaceAsync(customer, (productId, 1));
+        HttpResponseMessage response = await OrderingApi.PlaceAsync(customer, (Guid.Empty, 1));
 
         await AssertRejectedAsync(customer, response);
     }
@@ -120,12 +118,10 @@ public sealed class PlaceOrderTests(SystemFixture system)
         await AssertRejectedAsync(customer, response);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public async Task PlaceOrder_NonPositiveUserId_IsRejected(long userId)
+    [Fact]
+    public async Task PlaceOrder_EmptyUserId_IsRejected()
     {
-        using HttpClient customer = OrderingApi.CustomerClient(system, userId);
+        using HttpClient customer = OrderingApi.CustomerClient(system, Guid.Empty);
 
         HttpResponseMessage response = await OrderingApi.PlaceAsync(customer, (OrderingTestData.KeyboardId, 1));
 

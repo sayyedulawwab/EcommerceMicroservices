@@ -10,23 +10,25 @@ namespace Catalog.Application.Categories.AddCategory;
 internal sealed class AddCategoryCommandHandler(
     IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider)
-    : ICommandHandler<AddCategoryCommand, long>
+    : ICommandHandler<AddCategoryCommand, Guid>
 {
-    public async Task<Result<long>> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
-        if (request.ParentCategoryId is long parentCategoryId &&
+        CategoryId? parentCategoryId = request.ParentCategoryId is Guid parentId ? new CategoryId(parentId) : null;
+
+        if (parentCategoryId is not null &&
             !await dbContext.Categories.AnyAsync(c => c.Id == parentCategoryId, cancellationToken))
         {
-            return Result.Failure<long>(CategoryErrors.ParentNotFound(parentCategoryId));
+            return Result.Failure<Guid>(CategoryErrors.ParentNotFound(parentCategoryId.Value));
         }
 
-        var category = Category.Create(request.Name, request.Description, request.ParentCategoryId, dateTimeProvider.UtcNow);
+        var category = Category.Create(request.Name, request.Description, parentCategoryId, dateTimeProvider.UtcNow);
 
         dbContext.Categories.Add(category);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return category.Id;
+        return category.Id.Value;
 
     }
 }

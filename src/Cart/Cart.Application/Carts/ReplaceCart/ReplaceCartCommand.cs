@@ -2,6 +2,6 @@ using SharedKernel.Messaging;
 
 namespace Cart.Application.Carts.ReplaceCart;
 
-public record CartItemCommand(long ProductId, string ProductName, decimal PriceAmount, string PriceCurrency, int Quantity);
+public record CartItemCommand(Guid ProductId, string ProductName, decimal PriceAmount, string PriceCurrency, int Quantity);
 
-public record ReplaceCartCommand(long UserId, List<CartItemCommand> CartItems) : ICommand<CartResponse>;
+public record ReplaceCartCommand(Guid UserId, List<CartItemCommand> CartItems) : ICommand<CartResponse>;

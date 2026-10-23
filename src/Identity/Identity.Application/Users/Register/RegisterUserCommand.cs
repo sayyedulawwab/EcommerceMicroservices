@@ -2,4 +2,4 @@
 
 namespace Identity.Application.Users.Register;
 
-public record RegisterUserCommand(string FirstName, string LastName, string Email, string Password) : ICommand<long>;
+public record RegisterUserCommand(string FirstName, string LastName, string Email, string Password) : ICommand<Guid>;

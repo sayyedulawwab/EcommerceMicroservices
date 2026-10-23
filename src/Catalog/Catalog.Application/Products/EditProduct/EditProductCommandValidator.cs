@@ -8,7 +8,7 @@ public class EditProductCommandValidator : AbstractValidator<EditProductCommand>
     public EditProductCommandValidator()
     {
         RuleFor(c => c.Id)
-            .GreaterThan(0);
+            .NotEmpty();
 
         RuleFor(x => x.Name)
            .NotEmpty()
@@ -29,7 +29,7 @@ public class EditProductCommandValidator : AbstractValidator<EditProductCommand>
             .GreaterThanOrEqualTo(0);
 
         RuleFor(x => x.CategoryId)
-            .GreaterThan(0);
+            .NotEmpty();
 
     }
 }

@@ -1,3 +1,3 @@
 ﻿namespace SharedKernel.Events;
 
-public record OrderItemsStockRejectedIntegrationEvent(long OrderId, string Reason, List<long> RejectedProductIds) : IntegrationEvent;
+public record OrderItemsStockRejectedIntegrationEvent(Guid OrderId, string Reason, List<Guid> RejectedProductIds) : IntegrationEvent;

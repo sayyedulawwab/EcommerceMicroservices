@@ -13,8 +13,8 @@ public sealed class PaymentEventsTests(SystemFixture system)
     [Fact]
     public async Task PaymentSucceeded_StockConfirmedOrder_MarksItPaid_AndPublishesOrderPaid()
     {
-        long userId = TestJwt.NewUserId();
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, OrderStatus.StockConfirmed);
+        Guid userId = TestJwt.NewUserId();
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, OrderStatus.StockConfirmed);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderStatusChangedToPaidIntegrationEvent> paid = await BusProbe<OrderStatusChangedToPaidIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
@@ -29,7 +29,7 @@ public sealed class PaymentEventsTests(SystemFixture system)
     [Fact]
     public async Task PaymentSucceeded_AlreadyPaid_SucceedsWithoutPublishingAgain()
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Paid);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Paid);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderStatusChangedToPaidIntegrationEvent> paid = await BusProbe<OrderStatusChangedToPaidIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
@@ -45,7 +45,7 @@ public sealed class PaymentEventsTests(SystemFixture system)
     [InlineData(OrderStatus.Shipped)]
     public async Task PaymentSucceeded_OrderNotAwaitingPayment_ChangesNothing_AndPublishesNothing(OrderStatus status)
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderStatusChangedToPaidIntegrationEvent> paid = await BusProbe<OrderStatusChangedToPaidIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
@@ -58,17 +58,18 @@ public sealed class PaymentEventsTests(SystemFixture system)
     [Fact]
     public async Task PaymentSucceeded_UnknownOrder_IsIgnored()
     {
+        var missingOrderId = Guid.CreateVersion7();
         await using BusProbe<OrderStatusChangedToPaidIntegrationEvent> paid = await BusProbe<OrderStatusChangedToPaidIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
-        await OrderingApi.Bus(system).Publish(new OrderPaymentSucceededIntegrationEvent(long.MaxValue), TestContext.Current.CancellationToken);
+        await OrderingApi.Bus(system).Publish(new OrderPaymentSucceededIntegrationEvent(missingOrderId), TestContext.Current.CancellationToken);
 
-        Assert.Empty(await paid.ExpectNoneAsync(e => e.OrderId == long.MaxValue));
+        Assert.Empty(await paid.ExpectNoneAsync(e => e.OrderId == missingOrderId));
     }
 
     [Fact]
     public async Task PaymentFailed_StockConfirmedOrder_CancelsItWithTheReason_AndPublishesOrderCancelled()
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.StockConfirmed);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.StockConfirmed);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
@@ -86,7 +87,7 @@ public sealed class PaymentEventsTests(SystemFixture system)
     [InlineData(OrderStatus.Delivered)]
     public async Task PaymentFailed_OrderPastCancellation_ChangesNothing_AndPublishesNothing(OrderStatus status)
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
@@ -99,10 +100,11 @@ public sealed class PaymentEventsTests(SystemFixture system)
     [Fact]
     public async Task PaymentFailed_UnknownOrder_IsIgnored()
     {
+        var missingOrderId = Guid.CreateVersion7();
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
-        await OrderingApi.Bus(system).Publish(new OrderPaymentFailedIntegrationEvent(long.MaxValue, "Card declined"), TestContext.Current.CancellationToken);
+        await OrderingApi.Bus(system).Publish(new OrderPaymentFailedIntegrationEvent(missingOrderId, "Card declined"), TestContext.Current.CancellationToken);
 
-        Assert.Empty(await cancelled.ExpectNoneAsync(e => e.OrderId == long.MaxValue));
+        Assert.Empty(await cancelled.ExpectNoneAsync(e => e.OrderId == missingOrderId));
     }
 }

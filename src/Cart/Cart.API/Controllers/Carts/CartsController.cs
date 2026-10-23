@@ -23,7 +23,7 @@ public class CartsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetCart(IQueryHandler<GetCartByUserQuery, CartResponse> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -42,7 +42,7 @@ public class CartsController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> ReplaceCart([FromBody] UpdateCartRequest request, ICommandHandler<ReplaceCartCommand, CartResponse> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -64,7 +64,7 @@ public class CartsController : ControllerBase
     [HttpDelete]
     public async Task<IActionResult> ClearCart(ICommandHandler<RemoveCartCommand> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -83,7 +83,7 @@ public class CartsController : ControllerBase
     [HttpPost("items")]
     public async Task<IActionResult> AddItem([FromBody] CartItemRequest request, ICommandHandler<AddCartItemCommand, CartResponse> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -107,10 +107,10 @@ public class CartsController : ControllerBase
     }
 
     /// <summary>Sets the quantity of a product in the cart; zero removes it.</summary>
-    [HttpPut("items/{productId:long}")]
-    public async Task<IActionResult> UpdateItemQuantity(long productId, [FromBody] UpdateCartItemQuantityRequest request, ICommandHandler<UpdateCartItemQuantityCommand, CartResponse> handler, CancellationToken cancellationToken)
+    [HttpPut("items/{productId:guid}")]
+    public async Task<IActionResult> UpdateItemQuantity(Guid productId, [FromBody] UpdateCartItemQuantityRequest request, ICommandHandler<UpdateCartItemQuantityCommand, CartResponse> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -125,10 +125,10 @@ public class CartsController : ControllerBase
         return Ok(result.Value);
     }
 
-    [HttpDelete("items/{productId:long}")]
-    public async Task<IActionResult> RemoveItem(long productId, ICommandHandler<RemoveCartItemCommand, CartResponse> handler, CancellationToken cancellationToken)
+    [HttpDelete("items/{productId:guid}")]
+    public async Task<IActionResult> RemoveItem(Guid productId, ICommandHandler<RemoveCartItemCommand, CartResponse> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }

@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Abstractions.Data;
+using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -18,8 +19,10 @@ internal sealed class SearchlProductsQueryHandler(IApplicationDbContext dbContex
         int pageSize = Math.Clamp(request.PageSize, 1, MaxPageSize);
         string? keyword = string.IsNullOrWhiteSpace(request.Keyword) ? null : request.Keyword.Trim();
 
+        CategoryId? categoryId = request.CategoryId is Guid requestedCategoryId ? new CategoryId(requestedCategoryId) : null;
+
         IQueryable<Product> query = dbContext.Products.AsNoTracking().Where(product =>
-            (!request.CategoryId.HasValue || product.CategoryId == request.CategoryId) &&
+            (categoryId == null || product.CategoryId == categoryId) &&
             (!request.MinPrice.HasValue || product.Price.Amount >= request.MinPrice) &&
             (!request.MaxPrice.HasValue || product.Price.Amount <= request.MaxPrice) &&
             (keyword == null || product.Name.Contains(keyword) || product.Description.Contains(keyword)));
@@ -43,13 +46,13 @@ internal sealed class SearchlProductsQueryHandler(IApplicationDbContext dbContex
             .Take(pageSize)
             .Select(product => new ProductResponse()
             {
-                Id = product.Id,
+                Id = product.Id.Value,
                 Name = product.Name,
                 Description = product.Description,
                 PriceAmount = product.Price.Amount,
                 PriceCurrency = product.Price.Currency.Code,
                 Quantity = product.Quantity,
-                CategoryId = product.CategoryId,
+                CategoryId = product.CategoryId.Value,
                 CreatedOnUtc = product.CreatedOnUtc,
                 UpdatedOnUtc = product.UpdatedOnUtc,
             })

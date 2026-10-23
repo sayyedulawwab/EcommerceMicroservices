@@ -17,8 +17,8 @@ public sealed class CancelOrderTests(SystemFixture system)
     [InlineData(OrderStatus.StockConfirmed)]
     public async Task CancelOrder_CustomerCancelsOwnOrder_CancelsItAndPublishesOrderCancelled(OrderStatus status)
     {
-        long userId = TestJwt.NewUserId();
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, status);
+        Guid userId = TestJwt.NewUserId();
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, status);
         using HttpClient customer = OrderingApi.CustomerClient(system, userId);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
@@ -37,7 +37,7 @@ public sealed class CancelOrderTests(SystemFixture system)
     [Fact]
     public async Task CancelOrder_AnotherUsersOrder_GetsNotFound_AndLeavesTheOrderAlone()
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Placed);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Placed);
         using HttpClient stranger = OrderingApi.CustomerClient(system, TestJwt.NewUserId());
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
@@ -54,7 +54,7 @@ public sealed class CancelOrderTests(SystemFixture system)
     {
         using HttpClient customer = OrderingApi.CustomerClient(system, TestJwt.NewUserId());
 
-        HttpResponseMessage response = await OrderingApi.PostAsync(customer, $"/api/v1/orders/{long.MaxValue}/cancel");
+        HttpResponseMessage response = await OrderingApi.PostAsync(customer, $"/api/v1/orders/{Guid.CreateVersion7()}/cancel");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -62,8 +62,8 @@ public sealed class CancelOrderTests(SystemFixture system)
     [Fact]
     public async Task CancelOrder_AlreadyCancelled_Succeeds_WithoutPublishingAgain()
     {
-        long userId = TestJwt.NewUserId();
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, OrderStatus.Cancelled);
+        Guid userId = TestJwt.NewUserId();
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, OrderStatus.Cancelled);
         using HttpClient customer = OrderingApi.CustomerClient(system, userId);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
@@ -82,8 +82,8 @@ public sealed class CancelOrderTests(SystemFixture system)
     [InlineData(OrderStatus.Delivered)]
     public async Task CancelOrder_OrderPastCancellation_IsAConflict_AndPublishesNothing(OrderStatus status)
     {
-        long userId = TestJwt.NewUserId();
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, status);
+        Guid userId = TestJwt.NewUserId();
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, status);
         using HttpClient customer = OrderingApi.CustomerClient(system, userId);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));

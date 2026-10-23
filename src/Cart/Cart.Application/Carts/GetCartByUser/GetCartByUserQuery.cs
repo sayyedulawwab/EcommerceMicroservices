@@ -2,4 +2,4 @@
 
 namespace Cart.Application.Carts.GetCartByUser;
 
-public record GetCartByUserQuery(long UserId) : IQuery<CartResponse>;
+public record GetCartByUserQuery(Guid UserId) : IQuery<CartResponse>;

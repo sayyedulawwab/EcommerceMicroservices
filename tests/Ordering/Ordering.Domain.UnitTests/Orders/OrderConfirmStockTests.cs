@@ -83,7 +83,7 @@ public sealed class OrderConfirmStockTests
     {
         Order order = OrderTestData.PlacedOrder();
         List<PricedOrderLine> prices = OrderTestData.UsdPrices();
-        prices.Add(new PricedOrderLine(99, "Monitor", new Money(100m, Currency.Bdt)));
+        prices.Add(new PricedOrderLine(Guid.CreateVersion7(), "Monitor", new Money(100m, Currency.Bdt)));
 
         Result result = order.ConfirmStock(prices, OrderTestData.UtcNow);
 

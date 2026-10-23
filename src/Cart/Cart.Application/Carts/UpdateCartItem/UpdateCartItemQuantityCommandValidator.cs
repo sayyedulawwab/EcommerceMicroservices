@@ -6,7 +6,7 @@ public class UpdateCartItemQuantityCommandValidator : AbstractValidator<UpdateCa
 {
     public UpdateCartItemQuantityCommandValidator()
     {
-        RuleFor(c => c.UserId).GreaterThan(0);
+        RuleFor(c => c.UserId).NotEmpty();
         CartItemRules.ProductId(RuleFor(c => c.ProductId));
         RuleFor(c => c.Quantity).InclusiveBetween(0, CartItemRules.MaxQuantity);
     }

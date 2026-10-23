@@ -6,9 +6,10 @@ namespace Cart.Domain.UnitTests.Carts;
 
 public sealed class CartTests
 {
-    private const long UserId = 7;
-    private const long ProductA = 1;
-    private const long ProductB = 2;
+    private static readonly Guid UserId = Guid.CreateVersion7();
+    private static readonly Guid ProductA = Guid.CreateVersion7();
+    private static readonly Guid ProductB = Guid.CreateVersion7();
+    private static readonly Guid UnknownProduct = Guid.CreateVersion7();
 
     private static readonly DateTime CreatedOnUtc = new(2026, 1, 1, 10, 0, 0, DateTimeKind.Utc);
     private static readonly DateTime UtcNow = new(2026, 1, 2, 12, 30, 0, DateTimeKind.Utc);
@@ -18,7 +19,7 @@ public sealed class CartTests
     {
         var cart = ShoppingCart.Create(UserId, CreatedOnUtc);
 
-        Assert.NotEqual(Guid.Empty, cart.Id);
+        Assert.NotEqual(Guid.Empty, cart.Id.Value);
         Assert.Equal(UserId, cart.UserId);
         Assert.Equal(CreatedOnUtc, cart.CreatedOnUtc);
         Assert.Null(cart.UpdatedOnUtc);
@@ -168,10 +169,10 @@ public sealed class CartTests
     {
         ShoppingCart cart = CreateCartWithTwoItems();
 
-        Result result = cart.SetItemQuantity(99, 1, UtcNow);
+        Result result = cart.SetItemQuantity(UnknownProduct, 1, UtcNow);
 
         Assert.True(result.IsFailure);
-        Assert.Equal(CartErrors.ItemNotFound(99), result.Error);
+        Assert.Equal(CartErrors.ItemNotFound(UnknownProduct), result.Error);
         Assert.Equal(2, cart.CartItems.Count);
     }
 
@@ -222,10 +223,10 @@ public sealed class CartTests
     {
         ShoppingCart cart = CreateCartWithTwoItems();
 
-        Result result = cart.RemoveItem(99, UtcNow);
+        Result result = cart.RemoveItem(UnknownProduct, UtcNow);
 
         Assert.True(result.IsFailure);
-        Assert.Equal(CartErrors.ItemNotFound(99), result.Error);
+        Assert.Equal(CartErrors.ItemNotFound(UnknownProduct), result.Error);
         Assert.Equal(2, cart.CartItems.Count);
         Assert.Equal(Usd(35m), cart.TotalPrice);
     }
@@ -233,9 +234,17 @@ public sealed class CartTests
     [Fact]
     public void LineTotal_IsPriceTimesQuantity()
     {
-        var item = CartItem.Create(Guid.NewGuid(), ProductA, "Keyboard", Usd(2.5m), 4, UtcNow);
+        var item = CartItem.Create(CartId.New(), ProductA, "Keyboard", Usd(2.5m), 4, UtcNow);
 
         Assert.Equal(Usd(10m), item.LineTotal);
+    }
+
+    [Fact]
+    public void NewIds_AreVersion7Guids()
+    {
+        Assert.Equal(7, CartId.New().Value.Version);
+        Assert.Equal(7, CartItemId.New().Value.Version);
+        Assert.Equal(7, ShoppingCart.Create(UserId, CreatedOnUtc).Id.Value.Version);
     }
 
     private static Money Usd(decimal amount) => new(amount, Currency.Usd);

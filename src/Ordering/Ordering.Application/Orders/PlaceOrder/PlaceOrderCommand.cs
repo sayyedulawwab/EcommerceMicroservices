@@ -2,5 +2,5 @@
 
 namespace Ordering.Application.Orders.PlaceOrder;
 
-public record OrderItemCommand(long ProductId, int Quantity);
-public record PlaceOrderCommand(long UserId, List<OrderItemCommand> OrderItems) : ICommand<long>;
+public record OrderItemCommand(Guid ProductId, int Quantity);
+public record PlaceOrderCommand(Guid UserId, List<OrderItemCommand> OrderItems) : ICommand<Guid>;

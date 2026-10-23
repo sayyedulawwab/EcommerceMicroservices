@@ -12,12 +12,12 @@ namespace EcommerceMicroservices.IntegrationTests.Infrastructure;
 public static class OrderingTestData
 {
     // Products that don't exist in Catalog: seeded orders never take part in the real saga on their own.
-    public const long KeyboardId = 1001;
-    public const long MouseId = 1002;
+    public static readonly Guid KeyboardId = Guid.CreateVersion7();
+    public static readonly Guid MouseId = Guid.CreateVersion7();
 
     public const string SeededCancellationReason = "Seeded cancellation";
 
-    public static async Task<long> SeedOrderAsync(IServiceProvider ordering, long userId, OrderStatus status)
+    public static async Task<Guid> SeedOrderAsync(IServiceProvider ordering, Guid userId, OrderStatus status)
     {
         DateTime utcNow = DateTime.UtcNow;
 
@@ -60,7 +60,7 @@ public static class OrderingTestData
 
         await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        return order.Id;
+        return order.Id.Value;
     }
 
     private static void Arrange(Result result)

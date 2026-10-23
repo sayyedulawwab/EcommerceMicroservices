@@ -1,3 +1,4 @@
+using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using SharedKernel.Domain;
 
@@ -8,7 +9,7 @@ public sealed class ProductTests
     private static readonly DateTime CreatedOn = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private static Product CreateProduct(int quantity) =>
-        Product.Create("Keyboard", "Mechanical keyboard", new Money(50m, Currency.Usd), quantity, 1, CreatedOn);
+        Product.Create("Keyboard", "Mechanical keyboard", new Money(50m, Currency.Usd), quantity, CategoryId.New(), CreatedOn);
 
     [Fact]
     public void ReserveStock_EnoughStock_DecrementsQuantity()
@@ -40,7 +41,7 @@ public sealed class ProductTests
         Result result = product.ReserveStock(3);
 
         Assert.True(result.IsFailure);
-        Assert.Equal(ProductErrors.InsufficientStock(product.Id).Name, result.Error.Name);
+        Assert.Equal(ProductErrors.InsufficientStock(product.Id.Value).Name, result.Error.Name);
         Assert.Equal(2, product.Quantity);
     }
 
@@ -55,7 +56,7 @@ public sealed class ProductTests
         Result result = product.ReserveStock(quantity);
 
         Assert.True(result.IsFailure);
-        Assert.Equal(ProductErrors.InvalidQuantity(product.Id).Name, result.Error.Name);
+        Assert.Equal(ProductErrors.InvalidQuantity(product.Id.Value).Name, result.Error.Name);
         Assert.Equal(5, product.Quantity);
     }
 

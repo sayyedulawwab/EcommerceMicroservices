@@ -8,11 +8,11 @@ public static class CartErrors
        "Cart.NotFound",
        $"The Cart with this filter was not found");
 
-    public static Error ItemNotFound(long productId) => Error.NotFound(
+    public static Error ItemNotFound(Guid productId) => Error.NotFound(
         "Cart.ItemNotFound",
         $"Product {productId} is not in the cart");
 
-    public static Error InvalidQuantity(long productId) => Error.BadRequest(
+    public static Error InvalidQuantity(Guid productId) => Error.BadRequest(
         "Cart.InvalidQuantity",
         $"The quantity for product {productId} is not valid");
 

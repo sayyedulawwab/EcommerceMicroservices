@@ -20,7 +20,7 @@ internal sealed class JwtService(IOptions<JwtOptions> jwtOptions, IDateTimeProvi
 
         List<Claim> claims = [
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString(CultureInfo.InvariantCulture)),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.Value.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             ];
 

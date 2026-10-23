@@ -4,8 +4,8 @@ namespace Ordering.Application.Orders;
 
 public sealed class OrderResponse
 {
-    public long Id { get; init; }
-    public long UserId { get; init; }
+    public Guid Id { get; init; }
+    public Guid UserId { get; init; }
     public List<OrderItemResponse> OrderItems { get; init; } = [];
     public decimal TotalPriceAmount { get; init; }
     public required string TotalPriceCurrency { get; init; }
@@ -18,11 +18,11 @@ public sealed class OrderResponse
     {
         return new OrderResponse
         {
-            Id = order.Id,
+            Id = order.Id.Value,
             UserId = order.UserId,
             OrderItems = order.OrderItems.Select(oi => new OrderItemResponse
             {
-                OrderId = oi.OrderId,
+                OrderId = oi.OrderId.Value,
                 ProductId = oi.ProductId,
                 ProductName = oi.ProductName,
                 ProductPriceAmount = oi.Price.Amount,

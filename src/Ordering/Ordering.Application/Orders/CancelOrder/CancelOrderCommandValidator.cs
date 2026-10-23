@@ -7,7 +7,7 @@ public class CancelOrderCommandValidator : AbstractValidator<CancelOrderCommand>
     public CancelOrderCommandValidator()
     {
         RuleFor(c => c.OrderId)
-            .GreaterThan(0);
+            .NotEmpty();
 
         RuleFor(c => c.Reason)
             .NotEmpty();

@@ -8,7 +8,7 @@ namespace Payment.Processor.UnitTests.Infrastructure;
 
 public sealed class PaymentServiceTests
 {
-    private const long OrderId = 42;
+    private static readonly Guid OrderId = Guid.CreateVersion7();
 
     [Theory]
     [InlineData(1)]

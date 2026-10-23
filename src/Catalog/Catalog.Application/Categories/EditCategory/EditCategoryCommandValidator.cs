@@ -7,7 +7,7 @@ public class EditCategoryCommandValidator : AbstractValidator<EditCategoryComman
     public EditCategoryCommandValidator()
     {
         RuleFor(c => c.Id)
-            .GreaterThan(0);
+            .NotEmpty();
 
         RuleFor(c => c.Name)
             .NotEmpty()
@@ -18,7 +18,7 @@ public class EditCategoryCommandValidator : AbstractValidator<EditCategoryComman
             .MaximumLength(1000);
 
         RuleFor(c => c.ParentCategoryId)
-            .GreaterThan(0)
+            .NotEqual(Guid.Empty)
             .When(c => c.ParentCategoryId.HasValue);
 
     }

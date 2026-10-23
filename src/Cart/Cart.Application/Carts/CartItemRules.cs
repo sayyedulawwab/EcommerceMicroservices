@@ -8,7 +8,7 @@ internal static class CartItemRules
 {
     public const int MaxQuantity = CartItem.MaxQuantity;
 
-    public static void ProductId<T>(IRuleBuilder<T, long> rule) => rule.GreaterThan(0);
+    public static void ProductId<T>(IRuleBuilder<T, Guid> rule) => rule.NotEmpty();
 
     public static void ProductName<T>(IRuleBuilder<T, string> rule) => rule.NotEmpty().MaximumLength(200);
 

@@ -10,17 +10,17 @@ internal sealed class CartRepository(ICacheService cacheService) : ICartReposito
         await cacheService.SetAsync<Domain.Carts.Cart>(Key(cart.UserId), cart, cancellationToken);
     }
 
-    public async Task<Domain.Carts.Cart?> GetByUserId(long userId, CancellationToken cancellationToken = default)
+    public async Task<Domain.Carts.Cart?> GetByUserId(Guid userId, CancellationToken cancellationToken = default)
     {
         Domain.Carts.Cart? cart = await cacheService.GetAsync<Domain.Carts.Cart>(Key(userId), cancellationToken);
 
         return cart;
     }
 
-    public async Task RemoveAsync(long userId, CancellationToken cancellationToken = default)
+    public async Task RemoveAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         await cacheService.RemoveAsync(Key(userId), cancellationToken);
     }
 
-    private static string Key(long userId) => $"cart-{userId}";
+    private static string Key(Guid userId) => $"cart-{userId}";
 }

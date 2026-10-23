@@ -2,4 +2,4 @@
 
 namespace Catalog.Application.Products.GetProductById;
 
-public record GetProductByIdQuery(long Id) : IQuery<ProductResponse>;
+public record GetProductByIdQuery(Guid Id) : IQuery<ProductResponse>;

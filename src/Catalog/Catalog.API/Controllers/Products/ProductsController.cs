@@ -20,7 +20,7 @@ public class ProductsController : BaseController
 {
     [Authorize(Roles = Roles.Admin)]
     [HttpPost]
-    public async Task<IActionResult> AddProduct(AddProductRequest request, ICommandHandler<AddProductCommand, long> handler, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddProduct(AddProductRequest request, ICommandHandler<AddProductCommand, Guid> handler, CancellationToken cancellationToken)
     {
         var command = new AddProductCommand(
             request.Name,
@@ -30,7 +30,7 @@ public class ProductsController : BaseController
             request.Quantity,
             request.CategoryId);
 
-        Result<long> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -41,8 +41,8 @@ public class ProductsController : BaseController
     }
 
     [AllowAnonymous]
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetProduct(long id, IQueryHandler<GetProductByIdQuery, ProductResponse> handler, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetProduct(Guid id, IQueryHandler<GetProductByIdQuery, ProductResponse> handler, CancellationToken cancellationToken)
     {
         var query = new GetProductByIdQuery(id);
 
@@ -57,13 +57,13 @@ public class ProductsController : BaseController
     }
 
     [Authorize(Roles = Roles.Admin)]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> EditProduct(long id, EditProductRequest request, ICommandHandler<EditProductCommand, long> handler, CancellationToken cancellationToken)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> EditProduct(Guid id, EditProductRequest request, ICommandHandler<EditProductCommand, Guid> handler, CancellationToken cancellationToken)
     {
         var command = new EditProductCommand(id, request.Name, request.Description, request.PriceCurrency, request.PriceAmount,
             request.Quantity, request.CategoryId);
 
-        Result<long> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -74,12 +74,12 @@ public class ProductsController : BaseController
     }
 
     [Authorize(Roles = Roles.Admin)]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteProduct(long id, ICommandHandler<DeleteProductCommand, long> handler, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteProduct(Guid id, ICommandHandler<DeleteProductCommand, Guid> handler, CancellationToken cancellationToken)
     {
         var command = new DeleteProductCommand(id);
 
-        Result<long> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
         {

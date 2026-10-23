@@ -17,12 +17,12 @@ internal sealed class ReserveStockCommandHandler(
     {
         // The same product may appear more than once in an order; reserve the combined quantity.
         var requestedQuantities = request.Items
-            .GroupBy(item => item.ProductId)
+            .GroupBy(item => new ProductId(item.ProductId))
             .ToDictionary(group => group.Key, group => group.Sum(item => item.Quantity));
 
         var requestedProductIds = requestedQuantities.Keys.ToList();
 
-        Dictionary<long, Product> productsById = await dbContext.Products
+        Dictionary<ProductId, Product> productsById = await dbContext.Products
             .Where(product => requestedProductIds.Contains(product.Id))
             .ToDictionaryAsync(product => product.Id, cancellationToken);
 
@@ -37,7 +37,7 @@ internal sealed class ReserveStockCommandHandler(
 
         var rejectedProductIds = requestedQuantities
             .Where(requested => !productsById.TryGetValue(requested.Key, out Product? product) || !product.HasStock(requested.Value))
-            .Select(requested => requested.Key)
+            .Select(requested => requested.Key.Value)
             .ToList();
 
         if (rejectedProductIds.Count > 0)
@@ -50,7 +50,7 @@ internal sealed class ReserveStockCommandHandler(
             return ReserveStockResult.Rejected("The products in the order are priced in different currencies", []);
         }
 
-        foreach ((long productId, int quantity) in requestedQuantities)
+        foreach ((ProductId productId, int quantity) in requestedQuantities)
         {
             Result reserveResult = productsById[productId].ReserveStock(quantity);
 
@@ -68,8 +68,8 @@ internal sealed class ReserveStockCommandHandler(
     }
 
     private static List<PricedOrderItem> ToPricedItems(
-        Dictionary<long, int> requestedQuantities,
-        Dictionary<long, Product> productsById)
+        Dictionary<ProductId, int> requestedQuantities,
+        Dictionary<ProductId, Product> productsById)
     {
         return requestedQuantities
             .Where(requested => productsById.ContainsKey(requested.Key))
@@ -78,7 +78,7 @@ internal sealed class ReserveStockCommandHandler(
                 Product product = productsById[requested.Key];
 
                 return new PricedOrderItem(
-                    product.Id,
+                    product.Id.Value,
                     product.Name,
                     product.Price.Amount,
                     product.Price.Currency.Code,

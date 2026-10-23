@@ -6,9 +6,10 @@ namespace Identity.Domain.Users;
 /// A single-use token mailed to the user (email confirmation, password reset). Only its hash is stored; the raw
 /// value travels in <see cref="UserTokenIssuedDomainEvent"/> to the handler that sends the email, after the save.
 /// </summary>
-public sealed class UserToken : Entity<long>
+public sealed class UserToken : Entity<UserTokenId>
 {
-    private UserToken(User user, UserTokenPurpose purpose, string tokenHash, DateTime expiresOnUtc, DateTime createdOnUtc)
+    private UserToken(UserTokenId id, User user, UserTokenPurpose purpose, string tokenHash, DateTime expiresOnUtc, DateTime createdOnUtc)
+        : base(id)
     {
         // Set through the navigation so EF fills in UserId even when the user is being created in the same save.
         User = user;
@@ -25,7 +26,7 @@ public sealed class UserToken : Entity<long>
     }
     #pragma warning restore CS8618
 
-    public long UserId { get; private set; }
+    public UserId UserId { get; private set; }
     public UserTokenPurpose Purpose { get; private set; }
     public string TokenHash { get; private set; }
     public DateTime ExpiresOnUtc { get; private set; }
@@ -41,7 +42,7 @@ public sealed class UserToken : Entity<long>
         DateTime expiresOnUtc,
         DateTime createdOnUtc)
     {
-        var token = new UserToken(user, purpose, tokenHash, expiresOnUtc, createdOnUtc);
+        var token = new UserToken(UserTokenId.New(), user, purpose, tokenHash, expiresOnUtc, createdOnUtc);
 
         token.RaiseDomainEvent(new UserTokenIssuedDomainEvent(user.Email, user.FirstName, purpose, rawToken));
 

@@ -2,4 +2,4 @@
 
 namespace Catalog.Application.Categories.EditCategory;
 
-public record EditCategoryCommand(long Id, string Name, string Description, long? ParentCategoryId) : ICommand<long>;
+public record EditCategoryCommand(Guid Id, string Name, string Description, Guid? ParentCategoryId) : ICommand<Guid>;
