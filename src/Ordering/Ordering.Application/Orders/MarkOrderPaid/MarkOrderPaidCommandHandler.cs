@@ -18,7 +18,7 @@ internal sealed class MarkOrderPaidCommandHandler(
     public async Task<Result> Handle(MarkOrderPaidCommand request, CancellationToken cancellationToken)
     {
         Order? order = await dbContext.Orders
-            .FirstOrDefaultAsync(order => order.Id == request.OrderId, cancellationToken);
+            .FirstOrDefaultAsync(order => order.Id == new OrderId(request.OrderId), cancellationToken);
 
         if (order is null)
         {
@@ -37,7 +37,7 @@ internal sealed class MarkOrderPaidCommandHandler(
             return paidResult;
         }
 
-        await publishEndpoint.Publish(new OrderStatusChangedToPaidIntegrationEvent(order.UserId, order.Id), cancellationToken);
+        await publishEndpoint.Publish(new OrderStatusChangedToPaidIntegrationEvent(order.UserId, order.Id.Value), cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

@@ -8,7 +8,7 @@ namespace EcommerceMicroservices.IntegrationTests.Infrastructure;
 /// <summary>Ordering calls the tests use to drive and observe it.</summary>
 internal static class OrderingApi
 {
-    public static HttpClient CustomerClient(SystemFixture system, long userId)
+    public static HttpClient CustomerClient(SystemFixture system, Guid userId)
     {
         return SystemFixture.CreateClient(system.Ordering, TestJwt.Create(userId));
     }
@@ -24,12 +24,20 @@ internal static class OrderingApi
         return system.Ordering.Services.GetRequiredService<IBus>();
     }
 
+    /// <summary>Reads the <c>id</c> property of an accepted response body.</summary>
+    public static async Task<Guid> ReadIdAsync(HttpResponseMessage response)
+    {
+        JsonElement body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+
+        return body.GetProperty("id").GetGuid();
+    }
+
     public static Task<HttpResponseMessage> PostAsync(HttpClient client, string url)
     {
         return client.PostAsync(url, content: null, TestContext.Current.CancellationToken);
     }
 
-    public static Task<HttpResponseMessage> PlaceAsync(HttpClient client, params (long ProductId, int Quantity)[] items)
+    public static Task<HttpResponseMessage> PlaceAsync(HttpClient client, params (Guid ProductId, int Quantity)[] items)
     {
         return client.PostAsJsonAsync(
             "/api/v1/orders",
@@ -38,17 +46,17 @@ internal static class OrderingApi
     }
 
     /// <summary>Reads an order through an admin client, which can see every user's orders.</summary>
-    public static async Task<JsonElement> GetOrderAsync(HttpClient admin, long orderId)
+    public static async Task<JsonElement> GetOrderAsync(HttpClient admin, Guid orderId)
     {
         return await admin.GetFromJsonAsync<JsonElement>($"/api/v1/orders/{orderId}", TestContext.Current.CancellationToken);
     }
 
-    public static async Task<string?> GetStatusAsync(HttpClient admin, long orderId)
+    public static async Task<string?> GetStatusAsync(HttpClient admin, Guid orderId)
     {
         return (await GetOrderAsync(admin, orderId)).GetProperty("status").GetString();
     }
 
-    public static Task<JsonElement> WaitForStatusAsync(HttpClient admin, long orderId, string status)
+    public static Task<JsonElement> WaitForStatusAsync(HttpClient admin, Guid orderId, string status)
     {
         return Eventually.UntilAsync(
             () => GetOrderAsync(admin, orderId),

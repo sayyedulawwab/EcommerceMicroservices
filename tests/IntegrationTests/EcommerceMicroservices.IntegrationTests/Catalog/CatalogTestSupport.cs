@@ -17,20 +17,18 @@ internal enum ReservationStatus
     Committed = 3,
 }
 
-internal sealed record ReservationRow(long ProductId, int Quantity, ReservationStatus Status);
+internal sealed record ReservationRow(Guid ProductId, int Quantity, ReservationStatus Status);
 
 /// <summary>Shared helpers for the Catalog tests: an admin client, JSON readers, the reservations table and the stock events Catalog publishes.</summary>
 internal static class CatalogTestSupport
 {
-    private static long _nextOrderId = DateTime.UtcNow.Ticks;
-
     public static HttpClient CreateAdminClient(SystemFixture system)
     {
         return SystemFixture.CreateClient(system.Catalog, TestJwt.Create(TestJwt.NewUserId(), isAdmin: true));
     }
 
     /// <summary>An order id no real order uses, so a published event only concerns the test that made it.</summary>
-    public static long NewOrderId() => Interlocked.Increment(ref _nextOrderId);
+    public static Guid NewOrderId() => Guid.CreateVersion7();
 
     public static async Task<JsonElement> ReadJsonAsync(HttpResponseMessage response)
     {
@@ -44,7 +42,7 @@ internal static class CatalogTestSupport
         return body.GetProperty("name").GetString();
     }
 
-    public static async Task<IReadOnlyList<ReservationRow>> GetReservationsAsync(SystemFixture system, long orderId)
+    public static async Task<IReadOnlyList<ReservationRow>> GetReservationsAsync(SystemFixture system, Guid orderId)
     {
         string connectionString = system.Catalog.Services.GetRequiredService<IConfiguration>().GetConnectionString("EcommerceDB")!;
 
@@ -61,27 +59,27 @@ internal static class CatalogTestSupport
 
         while (await reader.ReadAsync(TestContext.Current.CancellationToken))
         {
-            rows.Add(new ReservationRow(reader.GetInt64(0), reader.GetInt32(1), (ReservationStatus)reader.GetInt32(2)));
+            rows.Add(new ReservationRow(reader.GetGuid(0), reader.GetInt32(1), (ReservationStatus)reader.GetInt32(2)));
         }
 
         return rows;
     }
 
-    public static Task PublishOrderPlacedAsync(SystemFixture system, long orderId, params OrderStockItem[] items)
+    public static Task PublishOrderPlacedAsync(SystemFixture system, Guid orderId, params OrderStockItem[] items)
     {
         return system.Catalog.Services.GetRequiredService<IBus>().Publish(
             new OrderPlacedIntegrationEvent(orderId, TestJwt.NewUserId(), [.. items]),
             TestContext.Current.CancellationToken);
     }
 
-    public static Task PublishOrderCancelledAsync(SystemFixture system, long orderId)
+    public static Task PublishOrderCancelledAsync(SystemFixture system, Guid orderId)
     {
         return system.Catalog.Services.GetRequiredService<IBus>().Publish(
             new OrderCancelledIntegrationEvent(orderId, "Cancelled by an integration test"),
             TestContext.Current.CancellationToken);
     }
 
-    public static Task PublishOrderPaidAsync(SystemFixture system, long orderId)
+    public static Task PublishOrderPaidAsync(SystemFixture system, Guid orderId)
     {
         return system.Catalog.Services.GetRequiredService<IBus>().Publish(
             new OrderStatusChangedToPaidIntegrationEvent(TestJwt.NewUserId(), orderId),
@@ -95,9 +93,9 @@ internal static class CatalogTestSupport
 /// </summary>
 internal sealed class StockEventProbe : IAsyncDisposable
 {
-    private readonly ConcurrentDictionary<long, OrderItemsStockConfirmedIntegrationEvent> _confirmed = new();
-    private readonly ConcurrentDictionary<long, OrderItemsStockRejectedIntegrationEvent> _rejected = new();
-    private readonly ConcurrentDictionary<long, int> _answers = new();
+    private readonly ConcurrentDictionary<Guid, OrderItemsStockConfirmedIntegrationEvent> _confirmed = new();
+    private readonly ConcurrentDictionary<Guid, OrderItemsStockRejectedIntegrationEvent> _rejected = new();
+    private readonly ConcurrentDictionary<Guid, int> _answers = new();
     private HostReceiveEndpointHandle? _handle;
 
     private StockEventProbe()
@@ -133,7 +131,7 @@ internal sealed class StockEventProbe : IAsyncDisposable
         return probe;
     }
 
-    public async Task<OrderItemsStockConfirmedIntegrationEvent> WaitForConfirmedAsync(long orderId)
+    public async Task<OrderItemsStockConfirmedIntegrationEvent> WaitForConfirmedAsync(Guid orderId)
     {
         await WaitForOutcomeAsync(orderId);
 
@@ -142,7 +140,7 @@ internal sealed class StockEventProbe : IAsyncDisposable
         return confirmed;
     }
 
-    public async Task<OrderItemsStockRejectedIntegrationEvent> WaitForRejectedAsync(long orderId)
+    public async Task<OrderItemsStockRejectedIntegrationEvent> WaitForRejectedAsync(Guid orderId)
     {
         await WaitForOutcomeAsync(orderId);
 
@@ -152,7 +150,7 @@ internal sealed class StockEventProbe : IAsyncDisposable
     }
 
     /// <summary>Waits until Catalog has answered the order-placed event of this order <paramref name="count"/> times (redeliveries are answered every time).</summary>
-    public Task<int> WaitForAnswersAsync(long orderId, int count)
+    public Task<int> WaitForAnswersAsync(Guid orderId, int count)
     {
         return Eventually.UntilAsync(
             () => Task.FromResult(_answers.GetValueOrDefault(orderId)),
@@ -168,7 +166,7 @@ internal sealed class StockEventProbe : IAsyncDisposable
         }
     }
 
-    private Task<bool> WaitForOutcomeAsync(long orderId)
+    private Task<bool> WaitForOutcomeAsync(Guid orderId)
     {
         return Eventually.UntilAsync(
             () => Task.FromResult(_confirmed.ContainsKey(orderId) || _rejected.ContainsKey(orderId)),

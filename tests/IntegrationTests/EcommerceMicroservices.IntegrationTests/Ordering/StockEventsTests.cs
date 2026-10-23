@@ -18,8 +18,8 @@ public sealed class StockEventsTests(SystemFixture system)
     [Fact]
     public async Task StockConfirmed_PlacedOrder_TakesNamesAndPricesFromCatalog_AndAsksForPayment()
     {
-        long userId = TestJwt.NewUserId();
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, OrderStatus.Placed);
+        Guid userId = TestJwt.NewUserId();
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, OrderStatus.Placed);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderStatusChangedToStockConfirmedIntegrationEvent> confirmed =
             await BusProbe<OrderStatusChangedToStockConfirmedIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
@@ -36,7 +36,7 @@ public sealed class StockEventsTests(SystemFixture system)
         Assert.Equal(35m, order.GetProperty("totalPriceAmount").GetDecimal());
         JsonElement keyboard = Assert.Single(
             order.GetProperty("orderItems").EnumerateArray(),
-            item => item.GetProperty("productId").GetInt64() == OrderingTestData.KeyboardId);
+            item => item.GetProperty("productId").GetGuid() == OrderingTestData.KeyboardId);
         Assert.Equal(UsdKeyboard, keyboard.GetProperty("productName").GetString());
         Assert.Equal(10m, keyboard.GetProperty("productPriceAmount").GetDecimal());
     }
@@ -44,7 +44,7 @@ public sealed class StockEventsTests(SystemFixture system)
     [Fact]
     public async Task StockConfirmed_ProductPricedTwice_UsesTheFirstPrice()
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Placed);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Placed);
         using HttpClient admin = OrderingApi.AdminClient(system);
         List<PricedOrderItem> items = [.. UsdPricedItems(), new PricedOrderItem(OrderingTestData.KeyboardId, UsdKeyboard, 999m, "USD", 2)];
 
@@ -57,7 +57,7 @@ public sealed class StockEventsTests(SystemFixture system)
     [Fact]
     public async Task StockConfirmed_OrderCancelledMeanwhile_PublishesOrderCancelledSoTheStockIsReleased()
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Cancelled);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Cancelled);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
         await using BusProbe<OrderStatusChangedToStockConfirmedIntegrationEvent> confirmed =
@@ -78,7 +78,7 @@ public sealed class StockEventsTests(SystemFixture system)
     [InlineData(OrderStatus.Delivered)]
     public async Task StockConfirmed_DuplicateDelivery_ChangesNothing_AndPublishesNothing(OrderStatus status)
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
         await using BusProbe<OrderStatusChangedToStockConfirmedIntegrationEvent> confirmed =
@@ -133,20 +133,21 @@ public sealed class StockEventsTests(SystemFixture system)
     [Fact]
     public async Task StockConfirmed_UnknownOrder_IsIgnored()
     {
+        var missingOrderId = Guid.CreateVersion7();
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
         await using BusProbe<OrderStatusChangedToStockConfirmedIntegrationEvent> confirmed =
             await BusProbe<OrderStatusChangedToStockConfirmedIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
-        await OrderingApi.Bus(system).Publish(new OrderItemsStockConfirmedIntegrationEvent(long.MaxValue, UsdPricedItems()), TestContext.Current.CancellationToken);
+        await OrderingApi.Bus(system).Publish(new OrderItemsStockConfirmedIntegrationEvent(missingOrderId, UsdPricedItems()), TestContext.Current.CancellationToken);
 
-        Assert.Empty(await cancelled.ExpectNoneAsync(e => e.OrderId == long.MaxValue));
-        Assert.DoesNotContain(confirmed.Messages, e => e.OrderId == long.MaxValue);
+        Assert.Empty(await cancelled.ExpectNoneAsync(e => e.OrderId == missingOrderId));
+        Assert.DoesNotContain(confirmed.Messages, e => e.OrderId == missingOrderId);
     }
 
     [Fact]
     public async Task StockRejected_PlacedOrder_CancelsItWithTheReason_AndPublishesOrderCancelled()
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Placed);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Placed);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
@@ -166,7 +167,7 @@ public sealed class StockEventsTests(SystemFixture system)
     [InlineData(OrderStatus.Delivered)]
     public async Task StockRejected_OrderPastCancellation_ChangesNothing(OrderStatus status)
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
@@ -181,18 +182,19 @@ public sealed class StockEventsTests(SystemFixture system)
     [Fact]
     public async Task StockRejected_UnknownOrder_IsIgnored()
     {
+        var missingOrderId = Guid.CreateVersion7();
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
 
         await OrderingApi.Bus(system).Publish(
-            new OrderItemsStockRejectedIntegrationEvent(long.MaxValue, "Not enough stock", []),
+            new OrderItemsStockRejectedIntegrationEvent(missingOrderId, "Not enough stock", []),
             TestContext.Current.CancellationToken);
 
-        Assert.Empty(await cancelled.ExpectNoneAsync(e => e.OrderId == long.MaxValue));
+        Assert.Empty(await cancelled.ExpectNoneAsync(e => e.OrderId == missingOrderId));
     }
 
     private async Task AssertCancelledAsInvalidAsync(List<PricedOrderItem> items)
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Placed);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Placed);
         using HttpClient admin = OrderingApi.AdminClient(system);
         await using BusProbe<OrderCancelledIntegrationEvent> cancelled = await BusProbe<OrderCancelledIntegrationEvent>.StartAsync(OrderingApi.Bus(system));
         await using BusProbe<OrderStatusChangedToStockConfirmedIntegrationEvent> confirmed =

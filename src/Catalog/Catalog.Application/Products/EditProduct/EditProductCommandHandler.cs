@@ -1,5 +1,6 @@
 ﻿using Catalog.Application.Abstractions.Clock;
 using Catalog.Application.Abstractions.Data;
+using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -10,21 +11,24 @@ namespace Catalog.Application.Products.EditProduct;
 internal sealed class EditProductCommandHandler(
     IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider)
-    : ICommandHandler<EditProductCommand, long>
+    : ICommandHandler<EditProductCommand, Guid>
 {
-    public async Task<Result<long>> Handle(EditProductCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(EditProductCommand request, CancellationToken cancellationToken)
     {
-        Product? product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+        var productId = new ProductId(request.Id);
+        var categoryId = new CategoryId(request.CategoryId);
+
+        Product? product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
 
         if (product is null)
         {
-            return Result.Failure<long>(ProductErrors.NotFound());
+            return Result.Failure<Guid>(ProductErrors.NotFound());
         }
 
-        if (product.CategoryId != request.CategoryId &&
-            !await dbContext.Categories.AnyAsync(c => c.Id == request.CategoryId, cancellationToken))
+        if (product.CategoryId != categoryId &&
+            !await dbContext.Categories.AnyAsync(c => c.Id == categoryId, cancellationToken))
         {
-            return Result.Failure<long>(ProductErrors.CategoryNotFound(request.CategoryId));
+            return Result.Failure<Guid>(ProductErrors.CategoryNotFound(request.CategoryId));
         }
 
         Product.Update(
@@ -33,12 +37,12 @@ internal sealed class EditProductCommandHandler(
             request.Description,
             new Money(request.PriceAmount, Currency.FromCode(request.PriceCurrency)),
             request.Quantity,
-            request.CategoryId,
+            categoryId,
             dateTimeProvider.UtcNow);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return product.Id;
+        return product.Id.Value;
 
     }
 }

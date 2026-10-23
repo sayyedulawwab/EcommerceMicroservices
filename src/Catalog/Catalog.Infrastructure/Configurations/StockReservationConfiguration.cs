@@ -10,13 +10,18 @@ internal sealed class StockReservationConfiguration : IEntityTypeConfiguration<S
     {
         builder.ToTable("StockReservations");
 
-        builder.HasKey(reservation => reservation.Id);
+        builder.HasKey(reservation => reservation.Id).IsClustered(false);
 
         builder.Property(reservation => reservation.Id)
-               .ValueGeneratedOnAdd();
+               .HasConversion(reservationId => reservationId.Value, value => new StockReservationId(value));
+
+        builder.Property<long>("ClusterId").UseIdentityColumn();
+
+        builder.HasIndex("ClusterId").IsClustered();
 
         builder.Property(reservation => reservation.OrderId);
-        builder.Property(reservation => reservation.ProductId);
+        builder.Property(reservation => reservation.ProductId)
+               .HasConversion(productId => productId.Value, value => new ProductId(value));
         builder.Property(reservation => reservation.Quantity);
         builder.Property(reservation => reservation.Status);
         builder.Property(reservation => reservation.UpdatedOnUtc);

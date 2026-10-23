@@ -8,8 +8,9 @@ public sealed class OrderItemTests
     [Fact]
     public void Create_SetsProductQuantityAndZeroPrice()
     {
-        var item = OrderItem.Create(OrderTestData.KeyboardId, 3, OrderTestData.CreatedOnUtc);
+        var item = OrderItem.Create(OrderId.New(), OrderTestData.KeyboardId, 3, OrderTestData.CreatedOnUtc);
 
+        Assert.NotEqual(Guid.Empty, item.Id.Value);
         Assert.Equal(OrderTestData.KeyboardId, item.ProductId);
         Assert.Equal(3, item.Quantity);
         Assert.Equal(string.Empty, item.ProductName);
@@ -20,7 +21,7 @@ public sealed class OrderItemTests
     [Fact]
     public void LineTotal_BeforePricing_IsZero()
     {
-        var item = OrderItem.Create(OrderTestData.KeyboardId, 3, OrderTestData.CreatedOnUtc);
+        var item = OrderItem.Create(OrderId.New(), OrderTestData.KeyboardId, 3, OrderTestData.CreatedOnUtc);
 
         Assert.Equal(Money.Zero(), item.LineTotal);
     }

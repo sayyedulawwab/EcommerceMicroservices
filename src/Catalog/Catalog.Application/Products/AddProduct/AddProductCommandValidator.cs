@@ -26,7 +26,7 @@ public class AddProductCommandValidator : AbstractValidator<AddProductCommand>
             .GreaterThanOrEqualTo(0);
 
         RuleFor(x => x.CategoryId)
-            .GreaterThan(0);
+            .NotEmpty();
 
     }
 }

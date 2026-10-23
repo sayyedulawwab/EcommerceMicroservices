@@ -29,9 +29,9 @@ public class OrdersController : ControllerBase
     /// The order is confirmed (or cancelled) asynchronously; poll GET /orders/{id} for its status.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request, ICommandHandler<PlaceOrderCommand, long> handler, CancellationToken cancellationToken)
+    public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request, ICommandHandler<PlaceOrderCommand, Guid> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -42,7 +42,7 @@ public class OrdersController : ControllerBase
 
         var command = new PlaceOrderCommand(userId, orderItems);
 
-        Result<long> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -55,7 +55,7 @@ public class OrdersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetMyOrders(IQueryHandler<GetMyOrdersQuery, IReadOnlyList<OrderResponse>> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -86,10 +86,10 @@ public class OrdersController : ControllerBase
         return Ok(result.Value);
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetOrder(long id, IQueryHandler<GetOrderByIdQuery, OrderResponse> handler, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetOrder(Guid id, IQueryHandler<GetOrderByIdQuery, OrderResponse> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -107,10 +107,10 @@ public class OrdersController : ControllerBase
     }
 
     /// <summary>Cancels one of the caller's orders. Only possible before it is paid.</summary>
-    [HttpPost("{id:long}/cancel")]
-    public async Task<IActionResult> CancelOrder(long id, ICommandHandler<CancelOrderCommand> handler, CancellationToken cancellationToken)
+    [HttpPost("{id:guid}/cancel")]
+    public async Task<IActionResult> CancelOrder(Guid id, ICommandHandler<CancelOrderCommand> handler, CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -126,8 +126,8 @@ public class OrdersController : ControllerBase
     }
 
     [Authorize(Roles = Roles.Admin)]
-    [HttpPost("{id:long}/ship")]
-    public async Task<IActionResult> ShipOrder(long id, ICommandHandler<ShipOrderCommand> handler, CancellationToken cancellationToken)
+    [HttpPost("{id:guid}/ship")]
+    public async Task<IActionResult> ShipOrder(Guid id, ICommandHandler<ShipOrderCommand> handler, CancellationToken cancellationToken)
     {
         Result result = await handler.Handle(new ShipOrderCommand(id), cancellationToken);
 
@@ -140,8 +140,8 @@ public class OrdersController : ControllerBase
     }
 
     [Authorize(Roles = Roles.Admin)]
-    [HttpPost("{id:long}/deliver")]
-    public async Task<IActionResult> DeliverOrder(long id, ICommandHandler<DeliverOrderCommand> handler, CancellationToken cancellationToken)
+    [HttpPost("{id:guid}/deliver")]
+    public async Task<IActionResult> DeliverOrder(Guid id, ICommandHandler<DeliverOrderCommand> handler, CancellationToken cancellationToken)
     {
         Result result = await handler.Handle(new DeliverOrderCommand(id), cancellationToken);
 

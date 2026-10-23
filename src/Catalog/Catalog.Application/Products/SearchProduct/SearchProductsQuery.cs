@@ -3,7 +3,7 @@
 namespace Catalog.Application.Products.SearchProduct;
 
 public record SearchProductsQuery(
-    long? CategoryId,
+    Guid? CategoryId,
     decimal? MinPrice,
     decimal? MaxPrice,
     string? Keyword,

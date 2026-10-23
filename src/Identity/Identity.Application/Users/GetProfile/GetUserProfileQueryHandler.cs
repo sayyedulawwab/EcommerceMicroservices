@@ -14,7 +14,7 @@ internal sealed class GetUserProfileQueryHandler(IApplicationDbContext dbContext
     {
         User? user = await dbContext.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == new UserId(request.UserId), cancellationToken);
 
         if (user is null)
         {
@@ -23,7 +23,7 @@ internal sealed class GetUserProfileQueryHandler(IApplicationDbContext dbContext
 
         return new UserProfileResponse
         {
-            Id = user.Id,
+            Id = user.Id.Value,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,

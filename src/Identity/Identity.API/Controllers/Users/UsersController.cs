@@ -24,7 +24,7 @@ public class UsersController(AuthCookieWriter authCookieWriter) : ControllerBase
         IQueryHandler<GetUserProfileQuery, UserProfileResponse> handler,
         CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -45,7 +45,7 @@ public class UsersController(AuthCookieWriter authCookieWriter) : ControllerBase
         ICommandHandler<UpdateUserProfileCommand> handler,
         CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }
@@ -69,7 +69,7 @@ public class UsersController(AuthCookieWriter authCookieWriter) : ControllerBase
         ICommandHandler<ChangePasswordCommand, AuthTokens> handler,
         CancellationToken cancellationToken)
     {
-        if (User.GetUserId() is not long userId)
+        if (User.GetUserId() is not Guid userId)
         {
             return Unauthorized();
         }

@@ -1,6 +1,6 @@
 ﻿namespace Catalog.API.Controllers.Products;
 
-public record SearchProductRequest(long? CategoryId,
+public record SearchProductRequest(Guid? CategoryId,
                                     decimal? MinPrice,
                                     decimal? MaxPrice,
                                     string? Keyword,

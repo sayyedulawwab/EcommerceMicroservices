@@ -5,9 +5,9 @@ namespace Ordering.Domain.UnitTests.Orders;
 
 internal static class OrderTestData
 {
-    public const long UserId = 7;
-    public const long KeyboardId = 10;
-    public const long MouseId = 20;
+    public static readonly Guid UserId = Guid.CreateVersion7();
+    public static readonly Guid KeyboardId = Guid.CreateVersion7();
+    public static readonly Guid MouseId = Guid.CreateVersion7();
     public const string KeyboardName = "Keyboard";
     public const string MouseName = "Mouse";
 

@@ -12,7 +12,7 @@ public sealed class ShipAndDeliverOrderTests(SystemFixture system)
     [Fact]
     public async Task ShipOrder_PaidOrder_MovesToShipped()
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Paid);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Paid);
         using HttpClient admin = OrderingApi.AdminClient(system);
 
         HttpResponseMessage response = await OrderingApi.PostAsync(admin, $"/api/v1/orders/{orderId}/ship");
@@ -30,7 +30,7 @@ public sealed class ShipAndDeliverOrderTests(SystemFixture system)
     [InlineData(OrderStatus.Cancelled)]
     public async Task ShipOrder_NotPaid_IsAConflict_AndLeavesTheOrderAlone(OrderStatus status)
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
         using HttpClient admin = OrderingApi.AdminClient(system);
 
         HttpResponseMessage response = await OrderingApi.PostAsync(admin, $"/api/v1/orders/{orderId}/ship");
@@ -44,7 +44,7 @@ public sealed class ShipAndDeliverOrderTests(SystemFixture system)
     {
         using HttpClient admin = OrderingApi.AdminClient(system);
 
-        HttpResponseMessage response = await OrderingApi.PostAsync(admin, $"/api/v1/orders/{long.MaxValue}/ship");
+        HttpResponseMessage response = await OrderingApi.PostAsync(admin, $"/api/v1/orders/{Guid.CreateVersion7()}/ship");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -52,7 +52,7 @@ public sealed class ShipAndDeliverOrderTests(SystemFixture system)
     [Fact]
     public async Task DeliverOrder_ShippedOrder_MovesToDelivered()
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Shipped);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), OrderStatus.Shipped);
         using HttpClient admin = OrderingApi.AdminClient(system);
 
         HttpResponseMessage response = await OrderingApi.PostAsync(admin, $"/api/v1/orders/{orderId}/deliver");
@@ -70,7 +70,7 @@ public sealed class ShipAndDeliverOrderTests(SystemFixture system)
     [InlineData(OrderStatus.Cancelled)]
     public async Task DeliverOrder_NotShipped_IsAConflict_AndLeavesTheOrderAlone(OrderStatus status)
     {
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, TestJwt.NewUserId(), status);
         using HttpClient admin = OrderingApi.AdminClient(system);
 
         HttpResponseMessage response = await OrderingApi.PostAsync(admin, $"/api/v1/orders/{orderId}/deliver");
@@ -84,7 +84,7 @@ public sealed class ShipAndDeliverOrderTests(SystemFixture system)
     {
         using HttpClient admin = OrderingApi.AdminClient(system);
 
-        HttpResponseMessage response = await OrderingApi.PostAsync(admin, $"/api/v1/orders/{long.MaxValue}/deliver");
+        HttpResponseMessage response = await OrderingApi.PostAsync(admin, $"/api/v1/orders/{Guid.CreateVersion7()}/deliver");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -92,8 +92,8 @@ public sealed class ShipAndDeliverOrderTests(SystemFixture system)
     [Fact]
     public async Task ShipAndDeliver_NonAdmin_IsForbidden()
     {
-        long userId = TestJwt.NewUserId();
-        long orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, OrderStatus.Shipped);
+        Guid userId = TestJwt.NewUserId();
+        Guid orderId = await OrderingTestData.SeedOrderAsync(system.Ordering.Services, userId, OrderStatus.Shipped);
         using HttpClient customer = OrderingApi.CustomerClient(system, userId);
         using HttpClient admin = OrderingApi.AdminClient(system);
 

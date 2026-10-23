@@ -4,7 +4,7 @@ namespace Ordering.API.Controllers.Orders;
 
 public record OrderItemRequest
 {
-    [JsonRequired] public long ProductId { get; init; }
+    [JsonRequired] public Guid ProductId { get; init; }
     [JsonRequired] public int Quantity { get; init; }
 }
 

@@ -9,6 +9,6 @@ public record AddProductRequest
     public required string PriceCurrency { get; init; }
     [JsonRequired] public decimal PriceAmount { get; init; }
     [JsonRequired] public int Quantity { get; init; }
-    [JsonRequired] public long CategoryId { get; init; }
+    [JsonRequired] public Guid CategoryId { get; init; }
 }
 

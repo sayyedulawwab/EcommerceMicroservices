@@ -12,7 +12,7 @@ public static class OrderErrors
         "Order.Empty",
         "An order must contain at least one item");
 
-    public static Error InvalidQuantity(long productId) => Error.BadRequest(
+    public static Error InvalidQuantity(Guid productId) => Error.BadRequest(
         "Order.InvalidQuantity",
         $"The quantity for product {productId} must be greater than zero");
 
@@ -24,7 +24,7 @@ public static class OrderErrors
         "Order.CannotCancel",
         $"An order that is {status} can no longer be cancelled");
 
-    public static Error MissingPrice(long productId) => Error.BadRequest(
+    public static Error MissingPrice(Guid productId) => Error.BadRequest(
         "Order.MissingPrice",
         $"No confirmed price was received for product {productId}");
 

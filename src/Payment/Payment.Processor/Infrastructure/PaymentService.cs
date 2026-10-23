@@ -11,7 +11,7 @@ public class PaymentService(IOptionsMonitor<PaymentOptions> options, ILogger<Pay
 {
     private const int RandomScale = 10_000;
 
-    public Task<PaymentResult> ProcessPaymentAsync(long orderId, decimal amount, string currency, CancellationToken cancellationToken = default)
+    public Task<PaymentResult> ProcessPaymentAsync(Guid orderId, decimal amount, string currency, CancellationToken cancellationToken = default)
     {
         PaymentOptions paymentOptions = options.CurrentValue;
 

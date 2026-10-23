@@ -6,9 +6,10 @@ namespace Catalog.Domain.Products;
 /// Stock taken out of <see cref="Product.Quantity"/> for an order. Released (added back) when the order is cancelled,
 /// committed when it is paid. Rows are kept after that so a redelivered order is recognised and never reserved twice.
 /// </summary>
-public sealed class StockReservation : Entity<long>
+public sealed class StockReservation : Entity<StockReservationId>
 {
-    private StockReservation(long orderId, long productId, int quantity, DateTime createdOnUtc)
+    private StockReservation(StockReservationId id, Guid orderId, ProductId productId, int quantity, DateTime createdOnUtc)
+        : base(id)
     {
         OrderId = orderId;
         ProductId = productId;
@@ -17,12 +18,14 @@ public sealed class StockReservation : Entity<long>
         CreatedOnUtc = createdOnUtc;
     }
 
+    #pragma warning disable CS8618 // Used by EF Core to materialize the entity
     private StockReservation()
     {
     }
+    #pragma warning restore CS8618
 
-    public long OrderId { get; private set; }
-    public long ProductId { get; private set; }
+    public Guid OrderId { get; private set; }
+    public ProductId ProductId { get; private set; }
     public int Quantity { get; private set; }
     public StockReservationStatus Status { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
@@ -30,9 +33,9 @@ public sealed class StockReservation : Entity<long>
 
     public bool IsActive => Status == StockReservationStatus.Reserved;
 
-    public static StockReservation Create(long orderId, long productId, int quantity, DateTime createdOnUtc)
+    public static StockReservation Create(Guid orderId, ProductId productId, int quantity, DateTime createdOnUtc)
     {
-        return new StockReservation(orderId, productId, quantity, createdOnUtc);
+        return new StockReservation(StockReservationId.New(), orderId, productId, quantity, createdOnUtc);
     }
 
     public void Release(DateTime utcNow) => Close(StockReservationStatus.Released, utcNow);

@@ -7,22 +7,24 @@ using SharedKernel.Messaging;
 namespace Catalog.Application.Products.DeleteProduct;
 
 internal sealed class DeleteProductCommandHandler(IApplicationDbContext dbContext)
-    : ICommandHandler<DeleteProductCommand, long>
+    : ICommandHandler<DeleteProductCommand, Guid>
 {
-    public async Task<Result<long>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
     {
-        Product? product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+        var productId = new ProductId(request.Id);
+
+        Product? product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
 
         if (product is null)
         {
-            return Result.Failure<long>(ProductErrors.NotFound());
+            return Result.Failure<Guid>(ProductErrors.NotFound());
         }
 
         dbContext.Products.Remove(product);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return product.Id;
+        return product.Id.Value;
 
     }
 }

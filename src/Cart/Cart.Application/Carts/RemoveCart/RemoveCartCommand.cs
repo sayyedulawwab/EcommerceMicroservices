@@ -2,4 +2,4 @@
 
 namespace Cart.Application.Carts.RemoveCart;
 
-public record RemoveCartCommand(long UserId) : ICommand;
+public record RemoveCartCommand(Guid UserId) : ICommand;

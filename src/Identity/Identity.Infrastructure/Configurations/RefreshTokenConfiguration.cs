@@ -10,10 +10,17 @@ internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refre
     {
         builder.ToTable("RefreshTokens");
 
-        builder.HasKey(r => r.Id);
+        builder.HasKey(r => r.Id).IsClustered(false);
 
         builder.Property(r => r.Id)
-               .ValueGeneratedOnAdd();
+               .HasConversion(id => id.Value, value => new RefreshTokenId(value));
+
+        builder.Property<long>("ClusterId").UseIdentityColumn();
+
+        builder.HasIndex("ClusterId").IsClustered();
+
+        builder.Property(r => r.UserId)
+               .HasConversion(id => id.Value, value => new UserId(value));
 
         builder.Property(r => r.TokenHash).HasMaxLength(64);
 

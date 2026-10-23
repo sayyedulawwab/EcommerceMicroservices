@@ -10,10 +10,14 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         builder.ToTable("Categories");
 
-        builder.HasKey(category => category.Id);
+        builder.HasKey(category => category.Id).IsClustered(false);
 
         builder.Property(category => category.Id)
-              .ValueGeneratedOnAdd();
+               .HasConversion(categoryId => categoryId.Value, value => new CategoryId(value));
+
+        builder.Property<long>("ClusterId").UseIdentityColumn();
+
+        builder.HasIndex("ClusterId").IsClustered();
 
         builder.Property(category => category.Name)
                .HasMaxLength(200);
@@ -21,7 +25,8 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(category => category.Description)
                .HasMaxLength(1000);
 
-        builder.Property(category => category.ParentCategoryId);
+        builder.Property(category => category.ParentCategoryId)
+               .HasConversion(parentCategoryId => parentCategoryId!.Value, value => new CategoryId(value));
 
         builder.HasIndex(category => category.ParentCategoryId);
 

@@ -1,5 +1,6 @@
 ﻿using Catalog.Application.Abstractions.Clock;
 using Catalog.Application.Abstractions.Data;
+using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -10,13 +11,15 @@ namespace Catalog.Application.Products.AddProduct;
 internal sealed class AddProductCommandHandler(
     IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider)
-    : ICommandHandler<AddProductCommand, long>
+    : ICommandHandler<AddProductCommand, Guid>
 {
-    public async Task<Result<long>> Handle(AddProductCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(AddProductCommand request, CancellationToken cancellationToken)
     {
-        if (!await dbContext.Categories.AnyAsync(c => c.Id == request.CategoryId, cancellationToken))
+        var categoryId = new CategoryId(request.CategoryId);
+
+        if (!await dbContext.Categories.AnyAsync(c => c.Id == categoryId, cancellationToken))
         {
-            return Result.Failure<long>(ProductErrors.CategoryNotFound(request.CategoryId));
+            return Result.Failure<Guid>(ProductErrors.CategoryNotFound(request.CategoryId));
         }
 
         var product = Product.Create(
@@ -24,14 +27,14 @@ internal sealed class AddProductCommandHandler(
             request.Description,
             new Money(request.PriceAmount, Currency.FromCode(request.PriceCurrency)),
             request.Quantity,
-            request.CategoryId,
+            categoryId,
             dateTimeProvider.UtcNow);
 
         dbContext.Products.Add(product);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return product.Id;
+        return product.Id.Value;
 
     }
 }

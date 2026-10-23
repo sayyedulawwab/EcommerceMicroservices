@@ -1,3 +1,3 @@
 ﻿namespace SharedKernel.Events;
 
-public record OrderStockItem(long ProductId, int Quantity);
+public record OrderStockItem(Guid ProductId, int Quantity);

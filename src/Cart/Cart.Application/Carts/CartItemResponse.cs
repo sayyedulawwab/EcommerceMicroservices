@@ -2,7 +2,7 @@ namespace Cart.Application.Carts;
 
 public sealed class CartItemResponse
 {
-    public long ProductId { get; init; }
+    public Guid ProductId { get; init; }
     public required string ProductName { get; init; }
     public decimal ProductPriceAmount { get; init; }
     public required string ProductPriceCurrency { get; init; }

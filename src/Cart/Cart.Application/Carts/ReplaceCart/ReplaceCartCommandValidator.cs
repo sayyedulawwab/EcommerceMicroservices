@@ -8,7 +8,7 @@ public class ReplaceCartCommandValidator : AbstractValidator<ReplaceCartCommand>
 
     public ReplaceCartCommandValidator()
     {
-        RuleFor(c => c.UserId).GreaterThan(0);
+        RuleFor(c => c.UserId).NotEmpty();
 
         RuleFor(c => c.CartItems)
             .NotNull()

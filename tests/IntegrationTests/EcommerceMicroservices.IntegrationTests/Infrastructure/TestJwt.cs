@@ -1,5 +1,4 @@
 using Microsoft.IdentityModel.Tokens;
-using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,11 +15,11 @@ public static class TestJwt
     private const string Audience = "Ecommerce";
     private const string SecretKey = "185C2E54-C194-4FC9-8B0D-B2C25FB577D3";
 
-    public static string Create(long userId, bool isAdmin = false)
+    public static string Create(Guid userId, bool isAdmin = false)
     {
         List<Claim> claims =
         [
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString(CultureInfo.InvariantCulture)),
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Email, $"user{userId}@test.local")
         ];
 
@@ -40,5 +39,5 @@ public static class TestJwt
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public static long NewUserId() => System.Security.Cryptography.RandomNumberGenerator.GetInt32(100_000, int.MaxValue);
+    public static Guid NewUserId() => Guid.CreateVersion7();
 }

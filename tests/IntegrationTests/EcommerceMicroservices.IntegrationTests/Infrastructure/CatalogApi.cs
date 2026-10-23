@@ -7,7 +7,7 @@ namespace EcommerceMicroservices.IntegrationTests.Infrastructure;
 /// <summary>Catalog calls the tests use to set up data.</summary>
 public static class CatalogApi
 {
-    public static async Task<long> CreateCategoryAsync(HttpClient adminClient, long? parentCategoryId = null)
+    public static async Task<Guid> CreateCategoryAsync(HttpClient adminClient, Guid? parentCategoryId = null)
     {
         HttpResponseMessage response = await adminClient.PostAsJsonAsync(
             "/api/v1/categories",
@@ -19,9 +19,9 @@ public static class CatalogApi
         return await ReadIdAsync(response);
     }
 
-    public static async Task<long> CreateProductAsync(HttpClient adminClient, decimal price, int quantity, string? name = null, long? categoryId = null, string currency = "BDT")
+    public static async Task<Guid> CreateProductAsync(HttpClient adminClient, decimal price, int quantity, string? name = null, Guid? categoryId = null, string currency = "BDT")
     {
-        long category = categoryId ?? await CreateCategoryAsync(adminClient);
+        Guid category = categoryId ?? await CreateCategoryAsync(adminClient);
 
         HttpResponseMessage response = await adminClient.PostAsJsonAsync(
             "/api/v1/products",
@@ -41,17 +41,17 @@ public static class CatalogApi
         return await ReadIdAsync(response);
     }
 
-    public static async Task<int> GetStockAsync(HttpClient client, long productId)
+    public static async Task<int> GetStockAsync(HttpClient client, Guid productId)
     {
         JsonElement product = await client.GetFromJsonAsync<JsonElement>($"/api/v1/products/{productId}", TestContext.Current.CancellationToken);
 
         return product.GetProperty("quantity").GetInt32();
     }
 
-    public static async Task<long> ReadIdAsync(HttpResponseMessage response)
+    public static async Task<Guid> ReadIdAsync(HttpResponseMessage response)
     {
         JsonElement body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
 
-        return body.GetProperty("id").GetInt64();
+        return body.GetProperty("id").GetGuid();
     }
 }

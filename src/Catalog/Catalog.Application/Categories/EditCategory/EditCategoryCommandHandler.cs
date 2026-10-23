@@ -10,47 +10,51 @@ namespace Catalog.Application.Categories.EditCategory;
 internal sealed class EditCategoryCommandHandler(
     IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider)
-    : ICommandHandler<EditCategoryCommand, long>
+    : ICommandHandler<EditCategoryCommand, Guid>
 {
     private const int MaxCategoryDepth = 100;
 
-    public async Task<Result<long>> Handle(EditCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(EditCategoryCommand request, CancellationToken cancellationToken)
     {
-        Category? category = await dbContext.Categories.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+        var categoryId = new CategoryId(request.Id);
+
+        Category? category = await dbContext.Categories.FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
 
         if (category is null)
         {
-            return Result.Failure<long>(CategoryErrors.NotFound(request.Id));
+            return Result.Failure<Guid>(CategoryErrors.NotFound(request.Id));
         }
 
-        if (request.ParentCategoryId is long parentCategoryId)
+        CategoryId? parentCategoryId = request.ParentCategoryId is Guid parentId ? new CategoryId(parentId) : null;
+
+        if (parentCategoryId is not null)
         {
-            Result parentResult = await ValidateParentAsync(request.Id, parentCategoryId, cancellationToken);
+            Result parentResult = await ValidateParentAsync(categoryId, parentCategoryId, cancellationToken);
 
             if (parentResult.IsFailure)
             {
-                return Result.Failure<long>(parentResult.Error);
+                return Result.Failure<Guid>(parentResult.Error);
             }
         }
 
-        Category.Update(category, request.Name, request.Description, request.ParentCategoryId, dateTimeProvider.UtcNow);
+        Category.Update(category, request.Name, request.Description, parentCategoryId, dateTimeProvider.UtcNow);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return category.Id;
+        return category.Id.Value;
 
     }
 
     // Walks up from the new parent; reaching the edited category means the change would create a cycle.
-    private async Task<Result> ValidateParentAsync(long categoryId, long parentCategoryId, CancellationToken cancellationToken)
+    private async Task<Result> ValidateParentAsync(CategoryId categoryId, CategoryId parentCategoryId, CancellationToken cancellationToken)
     {
-        long? currentId = parentCategoryId;
+        CategoryId? currentId = parentCategoryId;
 
-        for (int depth = 0; currentId is long id && depth < MaxCategoryDepth; depth++)
+        for (int depth = 0; currentId is { } id && depth < MaxCategoryDepth; depth++)
         {
             if (id == categoryId)
             {
-                return Result.Failure(CategoryErrors.CircularParent(categoryId));
+                return Result.Failure(CategoryErrors.CircularParent(categoryId.Value));
             }
 
             var current = await dbContext.Categories
@@ -62,7 +66,7 @@ internal sealed class EditCategoryCommandHandler(
             if (current is null)
             {
                 return depth == 0
-                    ? Result.Failure(CategoryErrors.ParentNotFound(parentCategoryId))
+                    ? Result.Failure(CategoryErrors.ParentNotFound(parentCategoryId.Value))
                     : Result.Success();
             }
 
@@ -71,6 +75,6 @@ internal sealed class EditCategoryCommandHandler(
 
         return currentId is null
             ? Result.Success()
-            : Result.Failure(CategoryErrors.CircularParent(categoryId));
+            : Result.Failure(CategoryErrors.CircularParent(categoryId.Value));
     }
 }

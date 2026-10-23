@@ -1,3 +1,3 @@
 ﻿namespace SharedKernel.Events;
 
-public record PricedOrderItem(long ProductId, string ProductName, decimal PriceAmount, string PriceCurrency, int Quantity);
+public record PricedOrderItem(Guid ProductId, string ProductName, decimal PriceAmount, string PriceCurrency, int Quantity);

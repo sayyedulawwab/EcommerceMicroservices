@@ -124,8 +124,8 @@ public sealed class IdentityApi(SystemFixture system)
     public async Task<int> CountUsersAsync(string email) =>
         await QueryAsync(db => db.Users.CountAsync(u => u.Email == email, Ct));
 
-    public async Task<List<RefreshToken>> RefreshTokensAsync(long userId) =>
-        await QueryAsync(db => db.RefreshTokens.AsNoTracking().Where(r => r.UserId == userId).OrderBy(r => r.Id).ToListAsync(Ct));
+    public async Task<List<RefreshToken>> RefreshTokensAsync(UserId userId) =>
+        await QueryAsync(db => db.RefreshTokens.AsNoTracking().Where(r => r.UserId == userId).OrderBy(r => EF.Property<long>(r, "ClusterId")).ToListAsync(Ct));
 
     public async Task<RefreshToken?> FindRefreshTokenAsync(string rawToken)
     {
@@ -134,10 +134,10 @@ public sealed class IdentityApi(SystemFixture system)
         return await QueryAsync(db => db.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(r => r.TokenHash == hash, Ct));
     }
 
-    public async Task<List<UserToken>> UserTokensAsync(long userId, UserTokenPurpose purpose) =>
+    public async Task<List<UserToken>> UserTokensAsync(UserId userId, UserTokenPurpose purpose) =>
         await QueryAsync(db => db.UserTokens.AsNoTracking()
             .Where(t => t.UserId == userId && t.Purpose == purpose)
-            .OrderBy(t => t.Id)
+            .OrderBy(t => EF.Property<long>(t, "ClusterId"))
             .ToListAsync(Ct));
 
     public async Task SetRefreshTokenTimesAsync(string rawToken, DateTime? expiresOnUtc = null, DateTime? revokedOnUtc = null)

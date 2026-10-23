@@ -1,10 +1,12 @@
-﻿using SharedKernel.Domain;
+﻿using Catalog.Domain.Categories;
+using SharedKernel.Domain;
 
 namespace Catalog.Domain.Products;
 
-public sealed class Product : Entity<long>
+public sealed class Product : Entity<ProductId>
 {
-    private Product(string name, string description, Money price, int quantity, long categoryId, DateTime createdOnUtc)
+    private Product(ProductId id, string name, string description, Money price, int quantity, CategoryId categoryId, DateTime createdOnUtc)
+        : base(id)
     {
         Name = name;
         Description = description;
@@ -20,7 +22,7 @@ public sealed class Product : Entity<long>
     }
     #pragma warning restore CS8618
 
-    public long CategoryId { get; private set; }
+    public CategoryId CategoryId { get; private set; }
     public string Name { get; private set; }
     public string Description { get; private set; }
     public Money Price { get; private set; }
@@ -28,14 +30,14 @@ public sealed class Product : Entity<long>
     public DateTime CreatedOnUtc { get; private set; }
     public DateTime? UpdatedOnUtc { get; private set; }
 
-    public static Product Create(string name, string description, Money price, int quantity, long categoryId, DateTime createdOnUtc)
+    public static Product Create(string name, string description, Money price, int quantity, CategoryId categoryId, DateTime createdOnUtc)
     {
-        var product = new Product(name, description, price, quantity, categoryId, createdOnUtc);
+        var product = new Product(ProductId.New(), name, description, price, quantity, categoryId, createdOnUtc);
 
         return product;
     }
 
-    public static Product Update(Product product, string name, string description, Money price, int quantity, long categoryId, DateTime updatedOnUtc)
+    public static Product Update(Product product, string name, string description, Money price, int quantity, CategoryId categoryId, DateTime updatedOnUtc)
     {
 
         product.Name = name;
@@ -54,12 +56,12 @@ public sealed class Product : Entity<long>
     {
         if (quantity <= 0)
         {
-            return Result.Failure(ProductErrors.InvalidQuantity(Id));
+            return Result.Failure(ProductErrors.InvalidQuantity(Id.Value));
         }
 
         if (!HasStock(quantity))
         {
-            return Result.Failure(ProductErrors.InsufficientStock(Id));
+            return Result.Failure(ProductErrors.InsufficientStock(Id.Value));
         }
 
         Quantity -= quantity;

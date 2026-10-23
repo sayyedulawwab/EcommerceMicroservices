@@ -2,4 +2,4 @@
 
 namespace Catalog.Application.Categories.AddCategory;
 
-public record AddCategoryCommand(string Name, string Description, long? ParentCategoryId) : ICommand<long>;
+public record AddCategoryCommand(string Name, string Description, Guid? ParentCategoryId) : ICommand<Guid>;

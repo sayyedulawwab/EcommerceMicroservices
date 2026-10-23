@@ -9,7 +9,7 @@ public record UpdateCartRequest
 
 public record CartItemRequest
 {
-    [JsonRequired] public long ProductId { get; init; }
+    [JsonRequired] public Guid ProductId { get; init; }
     public required string ProductName { get; init; }
     [JsonRequired] public decimal PriceAmount { get; init; }
     public required string PriceCurrency { get; init; }

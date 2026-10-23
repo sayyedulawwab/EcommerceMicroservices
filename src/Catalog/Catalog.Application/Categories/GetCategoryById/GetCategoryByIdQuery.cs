@@ -2,4 +2,4 @@
 
 namespace Catalog.Application.Categories.GetCategoryById;
 
-public record GetCategoryByIdQuery(long Id) : IQuery<CategoryResponse>;
+public record GetCategoryByIdQuery(Guid Id) : IQuery<CategoryResponse>;

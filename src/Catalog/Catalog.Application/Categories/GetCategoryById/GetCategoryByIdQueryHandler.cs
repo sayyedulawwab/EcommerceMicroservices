@@ -11,15 +11,17 @@ internal sealed class GetCategoryByIdQueryHandler(IApplicationDbContext dbContex
 {
     public async Task<Result<CategoryResponse>> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
     {
+        var categoryId = new CategoryId(request.Id);
+
         CategoryResponse? categoryResponse = await dbContext.Categories
             .AsNoTracking()
-            .Where(category => category.Id == request.Id)
+            .Where(category => category.Id == categoryId)
             .Select(category => new CategoryResponse()
             {
-                Id = category.Id,
+                Id = category.Id.Value,
                 Name = category.Name,
                 Description = category.Description,
-                ParentCategoryId = category.ParentCategoryId,
+                ParentCategoryId = category.ParentCategoryId == null ? null : category.ParentCategoryId.Value,
                 CreatedOnUtc = category.CreatedOnUtc,
                 UpdatedOnUtc = category.UpdatedOnUtc,
             })

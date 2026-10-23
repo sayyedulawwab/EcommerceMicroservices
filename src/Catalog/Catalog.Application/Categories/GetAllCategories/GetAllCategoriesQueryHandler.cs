@@ -14,10 +14,10 @@ internal sealed class GetAllCategoriesQueryHandler(IApplicationDbContext dbConte
             .AsNoTracking()
             .Select(cat => new CategoryResponse()
             {
-                Id = cat.Id,
+                Id = cat.Id.Value,
                 Name = cat.Name,
                 Description = cat.Description,
-                ParentCategoryId = cat.ParentCategoryId,
+                ParentCategoryId = cat.ParentCategoryId == null ? null : cat.ParentCategoryId.Value,
                 CreatedOnUtc = cat.CreatedOnUtc,
                 UpdatedOnUtc = cat.UpdatedOnUtc,
             })

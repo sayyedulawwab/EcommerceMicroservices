@@ -2,4 +2,4 @@ using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.ReleaseStock;
 
-public record ReleaseStockCommand(long OrderId) : ICommand;
+public record ReleaseStockCommand(Guid OrderId) : ICommand;

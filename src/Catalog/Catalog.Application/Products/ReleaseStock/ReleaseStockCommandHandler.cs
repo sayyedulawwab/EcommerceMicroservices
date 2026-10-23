@@ -26,7 +26,7 @@ internal sealed class ReleaseStockCommandHandler(
 
         var productIds = activeReservations.Select(reservation => reservation.ProductId).ToList();
 
-        Dictionary<long, Product> productsById = await dbContext.Products
+        Dictionary<ProductId, Product> productsById = await dbContext.Products
             .Where(product => productIds.Contains(product.Id))
             .ToDictionaryAsync(product => product.Id, cancellationToken);
 

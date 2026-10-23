@@ -10,10 +10,17 @@ internal sealed class UserTokenConfiguration : IEntityTypeConfiguration<UserToke
     {
         builder.ToTable("UserTokens");
 
-        builder.HasKey(t => t.Id);
+        builder.HasKey(t => t.Id).IsClustered(false);
 
         builder.Property(t => t.Id)
-               .ValueGeneratedOnAdd();
+               .HasConversion(id => id.Value, value => new UserTokenId(value));
+
+        builder.Property<long>("ClusterId").UseIdentityColumn();
+
+        builder.HasIndex("ClusterId").IsClustered();
+
+        builder.Property(t => t.UserId)
+               .HasConversion(id => id.Value, value => new UserId(value));
 
         builder.Property(t => t.Purpose);
 

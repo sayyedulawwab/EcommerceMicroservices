@@ -12,7 +12,7 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task AddProduct_WithExistingCategory_StoresIt()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
 
         HttpResponseMessage response = await admin.PostAsJsonAsync(
             "/api/v1/products",
@@ -26,7 +26,7 @@ public sealed class ProductApiTests(SystemFixture system)
         Assert.Equal("USD", product.GetProperty("priceCurrency").GetString());
         Assert.Equal(12.5m, product.GetProperty("priceAmount").GetDecimal());
         Assert.Equal(7, product.GetProperty("quantity").GetInt32());
-        Assert.Equal(categoryId, product.GetProperty("categoryId").GetInt64());
+        Assert.Equal(categoryId, product.GetProperty("categoryId").GetGuid());
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public sealed class ProductApiTests(SystemFixture system)
 
         HttpResponseMessage response = await admin.PostAsJsonAsync(
             "/api/v1/products",
-            new { name, description = "x", priceCurrency = "BDT", priceAmount = 1m, quantity = 1, categoryId = long.MaxValue },
+            new { name, description = "x", priceCurrency = "BDT", priceAmount = 1m, quantity = 1, categoryId = Guid.CreateVersion7() },
             Ct);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -55,7 +55,7 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task AddProduct_WithInvalidData_IsRejected(string currency, int price, int quantity)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
 
         HttpResponseMessage response = await admin.PostAsJsonAsync(
             "/api/v1/products",
@@ -72,7 +72,7 @@ public sealed class ProductApiTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
 
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1, currency: currency);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1, currency: currency);
 
         Assert.Equal(currency, (await GetProductAsync(admin, productId)).GetProperty("priceCurrency").GetString());
     }
@@ -82,7 +82,7 @@ public sealed class ProductApiTests(SystemFixture system)
     {
         using HttpClient anonymous = SystemFixture.CreateClient(system.Catalog);
 
-        HttpResponseMessage response = await anonymous.GetAsync($"/api/v1/products/{long.MaxValue}", Ct);
+        HttpResponseMessage response = await anonymous.GetAsync($"/api/v1/products/{Guid.CreateVersion7()}", Ct);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -91,8 +91,8 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task EditProduct_UpdatesItsFields()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long newCategoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid newCategoryId = await CatalogApi.CreateCategoryAsync(admin);
 
         HttpResponseMessage response = await EditAsync(admin, productId, newCategoryId, name: "Renamed", price: 20, quantity: 9);
 
@@ -101,7 +101,7 @@ public sealed class ProductApiTests(SystemFixture system)
         Assert.Equal("Renamed", product.GetProperty("name").GetString());
         Assert.Equal(20m, product.GetProperty("priceAmount").GetDecimal());
         Assert.Equal(9, product.GetProperty("quantity").GetInt32());
-        Assert.Equal(newCategoryId, product.GetProperty("categoryId").GetInt64());
+        Assert.Equal(newCategoryId, product.GetProperty("categoryId").GetGuid());
         Assert.NotEqual(JsonValueKind.Null, product.GetProperty("updatedOnUtc").ValueKind);
     }
 
@@ -109,8 +109,8 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task EditProduct_KeepingItsCategory_UpdatesIt()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, categoryId: categoryId);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, categoryId: categoryId);
 
         HttpResponseMessage response = await EditAsync(admin, productId, categoryId, name: "Same category", price: 11, quantity: 6);
 
@@ -122,9 +122,9 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task EditProduct_Unknown_IsNotFound()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
 
-        HttpResponseMessage response = await EditAsync(admin, long.MaxValue, categoryId);
+        HttpResponseMessage response = await EditAsync(admin, Guid.CreateVersion7(), categoryId);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -133,23 +133,23 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task EditProduct_ToAnUnknownCategory_IsRejected_AndKeepsTheProduct()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, categoryId: categoryId);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, categoryId: categoryId);
 
-        HttpResponseMessage response = await EditAsync(admin, productId, long.MaxValue, name: "Should not stick");
+        HttpResponseMessage response = await EditAsync(admin, productId, Guid.CreateVersion7(), name: "Should not stick");
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Product.CategoryNotFound", await CatalogTestSupport.ReadErrorNameAsync(response));
         JsonElement product = await GetProductAsync(admin, productId);
         Assert.NotEqual("Should not stick", product.GetProperty("name").GetString());
-        Assert.Equal(categoryId, product.GetProperty("categoryId").GetInt64());
+        Assert.Equal(categoryId, product.GetProperty("categoryId").GetGuid());
     }
 
     [Fact]
     public async Task DeleteProduct_RemovesIt()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
 
         HttpResponseMessage response = await admin.DeleteAsync($"/api/v1/products/{productId}", Ct);
 
@@ -162,7 +162,7 @@ public sealed class ProductApiTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
 
-        HttpResponseMessage response = await admin.DeleteAsync($"/api/v1/products/{long.MaxValue}", Ct);
+        HttpResponseMessage response = await admin.DeleteAsync($"/api/v1/products/{Guid.CreateVersion7()}", Ct);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -172,8 +172,8 @@ public sealed class ProductApiTests(SystemFixture system)
     {
         using HttpClient customer = SystemFixture.CreateClient(system.Catalog, TestJwt.Create(TestJwt.NewUserId()));
 
-        HttpResponseMessage edit = await EditAsync(customer, 1, 1);
-        HttpResponseMessage delete = await customer.DeleteAsync("/api/v1/products/1", Ct);
+        HttpResponseMessage edit = await EditAsync(customer, Guid.CreateVersion7(), Guid.CreateVersion7());
+        HttpResponseMessage delete = await customer.DeleteAsync($"/api/v1/products/{Guid.CreateVersion7()}", Ct);
 
         Assert.Equal(HttpStatusCode.Forbidden, edit.StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, delete.StatusCode);
@@ -184,12 +184,12 @@ public sealed class ProductApiTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         string keyword = $"Name{Guid.NewGuid():N}";
-        long match = await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1, name: $"Big {keyword} widget");
+        Guid match = await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1, name: $"Big {keyword} widget");
         await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1);
 
         JsonElement[] items = await SearchAsync(admin, $"keyword={keyword}");
 
-        Assert.Equal(match, Assert.Single(items).GetProperty("id").GetInt64());
+        Assert.Equal(match, Assert.Single(items).GetProperty("id").GetGuid());
     }
 
     [Fact]
@@ -197,12 +197,12 @@ public sealed class ProductApiTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         string keyword = $"Desc{Guid.NewGuid():N}";
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
-        long match = await CreateProductAsync(admin, categoryId, name: "Plain name", description: $"Mentions {keyword} inside");
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid match = await CreateProductAsync(admin, categoryId, name: "Plain name", description: $"Mentions {keyword} inside");
 
         JsonElement[] items = await SearchAsync(admin, $"keyword={keyword}");
 
-        Assert.Equal(match, Assert.Single(items).GetProperty("id").GetInt64());
+        Assert.Equal(match, Assert.Single(items).GetProperty("id").GetGuid());
     }
 
     [Fact]
@@ -210,13 +210,13 @@ public sealed class ProductApiTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         string keyword = $"Both{Guid.NewGuid():N}";
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
-        long byName = await CreateProductAsync(admin, categoryId, name: $"{keyword} thing", description: "Plain");
-        long byDescription = await CreateProductAsync(admin, categoryId, name: "Plain", description: $"About {keyword}");
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid byName = await CreateProductAsync(admin, categoryId, name: $"{keyword} thing", description: "Plain");
+        Guid byDescription = await CreateProductAsync(admin, categoryId, name: "Plain", description: $"About {keyword}");
 
         JsonElement[] items = await SearchAsync(admin, $"keyword={keyword}");
 
-        long[] ids = [.. items.Select(item => item.GetProperty("id").GetInt64())];
+        Guid[] ids = [.. items.Select(item => item.GetProperty("id").GetGuid())];
         Assert.Equal(2, ids.Length);
         Assert.Contains(byName, ids);
         Assert.Contains(byDescription, ids);
@@ -227,11 +227,11 @@ public sealed class ProductApiTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         string keyword = $"Trim{Guid.NewGuid():N}";
-        long match = await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1, name: $"{keyword} widget");
+        Guid match = await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1, name: $"{keyword} widget");
 
         JsonElement[] items = await SearchAsync(admin, $"keyword=%20%20{keyword}%20%20");
 
-        Assert.Equal(match, Assert.Single(items).GetProperty("id").GetInt64());
+        Assert.Equal(match, Assert.Single(items).GetProperty("id").GetGuid());
     }
 
     [Fact]
@@ -251,7 +251,7 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task Search_BlankKeyword_MatchesEverything(string keyword)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
         await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1, categoryId: categoryId);
         await CatalogApi.CreateProductAsync(admin, price: 2, quantity: 1, categoryId: categoryId);
 
@@ -264,15 +264,15 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task Search_ByCategoryAndPriceRange_FiltersProducts()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
         await CatalogApi.CreateProductAsync(admin, price: 5, quantity: 1, categoryId: categoryId);
-        long inRange = await CatalogApi.CreateProductAsync(admin, price: 15, quantity: 1, categoryId: categoryId);
+        Guid inRange = await CatalogApi.CreateProductAsync(admin, price: 15, quantity: 1, categoryId: categoryId);
         await CatalogApi.CreateProductAsync(admin, price: 25, quantity: 1, categoryId: categoryId);
         await CatalogApi.CreateProductAsync(admin, price: 15, quantity: 1);
 
         JsonElement[] items = await SearchAsync(admin, $"categoryId={categoryId}&minPrice=10&maxPrice=20");
 
-        Assert.Equal(inRange, Assert.Single(items).GetProperty("id").GetInt64());
+        Assert.Equal(inRange, Assert.Single(items).GetProperty("id").GetGuid());
     }
 
     [Theory]
@@ -311,7 +311,7 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task Search_Paging_ReturnsTheRequestedSliceAndTheTotalCount()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
 
         foreach (string name in new[] { "A", "B", "C" })
         {
@@ -331,7 +331,7 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task Search_SortByNameDescending_OrdersByNameDescending()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
 
         foreach (string name in new[] { "B", "C", "A" })
         {
@@ -347,7 +347,7 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task Search_SortByPrice_OrdersByPrice()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
 
         foreach (decimal price in new[] { 30m, 10m, 20m })
         {
@@ -363,24 +363,24 @@ public sealed class ProductApiTests(SystemFixture system)
     public async Task Search_MapsEveryFieldOfTheProduct()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
-        long productId = await CreateProductAsync(admin, categoryId, name: "Mapped", description: "Mapping check", price: 42.5m, quantity: 3);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid productId = await CreateProductAsync(admin, categoryId, name: "Mapped", description: "Mapping check", price: 42.5m, quantity: 3);
 
         JsonElement item = Assert.Single(await SearchAsync(admin, $"categoryId={categoryId}"));
 
-        Assert.Equal(productId, item.GetProperty("id").GetInt64());
+        Assert.Equal(productId, item.GetProperty("id").GetGuid());
         Assert.Equal("Mapped", item.GetProperty("name").GetString());
         Assert.Equal("Mapping check", item.GetProperty("description").GetString());
         Assert.Equal(42.5m, item.GetProperty("priceAmount").GetDecimal());
         Assert.Equal("BDT", item.GetProperty("priceCurrency").GetString());
         Assert.Equal(3, item.GetProperty("quantity").GetInt32());
-        Assert.Equal(categoryId, item.GetProperty("categoryId").GetInt64());
+        Assert.Equal(categoryId, item.GetProperty("categoryId").GetGuid());
         Assert.NotEqual(JsonValueKind.Null, item.GetProperty("createdOnUtc").ValueKind);
     }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
-    private static async Task<long> CreateProductAsync(HttpClient admin, long categoryId, string name, string description, decimal price = 1m, int quantity = 1)
+    private static async Task<Guid> CreateProductAsync(HttpClient admin, Guid categoryId, string name, string description, decimal price = 1m, int quantity = 1)
     {
         HttpResponseMessage response = await admin.PostAsJsonAsync(
             "/api/v1/products",
@@ -392,7 +392,7 @@ public sealed class ProductApiTests(SystemFixture system)
         return await CatalogApi.ReadIdAsync(response);
     }
 
-    private static Task<HttpResponseMessage> EditAsync(HttpClient client, long id, long categoryId, string name = "Edited", decimal price = 10m, int quantity = 1)
+    private static Task<HttpResponseMessage> EditAsync(HttpClient client, Guid id, Guid categoryId, string name = "Edited", decimal price = 10m, int quantity = 1)
     {
         return client.PutAsJsonAsync(
             $"/api/v1/products/{id}",
@@ -400,7 +400,7 @@ public sealed class ProductApiTests(SystemFixture system)
             Ct);
     }
 
-    private static async Task<JsonElement> GetProductAsync(HttpClient client, long id)
+    private static async Task<JsonElement> GetProductAsync(HttpClient client, Guid id)
     {
         HttpResponseMessage response = await client.GetAsync($"/api/v1/products/{id}", Ct);
 

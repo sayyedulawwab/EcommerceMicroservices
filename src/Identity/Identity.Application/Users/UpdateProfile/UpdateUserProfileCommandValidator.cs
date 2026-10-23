@@ -6,7 +6,7 @@ public class UpdateUserProfileCommandValidator : AbstractValidator<UpdateUserPro
 {
     public UpdateUserProfileCommandValidator()
     {
-        RuleFor(c => c.UserId).GreaterThan(0);
+        RuleFor(c => c.UserId).NotEmpty();
         UserRules.Name(RuleFor(c => c.FirstName));
         UserRules.Name(RuleFor(c => c.LastName));
     }

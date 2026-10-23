@@ -3,7 +3,7 @@ namespace Cart.Application.Carts;
 public sealed class CartResponse
 {
     public Guid Id { get; init; }
-    public long UserId { get; init; }
+    public Guid UserId { get; init; }
     public List<CartItemResponse> CartItems { get; init; } = [];
     public decimal TotalPriceAmount { get; init; }
     public required string TotalPriceCurrency { get; init; }
@@ -14,7 +14,7 @@ public sealed class CartResponse
     {
         return new CartResponse
         {
-            Id = cart.Id,
+            Id = cart.Id.Value,
             UserId = cart.UserId,
             CartItems = cart.CartItems.Select(ci => new CartItemResponse
             {
@@ -33,7 +33,7 @@ public sealed class CartResponse
     }
 
     /// <summary>What a user without a stored cart gets back: an empty cart, not a 404.</summary>
-    public static CartResponse Empty(long userId)
+    public static CartResponse Empty(Guid userId)
     {
         return new CartResponse
         {

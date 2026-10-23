@@ -14,7 +14,7 @@ internal sealed class GetOrderByIdQueryHandler(IApplicationDbContext dbContext)
         Order? order = await dbContext.Orders
             .AsNoTracking()
             .Include(order => order.OrderItems)
-            .FirstOrDefaultAsync(order => order.Id == request.OrderId, cancellationToken);
+            .FirstOrDefaultAsync(order => order.Id == new OrderId(request.OrderId), cancellationToken);
 
         // Someone else's order is reported as missing so order ids can't be probed.
         if (order is null || (!request.IsAdmin && order.UserId != request.RequestingUserId))

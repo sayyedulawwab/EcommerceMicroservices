@@ -19,7 +19,7 @@ internal sealed class ConfirmOrderStockCommandHandler(
     {
         Order? order = await dbContext.Orders
             .Include(order => order.OrderItems)
-            .FirstOrDefaultAsync(order => order.Id == request.OrderId, cancellationToken);
+            .FirstOrDefaultAsync(order => order.Id == new OrderId(request.OrderId), cancellationToken);
 
         if (order is null)
         {
@@ -30,7 +30,7 @@ internal sealed class ConfirmOrderStockCommandHandler(
         {
             // The customer cancelled while Catalog was reserving: ask Catalog to give the stock back.
             await publishEndpoint.Publish(
-                new OrderCancelledIntegrationEvent(order.Id, order.CancellationReason ?? "Order was cancelled"),
+                new OrderCancelledIntegrationEvent(order.Id.Value, order.CancellationReason ?? "Order was cancelled"),
                 cancellationToken);
 
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -52,7 +52,7 @@ internal sealed class ConfirmOrderStockCommandHandler(
             order.Cancel($"Stock confirmation was invalid: {confirmResult.Error.Description}", dateTimeProvider.UtcNow);
 
             await publishEndpoint.Publish(
-                new OrderCancelledIntegrationEvent(order.Id, order.CancellationReason ?? confirmResult.Error.Description),
+                new OrderCancelledIntegrationEvent(order.Id.Value, order.CancellationReason ?? confirmResult.Error.Description),
                 cancellationToken);
 
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -62,7 +62,7 @@ internal sealed class ConfirmOrderStockCommandHandler(
 
         await publishEndpoint.Publish(
             new OrderStatusChangedToStockConfirmedIntegrationEvent(
-                order.Id,
+                order.Id.Value,
                 order.UserId,
                 order.TotalPrice.Amount,
                 order.TotalPrice.Currency.Code),

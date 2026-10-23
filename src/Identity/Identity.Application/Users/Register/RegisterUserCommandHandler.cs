@@ -13,15 +13,15 @@ internal sealed class RegisterUserCommandHandler(
     IApplicationDbContext dbContext,
     UserTokenIssuer userTokenIssuer,
     IDateTimeProvider dateTimeProvider)
-    : ICommandHandler<RegisterUserCommand, long>
+    : ICommandHandler<RegisterUserCommand, Guid>
 {
-    public async Task<Result<long>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         string email = User.NormalizeEmail(request.Email);
 
         if (await dbContext.Users.AnyAsync(u => u.Email == email, cancellationToken))
         {
-            return Result.Failure<long>(UserErrors.AlreadyExists);
+            return Result.Failure<Guid>(UserErrors.AlreadyExists);
         }
 
         string passwordSalt = passwordHasher.GenerateSalt();
@@ -41,6 +41,6 @@ internal sealed class RegisterUserCommandHandler(
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return user.Id;
+        return user.Id.Value;
     }
 }

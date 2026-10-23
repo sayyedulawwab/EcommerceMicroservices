@@ -2,4 +2,4 @@ using SharedKernel.Messaging;
 
 namespace Cart.Application.Carts.RemoveCartItem;
 
-public record RemoveCartItemCommand(long UserId, long ProductId) : ICommand<CartResponse>;
+public record RemoveCartItemCommand(Guid UserId, Guid ProductId) : ICommand<CartResponse>;

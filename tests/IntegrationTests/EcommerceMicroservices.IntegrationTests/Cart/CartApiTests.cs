@@ -12,31 +12,36 @@ public sealed class CartApiTests(SystemFixture system)
     private const string CartUrl = "/api/v1/carts";
     private const string ItemsUrl = "/api/v1/carts/items";
 
+    private static readonly Guid ProductA = Guid.CreateVersion7();
+    private static readonly Guid ProductB = Guid.CreateVersion7();
+    private static readonly Guid ProductC = Guid.CreateVersion7();
+    private static readonly Guid UnknownProduct = Guid.CreateVersion7();
+
     [Fact]
     public async Task GetCart_WithoutStoredCart_ReturnsEmptyCart()
     {
-        using HttpClient client = CreateCustomer(out long userId);
+        using HttpClient client = CreateCustomer(out Guid userId);
 
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
 
         Assert.Equal(Guid.Empty, cart.GetProperty("id").GetGuid());
-        Assert.Equal(userId, cart.GetProperty("userId").GetInt64());
+        Assert.Equal(userId, cart.GetProperty("userId").GetGuid());
         Assert.Equal(0, cart.GetProperty("cartItems").GetArrayLength());
     }
 
     [Fact]
     public async Task AddItem_WithoutCart_CreatesCart()
     {
-        using HttpClient client = CreateCustomer(out long userId);
+        using HttpClient client = CreateCustomer(out Guid userId);
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: 1, quantity: 2, price: 10m), Ct);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: ProductA, quantity: 2, price: 10m), Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
         Assert.NotEqual(Guid.Empty, cart.GetProperty("id").GetGuid());
-        Assert.Equal(userId, cart.GetProperty("userId").GetInt64());
+        Assert.Equal(userId, cart.GetProperty("userId").GetGuid());
         JsonElement item = Assert.Single([.. cart.GetProperty("cartItems").EnumerateArray()]);
-        Assert.Equal(1, item.GetProperty("productId").GetInt64());
+        Assert.Equal(ProductA, item.GetProperty("productId").GetGuid());
         Assert.Equal(2, item.GetProperty("quantity").GetInt32());
         Assert.Equal(20m, cart.GetProperty("totalPriceAmount").GetDecimal());
         Assert.Equal("BDT", cart.GetProperty("totalPriceCurrency").GetString());
@@ -46,13 +51,13 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task AddItem_ToExistingCart_AddsItemsAndMergesSameProduct()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 2, price: 10m));
+        await AddAsync(client, Item(productId: ProductA, quantity: 2, price: 10m));
 
-        await AddAsync(client, Item(productId: 2, quantity: 1, price: 5m));
-        JsonElement cart = await AddAsync(client, Item(productId: 1, quantity: 3, price: 10m));
+        await AddAsync(client, Item(productId: ProductB, quantity: 1, price: 5m));
+        JsonElement cart = await AddAsync(client, Item(productId: ProductA, quantity: 3, price: 10m));
 
         Assert.Equal(2, cart.GetProperty("cartItems").GetArrayLength());
-        Assert.Equal(5, QuantityOf(cart, productId: 1));
+        Assert.Equal(5, QuantityOf(cart, productId: ProductA));
         Assert.Equal(55m, cart.GetProperty("totalPriceAmount").GetDecimal());
     }
 
@@ -60,9 +65,9 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task AddItem_InDifferentCurrency_IsRejectedAndCartUnchanged()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 1, price: 10m, currency: "BDT"));
+        await AddAsync(client, Item(productId: ProductA, quantity: 1, price: 10m, currency: "BDT"));
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: 2, quantity: 1, price: 10m, currency: "USD"), Ct);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: ProductB, quantity: 1, price: 10m, currency: "USD"), Ct);
 
         await AssertErrorAsync(response, HttpStatusCode.BadRequest, "Cart.MixedCurrencies");
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
@@ -73,13 +78,13 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task AddItem_AboveMaxQuantityInTotal_IsRejectedAndCartUnchanged()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 600, price: 1m));
+        await AddAsync(client, Item(productId: ProductA, quantity: 600, price: 1m));
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: 1, quantity: 600, price: 1m), Ct);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: ProductA, quantity: 600, price: 1m), Ct);
 
         await AssertErrorAsync(response, HttpStatusCode.BadRequest, "Cart.InvalidQuantity");
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
-        Assert.Equal(600, QuantityOf(cart, productId: 1));
+        Assert.Equal(600, QuantityOf(cart, productId: ProductA));
     }
 
     [Theory]
@@ -89,7 +94,7 @@ public sealed class CartApiTests(SystemFixture system)
     {
         using HttpClient client = CreateCustomer(out _);
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: 1, quantity: quantity, price: 1m), Ct);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: ProductA, quantity: quantity, price: 1m), Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
@@ -105,7 +110,7 @@ public sealed class CartApiTests(SystemFixture system)
     {
         using HttpClient client = CreateCustomer(out _);
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: 1, quantity: quantity, price: price, currency: currency, name: name), Ct);
+        HttpResponseMessage response = await client.PostAsJsonAsync(ItemsUrl, Item(productId: ProductA, quantity: quantity, price: price, currency: currency, name: name), Ct);
 
         string[] properties = await AssertValidationErrorAsync(response);
         Assert.Contains(property, properties);
@@ -115,13 +120,13 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task UpdateItemQuantity_SetsQuantity()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 2, price: 10m));
+        await AddAsync(client, Item(productId: ProductA, quantity: 2, price: 10m));
 
-        HttpResponseMessage response = await client.PutAsJsonAsync($"{ItemsUrl}/1", new { quantity = 7 }, Ct);
+        HttpResponseMessage response = await client.PutAsJsonAsync($"{ItemsUrl}/{ProductA}", new { quantity = 7 }, Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
-        Assert.Equal(7, QuantityOf(cart, productId: 1));
+        Assert.Equal(7, QuantityOf(cart, productId: ProductA));
         Assert.Equal(70m, cart.GetProperty("totalPriceAmount").GetDecimal());
     }
 
@@ -129,15 +134,15 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task UpdateItemQuantity_ToZero_RemovesItem()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 2, price: 10m));
-        await AddAsync(client, Item(productId: 2, quantity: 1, price: 5m));
+        await AddAsync(client, Item(productId: ProductA, quantity: 2, price: 10m));
+        await AddAsync(client, Item(productId: ProductB, quantity: 1, price: 5m));
 
-        HttpResponseMessage response = await client.PutAsJsonAsync($"{ItemsUrl}/1", new { quantity = 0 }, Ct);
+        HttpResponseMessage response = await client.PutAsJsonAsync($"{ItemsUrl}/{ProductA}", new { quantity = 0 }, Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
         JsonElement item = Assert.Single([.. cart.GetProperty("cartItems").EnumerateArray()]);
-        Assert.Equal(2, item.GetProperty("productId").GetInt64());
+        Assert.Equal(ProductB, item.GetProperty("productId").GetGuid());
     }
 
     [Fact]
@@ -145,7 +150,7 @@ public sealed class CartApiTests(SystemFixture system)
     {
         using HttpClient client = CreateCustomer(out _);
 
-        HttpResponseMessage response = await client.PutAsJsonAsync($"{ItemsUrl}/1", new { quantity = 3 }, Ct);
+        HttpResponseMessage response = await client.PutAsJsonAsync($"{ItemsUrl}/{ProductA}", new { quantity = 3 }, Ct);
 
         await AssertErrorAsync(response, HttpStatusCode.NotFound, "Cart.ItemNotFound");
     }
@@ -154,28 +159,28 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task UpdateItemQuantity_ForProductNotInCart_ReturnsItemNotFoundAndCartUnchanged()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 2, price: 10m));
+        await AddAsync(client, Item(productId: ProductA, quantity: 2, price: 10m));
 
-        HttpResponseMessage response = await client.PutAsJsonAsync($"{ItemsUrl}/99", new { quantity = 3 }, Ct);
+        HttpResponseMessage response = await client.PutAsJsonAsync($"{ItemsUrl}/{UnknownProduct}", new { quantity = 3 }, Ct);
 
         await AssertErrorAsync(response, HttpStatusCode.NotFound, "Cart.ItemNotFound");
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
-        Assert.Equal(2, QuantityOf(cart, productId: 1));
+        Assert.Equal(2, QuantityOf(cart, productId: ProductA));
     }
 
     [Fact]
     public async Task RemoveItem_RemovesIt()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 2, price: 10m));
-        await AddAsync(client, Item(productId: 2, quantity: 1, price: 5m));
+        await AddAsync(client, Item(productId: ProductA, quantity: 2, price: 10m));
+        await AddAsync(client, Item(productId: ProductB, quantity: 1, price: 5m));
 
-        HttpResponseMessage response = await client.DeleteAsync($"{ItemsUrl}/1", Ct);
+        HttpResponseMessage response = await client.DeleteAsync($"{ItemsUrl}/{ProductA}", Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
         JsonElement item = Assert.Single([.. cart.GetProperty("cartItems").EnumerateArray()]);
-        Assert.Equal(2, item.GetProperty("productId").GetInt64());
+        Assert.Equal(ProductB, item.GetProperty("productId").GetGuid());
         Assert.Equal(5m, cart.GetProperty("totalPriceAmount").GetDecimal());
     }
 
@@ -184,7 +189,7 @@ public sealed class CartApiTests(SystemFixture system)
     {
         using HttpClient client = CreateCustomer(out _);
 
-        HttpResponseMessage response = await client.DeleteAsync($"{ItemsUrl}/1", Ct);
+        HttpResponseMessage response = await client.DeleteAsync($"{ItemsUrl}/{ProductA}", Ct);
 
         await AssertErrorAsync(response, HttpStatusCode.NotFound, "Cart.ItemNotFound");
     }
@@ -193,9 +198,9 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task RemoveItem_ForProductNotInCart_ReturnsItemNotFoundAndCartUnchanged()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 2, price: 10m));
+        await AddAsync(client, Item(productId: ProductA, quantity: 2, price: 10m));
 
-        HttpResponseMessage response = await client.DeleteAsync($"{ItemsUrl}/99", Ct);
+        HttpResponseMessage response = await client.DeleteAsync($"{ItemsUrl}/{UnknownProduct}", Ct);
 
         await AssertErrorAsync(response, HttpStatusCode.NotFound, "Cart.ItemNotFound");
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
@@ -206,7 +211,7 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task ClearCart_RemovesStoredCart()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 2, price: 10m));
+        await AddAsync(client, Item(productId: ProductA, quantity: 2, price: 10m));
 
         HttpResponseMessage response = await client.DeleteAsync(CartUrl, Ct);
 
@@ -219,17 +224,17 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task ReplaceCart_WithItems_StoresNewCartWithMergedItems()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 9, quantity: 1, price: 1m));
+        await AddAsync(client, Item(productId: ProductC, quantity: 1, price: 1m));
 
         HttpResponseMessage response = await client.PutAsJsonAsync(
             CartUrl,
-            new { cartItems = new[] { Item(productId: 1, quantity: 2, price: 10m), Item(productId: 1, quantity: 1, price: 10m), Item(productId: 2, quantity: 1, price: 5m) } },
+            new { cartItems = new[] { Item(productId: ProductA, quantity: 2, price: 10m), Item(productId: ProductA, quantity: 1, price: 10m), Item(productId: ProductB, quantity: 1, price: 5m) } },
             Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
         Assert.Equal(2, cart.GetProperty("cartItems").GetArrayLength());
-        Assert.Equal(3, QuantityOf(cart, productId: 1));
+        Assert.Equal(3, QuantityOf(cart, productId: ProductA));
         Assert.Equal(35m, cart.GetProperty("totalPriceAmount").GetDecimal());
     }
 
@@ -237,7 +242,7 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task ReplaceCart_WithEmptyList_RemovesCart()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 1, quantity: 2, price: 10m));
+        await AddAsync(client, Item(productId: ProductA, quantity: 2, price: 10m));
 
         HttpResponseMessage response = await client.PutAsJsonAsync(CartUrl, new { cartItems = Array.Empty<object>() }, Ct);
 
@@ -250,17 +255,17 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task ReplaceCart_WithMixedCurrencies_IsRejectedAndCartUnchanged()
     {
         using HttpClient client = CreateCustomer(out _);
-        await AddAsync(client, Item(productId: 9, quantity: 1, price: 1m));
+        await AddAsync(client, Item(productId: ProductC, quantity: 1, price: 1m));
 
         HttpResponseMessage response = await client.PutAsJsonAsync(
             CartUrl,
-            new { cartItems = new[] { Item(productId: 1, quantity: 1, price: 10m, currency: "BDT"), Item(productId: 2, quantity: 1, price: 10m, currency: "USD") } },
+            new { cartItems = new[] { Item(productId: ProductA, quantity: 1, price: 10m, currency: "BDT"), Item(productId: ProductB, quantity: 1, price: 10m, currency: "USD") } },
             Ct);
 
         string[] properties = await AssertValidationErrorAsync(response);
         Assert.Contains("CartItems", properties);
         JsonElement cart = await client.GetFromJsonAsync<JsonElement>(CartUrl, Ct);
-        Assert.Equal(9, cart.GetProperty("cartItems")[0].GetProperty("productId").GetInt64());
+        Assert.Equal(ProductC, cart.GetProperty("cartItems")[0].GetProperty("productId").GetGuid());
     }
 
     [Fact]
@@ -270,7 +275,7 @@ public sealed class CartApiTests(SystemFixture system)
 
         HttpResponseMessage response = await client.PutAsJsonAsync(
             CartUrl,
-            new { cartItems = new[] { Item(productId: 1, quantity: 1, price: 10m), Item(productId: 2, quantity: 0, price: 10m) } },
+            new { cartItems = new[] { Item(productId: ProductA, quantity: 1, price: 10m), Item(productId: ProductB, quantity: 0, price: 10m) } },
             Ct);
 
         string[] properties = await AssertValidationErrorAsync(response);
@@ -281,7 +286,7 @@ public sealed class CartApiTests(SystemFixture system)
     public async Task ReplaceCart_WithMoreThanMaxItems_ReturnsValidationError()
     {
         using HttpClient client = CreateCustomer(out _);
-        object[] items = [.. Enumerable.Range(1, 101).Select(productId => Item(productId, quantity: 1, price: 1m))];
+        object[] items = [.. Enumerable.Range(0, 101).Select(_ => Item(Guid.CreateVersion7(), quantity: 1, price: 1m))];
 
         HttpResponseMessage response = await client.PutAsJsonAsync(CartUrl, new { cartItems = items }, Ct);
 
@@ -289,14 +294,14 @@ public sealed class CartApiTests(SystemFixture system)
         Assert.Contains("CartItems", properties);
     }
 
-    private HttpClient CreateCustomer(out long userId)
+    private HttpClient CreateCustomer(out Guid userId)
     {
         userId = TestJwt.NewUserId();
 
         return SystemFixture.CreateClient(system.Cart, TestJwt.Create(userId));
     }
 
-    private static object Item(long productId, int quantity, decimal price, string currency = "BDT", string name = "Widget")
+    private static object Item(Guid productId, int quantity, decimal price, string currency = "BDT", string name = "Widget")
     {
         return new { productId, productName = name, priceAmount = price, priceCurrency = currency, quantity };
     }
@@ -309,10 +314,10 @@ public sealed class CartApiTests(SystemFixture system)
         return await response.Content.ReadFromJsonAsync<JsonElement>(Ct);
     }
 
-    private static int QuantityOf(JsonElement cart, long productId)
+    private static int QuantityOf(JsonElement cart, Guid productId)
     {
         return cart.GetProperty("cartItems").EnumerateArray()
-            .Single(item => item.GetProperty("productId").GetInt64() == productId)
+            .Single(item => item.GetProperty("productId").GetGuid() == productId)
             .GetProperty("quantity").GetInt32();
     }
 

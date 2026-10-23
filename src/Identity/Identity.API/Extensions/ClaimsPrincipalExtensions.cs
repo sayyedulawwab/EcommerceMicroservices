@@ -1,15 +1,14 @@
-using System.Globalization;
 using System.Security.Claims;
 
 namespace Identity.API.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {
-    public static long? GetUserId(this ClaimsPrincipal? principal)
+    public static Guid? GetUserId(this ClaimsPrincipal? principal)
     {
         string? value = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        return long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long userId)
+        return Guid.TryParse(value, out Guid userId)
             ? userId
             : null;
     }

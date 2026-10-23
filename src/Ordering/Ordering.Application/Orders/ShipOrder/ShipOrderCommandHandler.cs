@@ -15,7 +15,7 @@ internal sealed class ShipOrderCommandHandler(
     public async Task<Result> Handle(ShipOrderCommand request, CancellationToken cancellationToken)
     {
         Order? order = await dbContext.Orders
-            .FirstOrDefaultAsync(order => order.Id == request.OrderId, cancellationToken);
+            .FirstOrDefaultAsync(order => order.Id == new OrderId(request.OrderId), cancellationToken);
 
         if (order is null)
         {

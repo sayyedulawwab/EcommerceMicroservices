@@ -2,4 +2,4 @@
 
 namespace Catalog.Application.Categories.DeleteCategory;
 
-public record DeleteCategoryCommand(long Id) : ICommand<long>;
+public record DeleteCategoryCommand(Guid Id) : ICommand<Guid>;

@@ -16,9 +16,9 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long first = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, name: "First product");
-        long second = await CatalogApi.CreateProductAsync(admin, price: 20, quantity: 8, name: "Second product");
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid first = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, name: "First product");
+        Guid second = await CatalogApi.CreateProductAsync(admin, price: 20, quantity: 8, name: "Second product");
+        Guid orderId = CatalogTestSupport.NewOrderId();
 
         await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, new OrderStockItem(first, 2), new OrderStockItem(second, 3));
 
@@ -40,8 +40,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 10);
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 10);
+        Guid orderId = CatalogTestSupport.NewOrderId();
 
         await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, new OrderStockItem(productId, 2), new OrderStockItem(productId, 3));
 
@@ -57,8 +57,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 4);
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 4);
+        Guid orderId = CatalogTestSupport.NewOrderId();
 
         await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, new OrderStockItem(productId, 3), new OrderStockItem(productId, 3));
 
@@ -73,9 +73,9 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long knownProduct = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long unknownProduct = long.MaxValue;
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid knownProduct = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        var unknownProduct = Guid.CreateVersion7();
+        Guid orderId = CatalogTestSupport.NewOrderId();
 
         await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, new OrderStockItem(knownProduct, 1), new OrderStockItem(unknownProduct, 1));
 
@@ -90,10 +90,10 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long shortOne = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 1);
-        long shortTwo = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 2);
-        long enough = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 9);
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid shortOne = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 1);
+        Guid shortTwo = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 2);
+        Guid enough = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 9);
+        Guid orderId = CatalogTestSupport.NewOrderId();
 
         await CatalogTestSupport.PublishOrderPlacedAsync(
             system,
@@ -117,9 +117,9 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long inBdt = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, currency: "BDT");
-        long inUsd = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, currency: "USD");
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid inBdt = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, currency: "BDT");
+        Guid inUsd = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5, currency: "USD");
+        Guid orderId = CatalogTestSupport.NewOrderId();
 
         await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, new OrderStockItem(inBdt, 1), new OrderStockItem(inUsd, 1));
 
@@ -135,7 +135,7 @@ public sealed class StockConsumerTests(SystemFixture system)
     public async Task OrderPlaced_WithoutItems_IsRejectedWithTheValidationError()
     {
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid orderId = CatalogTestSupport.NewOrderId();
 
         await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId);
 
@@ -152,8 +152,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid orderId = CatalogTestSupport.NewOrderId();
 
         await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, new OrderStockItem(productId, quantity));
 
@@ -168,8 +168,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 10);
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 10);
+        Guid orderId = CatalogTestSupport.NewOrderId();
 
         await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, new OrderStockItem(productId, 4));
         await probe.WaitForAnswersAsync(orderId, 1);
@@ -187,8 +187,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 10);
-        long orderId = CatalogTestSupport.NewOrderId();
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 10);
+        Guid orderId = CatalogTestSupport.NewOrderId();
         await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, new OrderStockItem(productId, 4));
         await probe.WaitForAnswersAsync(orderId, 1);
         await CatalogTestSupport.PublishOrderCancelledAsync(system, orderId);
@@ -205,9 +205,9 @@ public sealed class StockConsumerTests(SystemFixture system)
     public async Task OrderCancelled_ReleasesTheReservedStock()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long first = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long second = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 6);
-        long orderId = await ReserveAsync(first, 2, second, 3);
+        Guid first = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid second = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 6);
+        Guid orderId = await ReserveAsync((first, 2), (second, 3));
         Assert.Equal(3, await CatalogApi.GetStockAsync(admin, first));
 
         await CatalogTestSupport.PublishOrderCancelledAsync(system, orderId);
@@ -222,8 +222,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     public async Task OrderCancelled_Twice_ReleasesTheStockOnlyOnce()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long orderId = await ReserveAsync(productId, 2);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid orderId = await ReserveAsync((productId, 2));
 
         await CatalogTestSupport.PublishOrderCancelledAsync(system, orderId);
         await WaitForStatusAsync(orderId, productId, ReservationStatus.Released);
@@ -237,8 +237,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     public async Task OrderCancelled_AfterTheOrderWasPaid_DoesNotReleaseTheCommittedStock()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long orderId = await ReserveAsync(productId, 2);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid orderId = await ReserveAsync((productId, 2));
         await CatalogTestSupport.PublishOrderPaidAsync(system, orderId);
         await WaitForStatusAsync(orderId, productId, ReservationStatus.Committed);
 
@@ -253,8 +253,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     public async Task OrderCancelled_WhenTheProductWasDeleted_StillReleasesTheReservation()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long orderId = await ReserveAsync(productId, 2);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid orderId = await ReserveAsync((productId, 2));
         Assert.Equal(HttpStatusCode.OK, (await admin.DeleteAsync($"/api/v1/products/{productId}", TestContext.Current.CancellationToken)).StatusCode);
 
         await CatalogTestSupport.PublishOrderCancelledAsync(system, orderId);
@@ -267,8 +267,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 1);
-        long rejectedOrderId = CatalogTestSupport.NewOrderId();
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 1);
+        Guid rejectedOrderId = CatalogTestSupport.NewOrderId();
         await CatalogTestSupport.PublishOrderPlacedAsync(system, rejectedOrderId, new OrderStockItem(productId, 5));
         await probe.WaitForRejectedAsync(rejectedOrderId);
 
@@ -283,9 +283,9 @@ public sealed class StockConsumerTests(SystemFixture system)
     public async Task OrderPaid_CommitsTheReservations_SoTheyAreNotReleasedAnyMore()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long first = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long second = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long orderId = await ReserveAsync(first, 1, second, 2);
+        Guid first = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid second = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid orderId = await ReserveAsync((first, 1), (second, 2));
 
         await CatalogTestSupport.PublishOrderPaidAsync(system, orderId);
         await WaitForStatusAsync(orderId, first, ReservationStatus.Committed);
@@ -299,8 +299,8 @@ public sealed class StockConsumerTests(SystemFixture system)
     public async Task OrderPaid_WithoutActiveReservations_ChangesNothing()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
-        long releasedOrderId = await ReserveAsync(productId, 2);
+        Guid productId = await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 5);
+        Guid releasedOrderId = await ReserveAsync((productId, 2));
         await CatalogTestSupport.PublishOrderCancelledAsync(system, releasedOrderId);
         await WaitForStatusAsync(releasedOrderId, productId, ReservationStatus.Released);
 
@@ -312,25 +312,20 @@ public sealed class StockConsumerTests(SystemFixture system)
         Assert.Equal(5, await CatalogApi.GetStockAsync(admin, productId));
     }
 
-    /// <summary>Places an order for the given (productId, quantity) pairs and waits until Catalog confirmed it.</summary>
-    private async Task<long> ReserveAsync(params long[] productQuantityPairs)
+    /// <summary>Places an order for the given (productId, quantity) tuples and waits until Catalog confirmed it.</summary>
+    private async Task<Guid> ReserveAsync(params (Guid ProductId, int Quantity)[] reservations)
     {
         await using StockEventProbe probe = await StockEventProbe.StartAsync(system);
-        long orderId = CatalogTestSupport.NewOrderId();
-        var items = new List<OrderStockItem>();
+        Guid orderId = CatalogTestSupport.NewOrderId();
+        OrderStockItem[] items = [.. reservations.Select(reservation => new OrderStockItem(reservation.ProductId, reservation.Quantity))];
 
-        for (int i = 0; i < productQuantityPairs.Length; i += 2)
-        {
-            items.Add(new OrderStockItem(productQuantityPairs[i], (int)productQuantityPairs[i + 1]));
-        }
-
-        await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, [.. items]);
+        await CatalogTestSupport.PublishOrderPlacedAsync(system, orderId, items);
         await probe.WaitForConfirmedAsync(orderId);
 
         return orderId;
     }
 
-    private Task<IReadOnlyList<ReservationRow>> WaitForStatusAsync(long orderId, long productId, ReservationStatus status)
+    private Task<IReadOnlyList<ReservationRow>> WaitForStatusAsync(Guid orderId, Guid productId, ReservationStatus status)
     {
         return Eventually.UntilAsync(
             () => CatalogTestSupport.GetReservationsAsync(system, orderId),
@@ -344,10 +339,10 @@ public sealed class StockConsumerTests(SystemFixture system)
 
     private Task WaitForPaidQueueToDrainAsync(HttpClient admin) => WaitForMarkerAsync(admin, CatalogTestSupport.PublishOrderPaidAsync, ReservationStatus.Committed);
 
-    private async Task WaitForMarkerAsync(HttpClient admin, Func<SystemFixture, long, Task> publish, ReservationStatus expected)
+    private async Task WaitForMarkerAsync(HttpClient admin, Func<SystemFixture, Guid, Task> publish, ReservationStatus expected)
     {
-        long markerProduct = await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1);
-        long markerOrder = await ReserveAsync(markerProduct, 1);
+        Guid markerProduct = await CatalogApi.CreateProductAsync(admin, price: 1, quantity: 1);
+        Guid markerOrder = await ReserveAsync((markerProduct, 1));
 
         await publish(system, markerOrder);
         await WaitForStatusAsync(markerOrder, markerProduct, expected);

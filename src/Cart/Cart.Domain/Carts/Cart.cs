@@ -5,9 +5,9 @@ namespace Cart.Domain.Carts;
 /// <summary>
 /// A shopping cart. Names and prices here are what the client showed the user; the order uses Catalog's prices.
 /// </summary>
-public sealed class Cart : Entity<Guid>
+public sealed class Cart : Entity<CartId>
 {
-    public Cart(Guid id, long userId, Money totalPrice, DateTime createdOnUtc) : base(id)
+    public Cart(CartId id, Guid userId, Money totalPrice, DateTime createdOnUtc) : base(id)
     {
         UserId = userId;
         TotalPrice = totalPrice;
@@ -21,21 +21,21 @@ public sealed class Cart : Entity<Guid>
     }
     #pragma warning restore CS8618
 
-    public long UserId { get; private set; }
+    public Guid UserId { get; private set; }
     public Money TotalPrice { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
     public DateTime? UpdatedOnUtc { get; private set; }
     public List<CartItem> CartItems { get; private set; } = [];
 
-    public static Cart Create(long userId, DateTime createdOnUtc)
+    public static Cart Create(Guid userId, DateTime createdOnUtc)
     {
-        var cart = new Cart(Guid.NewGuid(), userId, Money.Zero(), createdOnUtc);
+        var cart = new Cart(CartId.New(), userId, Money.Zero(), createdOnUtc);
 
         return cart;
     }
 
     /// <summary>Adds the product, or increases its quantity if it is already in the cart.</summary>
-    public Result AddItem(long productId, string productName, Money price, int quantity, DateTime utcNow)
+    public Result AddItem(Guid productId, string productName, Money price, int quantity, DateTime utcNow)
     {
         CartItem? existingItem = CartItems.Find(item => item.ProductId == productId);
         int newQuantity = (existingItem?.Quantity ?? 0) + quantity;
@@ -63,7 +63,7 @@ public sealed class Cart : Entity<Guid>
     }
 
     /// <summary>Sets the quantity of a product in the cart; zero removes it.</summary>
-    public Result SetItemQuantity(long productId, int quantity, DateTime utcNow)
+    public Result SetItemQuantity(Guid productId, int quantity, DateTime utcNow)
     {
         if (quantity < 0 || quantity > CartItem.MaxQuantity)
         {
@@ -89,7 +89,7 @@ public sealed class Cart : Entity<Guid>
         return Changed(utcNow);
     }
 
-    public Result RemoveItem(long productId, DateTime utcNow)
+    public Result RemoveItem(Guid productId, DateTime utcNow)
     {
         int removed = CartItems.RemoveAll(item => item.ProductId == productId);
 

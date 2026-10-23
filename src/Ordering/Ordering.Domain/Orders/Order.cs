@@ -6,11 +6,12 @@ namespace Ordering.Domain.Orders;
 /// Placed → StockConfirmed → Paid → Shipped → Delivered.
 /// Placed and StockConfirmed orders can be Cancelled (by the customer, a stock rejection or a failed payment).
 /// </summary>
-public sealed class Order : Entity<long>
+public sealed class Order : Entity<OrderId>
 {
     public const int MaxCancellationReasonLength = 500;
 
-    private Order(long userId, DateTime createdOnUtc)
+    private Order(OrderId id, Guid userId, DateTime createdOnUtc)
+        : base(id)
     {
         UserId = userId;
         TotalPrice = Money.Zero();
@@ -18,7 +19,7 @@ public sealed class Order : Entity<long>
         CreatedOnUtc = createdOnUtc;
     }
 
-    public long UserId { get; private set; }
+    public Guid UserId { get; private set; }
     public Money TotalPrice { get; private set; }
     public OrderStatus Status { get; private set; }
     public string? CancellationReason { get; private set; }
@@ -28,7 +29,7 @@ public sealed class Order : Entity<long>
 
     public bool CanBeCancelled => Status is OrderStatus.Placed or OrderStatus.StockConfirmed;
 
-    public static Result<Order> Place(long userId, IReadOnlyCollection<OrderLine> lines, DateTime createdOnUtc)
+    public static Result<Order> Place(Guid userId, IReadOnlyCollection<OrderLine> lines, DateTime createdOnUtc)
     {
         if (lines.Count == 0)
         {
@@ -42,12 +43,12 @@ public sealed class Order : Entity<long>
             return Result.Failure<Order>(OrderErrors.InvalidQuantity(invalidLine.ProductId));
         }
 
-        var order = new Order(userId, createdOnUtc);
+        var order = new Order(OrderId.New(), userId, createdOnUtc);
 
         // The same product listed twice becomes one item with the combined quantity.
-        foreach (IGrouping<long, OrderLine> productLines in lines.GroupBy(line => line.ProductId))
+        foreach (IGrouping<Guid, OrderLine> productLines in lines.GroupBy(line => line.ProductId))
         {
-            order.OrderItems.Add(OrderItem.Create(productLines.Key, productLines.Sum(line => line.Quantity), createdOnUtc));
+            order.OrderItems.Add(OrderItem.Create(order.Id, productLines.Key, productLines.Sum(line => line.Quantity), createdOnUtc));
         }
 
         return order;

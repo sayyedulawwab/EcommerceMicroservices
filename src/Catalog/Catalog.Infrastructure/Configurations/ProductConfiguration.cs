@@ -1,4 +1,5 @@
-﻿using Catalog.Domain.Products;
+﻿using Catalog.Domain.Categories;
+using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SharedKernel.Domain;
@@ -11,10 +12,17 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
         builder.ToTable("Products");
 
-        builder.HasKey(product => product.Id);
+        builder.HasKey(product => product.Id).IsClustered(false);
 
         builder.Property(product => product.Id)
-               .ValueGeneratedOnAdd();
+               .HasConversion(productId => productId.Value, value => new ProductId(value));
+
+        builder.Property<long>("ClusterId").UseIdentityColumn();
+
+        builder.HasIndex("ClusterId").IsClustered();
+
+        builder.Property(product => product.CategoryId)
+               .HasConversion(categoryId => categoryId.Value, value => new CategoryId(value));
 
         builder.Property(product => product.Name)
                .HasMaxLength(200);

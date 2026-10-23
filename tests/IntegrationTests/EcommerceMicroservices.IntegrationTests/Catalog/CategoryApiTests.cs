@@ -26,12 +26,12 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task AddCategory_WithExistingParent_CreatesAChildCategory()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long parentId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid parentId = await CatalogApi.CreateCategoryAsync(admin);
 
-        long childId = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: parentId);
+        Guid childId = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: parentId);
 
         JsonElement child = await GetCategoryAsync(admin, childId);
-        Assert.Equal(parentId, child.GetProperty("parentCategoryId").GetInt64());
+        Assert.Equal(parentId, child.GetProperty("parentCategoryId").GetGuid());
     }
 
     [Fact]
@@ -42,7 +42,7 @@ public sealed class CategoryApiTests(SystemFixture system)
 
         HttpResponseMessage response = await admin.PostAsJsonAsync(
             "/api/v1/categories",
-            new { name, description = "x", parentCategoryId = long.MaxValue },
+            new { name, description = "x", parentCategoryId = Guid.CreateVersion7() },
             Ct);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -69,8 +69,8 @@ public sealed class CategoryApiTests(SystemFixture system)
 
         Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.PostAsJsonAsync("/api/v1/categories", category, Ct)).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await customer.PostAsJsonAsync("/api/v1/categories", category, Ct)).StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, (await customer.PutAsJsonAsync("/api/v1/categories/1", category, Ct)).StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, (await customer.DeleteAsync("/api/v1/categories/1", Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await customer.PutAsJsonAsync($"/api/v1/categories/{Guid.CreateVersion7()}", category, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await customer.DeleteAsync($"/api/v1/categories/{Guid.CreateVersion7()}", Ct)).StatusCode);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public sealed class CategoryApiTests(SystemFixture system)
     {
         using HttpClient anonymous = SystemFixture.CreateClient(system.Catalog);
 
-        HttpResponseMessage response = await anonymous.GetAsync($"/api/v1/categories/{long.MaxValue}", Ct);
+        HttpResponseMessage response = await anonymous.GetAsync($"/api/v1/categories/{Guid.CreateVersion7()}", Ct);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -87,21 +87,21 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task GetCategories_ListsEveryCategory()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long first = await CatalogApi.CreateCategoryAsync(admin);
-        long second = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: first);
+        Guid first = await CatalogApi.CreateCategoryAsync(admin);
+        Guid second = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: first);
 
         JsonElement[] categories = await GetAllCategoriesAsync(admin);
 
-        Assert.Contains(categories, c => c.GetProperty("id").GetInt64() == first);
-        JsonElement child = Assert.Single(categories, c => c.GetProperty("id").GetInt64() == second);
-        Assert.Equal(first, child.GetProperty("parentCategoryId").GetInt64());
+        Assert.Contains(categories, c => c.GetProperty("id").GetGuid() == first);
+        JsonElement child = Assert.Single(categories, c => c.GetProperty("id").GetGuid() == second);
+        Assert.Equal(first, child.GetProperty("parentCategoryId").GetGuid());
     }
 
     [Fact]
     public async Task DeleteCategory_Unused_RemovesIt()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
 
         HttpResponseMessage response = await admin.DeleteAsync($"/api/v1/categories/{categoryId}", Ct);
 
@@ -113,7 +113,7 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task DeleteCategory_WithChildren_IsAConflict_AndKeepsIt()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
         await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: categoryId);
 
         HttpResponseMessage response = await admin.DeleteAsync($"/api/v1/categories/{categoryId}", Ct);
@@ -127,7 +127,7 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task DeleteCategory_WithProducts_IsAConflict_AndKeepsIt()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long categoryId = await CatalogApi.CreateCategoryAsync(admin);
+        Guid categoryId = await CatalogApi.CreateCategoryAsync(admin);
         await CatalogApi.CreateProductAsync(admin, price: 10, quantity: 1, categoryId: categoryId);
 
         HttpResponseMessage response = await admin.DeleteAsync($"/api/v1/categories/{categoryId}", Ct);
@@ -142,7 +142,7 @@ public sealed class CategoryApiTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
 
-        HttpResponseMessage response = await admin.DeleteAsync($"/api/v1/categories/{long.MaxValue}", Ct);
+        HttpResponseMessage response = await admin.DeleteAsync($"/api/v1/categories/{Guid.CreateVersion7()}", Ct);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -152,7 +152,7 @@ public sealed class CategoryApiTests(SystemFixture system)
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
 
-        HttpResponseMessage response = await EditAsync(admin, long.MaxValue, parentCategoryId: null);
+        HttpResponseMessage response = await EditAsync(admin, Guid.CreateVersion7(), parentCategoryId: null);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -161,8 +161,8 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task EditCategory_WithParentInAnotherBranch_UpdatesTheCategory()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long otherBranch = await CatalogApi.CreateCategoryAsync(admin);
-        long category = await CatalogApi.CreateCategoryAsync(admin);
+        Guid otherBranch = await CatalogApi.CreateCategoryAsync(admin);
+        Guid category = await CatalogApi.CreateCategoryAsync(admin);
 
         HttpResponseMessage response = await EditAsync(admin, category, otherBranch, name: "Renamed", description: "New description");
 
@@ -170,7 +170,7 @@ public sealed class CategoryApiTests(SystemFixture system)
         JsonElement stored = await GetCategoryAsync(admin, category);
         Assert.Equal("Renamed", stored.GetProperty("name").GetString());
         Assert.Equal("New description", stored.GetProperty("description").GetString());
-        Assert.Equal(otherBranch, stored.GetProperty("parentCategoryId").GetInt64());
+        Assert.Equal(otherBranch, stored.GetProperty("parentCategoryId").GetGuid());
         Assert.NotEqual(JsonValueKind.Null, stored.GetProperty("updatedOnUtc").ValueKind);
     }
 
@@ -178,8 +178,8 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task EditCategory_WithNullParent_MakesItARootCategory()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long parent = await CatalogApi.CreateCategoryAsync(admin);
-        long child = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: parent);
+        Guid parent = await CatalogApi.CreateCategoryAsync(admin);
+        Guid child = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: parent);
 
         HttpResponseMessage response = await EditAsync(admin, child, parentCategoryId: null);
 
@@ -191,9 +191,9 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task EditCategory_WithUnknownParent_IsRejected()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long category = await CatalogApi.CreateCategoryAsync(admin);
+        Guid category = await CatalogApi.CreateCategoryAsync(admin);
 
-        HttpResponseMessage response = await EditAsync(admin, category, long.MaxValue);
+        HttpResponseMessage response = await EditAsync(admin, category, Guid.CreateVersion7());
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Category.ParentNotFound", await CatalogTestSupport.ReadErrorNameAsync(response));
@@ -203,7 +203,7 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task EditCategory_WithItselfAsParent_IsRejected()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long category = await CatalogApi.CreateCategoryAsync(admin);
+        Guid category = await CatalogApi.CreateCategoryAsync(admin);
 
         HttpResponseMessage response = await EditAsync(admin, category, category);
 
@@ -215,8 +215,8 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task EditCategory_WithItsDirectChildAsParent_IsRejected()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long category = await CatalogApi.CreateCategoryAsync(admin);
-        long child = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: category);
+        Guid category = await CatalogApi.CreateCategoryAsync(admin);
+        Guid child = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: category);
 
         HttpResponseMessage response = await EditAsync(admin, category, child);
 
@@ -229,9 +229,9 @@ public sealed class CategoryApiTests(SystemFixture system)
     public async Task EditCategory_WithADescendantAsParent_IsRejected()
     {
         using HttpClient admin = CatalogTestSupport.CreateAdminClient(system);
-        long category = await CatalogApi.CreateCategoryAsync(admin);
-        long child = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: category);
-        long grandChild = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: child);
+        Guid category = await CatalogApi.CreateCategoryAsync(admin);
+        Guid child = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: category);
+        Guid grandChild = await CatalogApi.CreateCategoryAsync(admin, parentCategoryId: child);
 
         HttpResponseMessage response = await EditAsync(admin, category, grandChild);
 
@@ -241,12 +241,12 @@ public sealed class CategoryApiTests(SystemFixture system)
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
-    private static Task<HttpResponseMessage> EditAsync(HttpClient admin, long id, long? parentCategoryId, string name = "Edited", string description = "Edited by an integration test")
+    private static Task<HttpResponseMessage> EditAsync(HttpClient admin, Guid id, Guid? parentCategoryId, string name = "Edited", string description = "Edited by an integration test")
     {
         return admin.PutAsJsonAsync($"/api/v1/categories/{id}", new { name, description, parentCategoryId }, Ct);
     }
 
-    private static async Task<JsonElement> GetCategoryAsync(HttpClient client, long id)
+    private static async Task<JsonElement> GetCategoryAsync(HttpClient client, Guid id)
     {
         HttpResponseMessage response = await client.GetAsync($"/api/v1/categories/{id}", Ct);
 

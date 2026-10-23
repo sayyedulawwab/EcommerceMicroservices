@@ -18,9 +18,9 @@ internal sealed class CancelOrderCommandHandler(
     public async Task<Result> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
     {
         Order? order = await dbContext.Orders
-            .FirstOrDefaultAsync(order => order.Id == request.OrderId, cancellationToken);
+            .FirstOrDefaultAsync(order => order.Id == new OrderId(request.OrderId), cancellationToken);
 
-        if (order is null || (request.RequestedByUserId is long userId && order.UserId != userId))
+        if (order is null || (request.RequestedByUserId is Guid userId && order.UserId != userId))
         {
             return Result.Failure(OrderErrors.NotFound());
         }
@@ -38,7 +38,7 @@ internal sealed class CancelOrderCommandHandler(
         }
 
         // Catalog releases whatever stock it reserved for the order (nothing, if it never reserved any).
-        await publishEndpoint.Publish(new OrderCancelledIntegrationEvent(order.Id, order.CancellationReason ?? request.Reason), cancellationToken);
+        await publishEndpoint.Publish(new OrderCancelledIntegrationEvent(order.Id.Value, order.CancellationReason ?? request.Reason), cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

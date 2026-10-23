@@ -7,14 +7,14 @@ public class ReserveStockCommandValidator : AbstractValidator<ReserveStockComman
     public ReserveStockCommandValidator()
     {
         RuleFor(c => c.OrderId)
-            .GreaterThan(0);
+            .NotEmpty();
 
         RuleFor(c => c.Items)
             .NotEmpty();
 
         RuleForEach(c => c.Items).ChildRules(item =>
         {
-            item.RuleFor(i => i.ProductId).GreaterThan(0);
+            item.RuleFor(i => i.ProductId).NotEmpty();
             item.RuleFor(i => i.Quantity).GreaterThan(0);
         });
     }

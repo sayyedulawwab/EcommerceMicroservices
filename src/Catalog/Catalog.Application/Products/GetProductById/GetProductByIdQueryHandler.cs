@@ -11,7 +11,9 @@ internal sealed class GetProductByIdQueryHandler(IApplicationDbContext dbContext
 {
     public async Task<Result<ProductResponse>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
-        Product? product = await dbContext.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+        var productId = new ProductId(request.Id);
+
+        Product? product = await dbContext.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
 
         if (product is null)
         {
@@ -20,13 +22,13 @@ internal sealed class GetProductByIdQueryHandler(IApplicationDbContext dbContext
 
         var productResponse = new ProductResponse()
         {
-            Id = product.Id,
+            Id = product.Id.Value,
             Name = product.Name,
             Description = product.Description,
             PriceAmount = product.Price.Amount,
             PriceCurrency = product.Price.Currency.Code,
             Quantity = product.Quantity,
-            CategoryId = product.CategoryId,
+            CategoryId = product.CategoryId.Value,
             CreatedOnUtc = product.CreatedOnUtc,
             UpdatedOnUtc = product.UpdatedOnUtc,
         };
