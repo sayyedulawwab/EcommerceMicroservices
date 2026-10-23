@@ -11,6 +11,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 
+COPY ["Directory.Build.props", "Directory.Packages.props", "./"]
 COPY ["src/Catalog/Catalog.API/Catalog.API.csproj", "src/Catalog/Catalog.API/"]
 COPY ["src/Catalog/Catalog.Application/Catalog.Application.csproj", "src/Catalog/Catalog.Application/"]
 COPY ["src/SharedKernel/SharedKernel.csproj", "src/SharedKernel/"]

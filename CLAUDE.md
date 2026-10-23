@@ -27,15 +27,14 @@ dotnet test --project tests/IntegrationTests/EcommerceMicroservices.IntegrationT
 dotnet ef migrations add <Name> -p src/Catalog/Catalog.Infrastructure -s src/Catalog/Catalog.API
 ```
 
-`Directory.Build.Props` turns on `TreatWarningsAsErrors`, `AnalysisMode=All`, `EnforceCodeStyleInBuild`, and SonarAnalyzer for every project, test projects included. Analyzer and `.editorconfig` style violations fail the build.
+`Directory.Build.props` sets the target framework, `Nullable`, `ImplicitUsings`, `TreatWarningsAsErrors`, `AnalysisMode=All` and `EnforceCodeStyleInBuild` for every project, test projects included. Analyzer and `.editorconfig` style violations fail the build. `Directory.Packages.props` holds every package version (central package management with transitive pinning) and adds SonarAnalyzer to every project as a `GlobalPackageReference`. Project files list `PackageReference` items without versions; a `Version` there fails restore with NU1008.
 
 ## Known state
 
 - **Keep MassTransit on 8.x.** MassTransit 9 is commercially licensed. Without `MT_LICENSE`, every service crashes at startup ("License must be specified"). `SharedKernel.csproj` pins `MassTransit.RabbitMQ` 8.5.11, and Catalog/Ordering pin `MassTransit.EntityFrameworkCore` 8.5.11 for the outbox.
 - **Don't add FluentAssertions.** Version 8+ is commercially licensed; tests use xUnit's `Assert`.
-- **NuGet audit warnings fail the local build.** `TreatWarningsAsErrors` promotes vulnerability advisories (NU1902/NU1903) to errors, so a newly published advisory can break restore with no code change. Bump the flagged package, or temporarily pass `-p:NuGetAudit=false`.
-- **Docker builds don't apply `Directory.Build.Props`.** MSBuild looks for `Directory.Build.props` (lowercase), and Linux filesystems are case-sensitive. Analyzer warnings that break the Windows/Visual Studio build only show up as warnings inside `docker compose build`. Always verify with a local `dotnet build`.
-- Each service Dockerfile must `COPY` every referenced `.csproj`, including `src/SharedKernel/SharedKernel.csproj`, before `dotnet restore`.
+- **Vulnerable packages fail the build only in CI.** NU1901–NU1904 are errors when `ContinuousIntegrationBuild=true` and warnings locally, so a newly published advisory doesn't block local work. Bump the flagged package (its `PackageVersion`, which also pins it when it only comes in transitively).
+- Each service Dockerfile must `COPY` `Directory.Build.props`, `Directory.Packages.props` and every referenced `.csproj`, including `src/SharedKernel/SharedKernel.csproj`, before `dotnet restore`.
 - `dotnet ef` scaffolds code that Sonar flags (e.g. S4581); `.editorconfig` turns such rules off under `**/Migrations/**`.
 
 ## Architecture
