@@ -1,5 +1,7 @@
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Ordering.Application.Abstractions.Clock;
+using Ordering.Application.Abstractions.Data;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
 using SharedKernel.Events;
@@ -8,15 +10,16 @@ using SharedKernel.Messaging;
 namespace Ordering.Application.Orders.ConfirmStock;
 
 internal sealed class ConfirmOrderStockCommandHandler(
-    IOrderRepository orderRepository,
-    IUnitOfWork unitOfWork,
+    IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider,
     IPublishEndpoint publishEndpoint)
     : ICommandHandler<ConfirmOrderStockCommand>
 {
     public async Task<Result> Handle(ConfirmOrderStockCommand request, CancellationToken cancellationToken)
     {
-        Order? order = await orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
+        Order? order = await dbContext.Orders
+            .Include(order => order.OrderItems)
+            .FirstOrDefaultAsync(order => order.Id == request.OrderId, cancellationToken);
 
         if (order is null)
         {
@@ -30,7 +33,7 @@ internal sealed class ConfirmOrderStockCommandHandler(
                 new OrderCancelledIntegrationEvent(order.Id, order.CancellationReason ?? "Order was cancelled"),
                 cancellationToken);
 
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
         }
@@ -52,7 +55,7 @@ internal sealed class ConfirmOrderStockCommandHandler(
                 new OrderCancelledIntegrationEvent(order.Id, order.CancellationReason ?? confirmResult.Error.Description),
                 cancellationToken);
 
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return confirmResult;
         }
@@ -65,7 +68,7 @@ internal sealed class ConfirmOrderStockCommandHandler(
                 order.TotalPrice.Currency.Code),
             cancellationToken);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

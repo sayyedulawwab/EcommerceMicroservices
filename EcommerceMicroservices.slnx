@@ -55,7 +55,6 @@
     <Project Path="tests/IntegrationTests/EcommerceMicroservices.IntegrationTests/EcommerceMicroservices.IntegrationTests.csproj" />
   </Folder>
   <Folder Name="/tests/Ordering/">
-    <Project Path="tests/Ordering/Ordering.Application.UnitTests/Ordering.Application.UnitTests.csproj" />
     <Project Path="tests/Ordering/Ordering.Domain.UnitTests/Ordering.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Payment/">
