@@ -33,5 +33,5 @@ Stop the infrastructure with `docker compose -f infra.compose.yml down`.
 - To place an order, send only product ids and quantities. Catalog sets the prices and reserves the stock, Payment charges the order, and the order moves to `Paid` (or `Cancelled`) on its own. Poll `GET /api/ordering/v1/orders/{id}` to see its status.
 
 ## Running tests
-- `dotnet test --solution EcommerceMicroservices.slnx` runs the unit and integration tests.
+- `dotnet test --solution EcommerceMicroservices.slnx` runs the unit, architecture and integration tests.
 - The integration tests start SQL Server, RabbitMQ and Redis with Testcontainers, so Docker must be running.

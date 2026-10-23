@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Cart\Cart.API\Cart.API.csproj" />
+    <ProjectReference Include="..\..\..\src\Catalog\Catalog.API\Catalog.API.csproj" />
+    <ProjectReference Include="..\..\..\src\Identity\Identity.API\Identity.API.csproj" />
+    <ProjectReference Include="..\..\..\src\Ordering\Ordering.API\Ordering.API.csproj" />
+    <ProjectReference Include="..\..\..\src\Payment\Payment.Processor\Payment.Processor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

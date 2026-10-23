@@ -20,6 +20,8 @@ dotnet build EcommerceMicroservices.slnx
 # so --project/--solution are required.
 dotnet test --solution EcommerceMicroservices.slnx
 dotnet test --project tests/Ordering/Ordering.Domain.UnitTests --filter-method "*ConfirmStock*"
+# Architecture tests (layer and service dependencies, ArchUnitNET)
+dotnet test --project tests/ArchitectureTests/EcommerceMicroservices.ArchitectureTests
 # Integration tests need Docker (Testcontainers starts SQL Server, RabbitMQ, Redis)
 dotnet test --project tests/IntegrationTests/EcommerceMicroservices.IntegrationTests
 
@@ -99,4 +101,6 @@ Every cancellation publishes `OrderCancelled`, and releasing stock is idempotent
 ### Tests
 
 - `tests/<Service>/<Service>.Domain.UnitTests` and `.Application.UnitTests`: Application projects expose internals to their test project via `InternalsVisibleTo`.
+- `tests/ArchitectureTests`: ArchUnitNET rules, checked for each service: Domain depends on no other layer, Application not on Infrastructure or API, Infrastructure not on API, controllers not on Infrastructure. No service depends on another service's assemblies, and SharedKernel depends on no service.
+- CI (`.github/workflows/ci.yml`) runs the unit, architecture and integration tests on pull requests to `main`, with `ContinuousIntegrationBuild=true`.
 - `tests/IntegrationTests`: `SystemFixture` starts the containers and hosts every service in-process with `WebApplicationFactory` (one shared collection, so the classes run one after another). The API projects are referenced with `extern alias`es because each has a global `Program`. `TestJwt` signs bearer tokens with the shared `Jwt` settings.
