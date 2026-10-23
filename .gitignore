@@ -365,3 +365,5 @@ FodyWeavers.xsd
 
 secrets
 data
+# The rule above is for container volume folders. Source folders named Data hold code.
+!src/**/Data/
