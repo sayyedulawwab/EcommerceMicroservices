@@ -23,8 +23,8 @@ public static class DependencyInjection
 
         services.AddStackExchangeRedisCache(redisOptions =>
         {
-
-            string connection = configuration.GetConnectionString("Redis");
+            string connection = configuration.GetConnectionString("Redis")
+                ?? throw new InvalidOperationException("Connection string 'ConnectionStrings:Redis' is not configured.");
 
             redisOptions.Configuration = connection;
         });

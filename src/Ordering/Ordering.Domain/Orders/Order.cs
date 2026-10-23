@@ -18,10 +18,6 @@ public sealed class Order : Entity<long>
         CreatedOnUtc = createdOnUtc;
     }
 
-    private Order()
-    {
-    }
-
     public long UserId { get; private set; }
     public Money TotalPrice { get; private set; }
     public OrderStatus Status { get; private set; }

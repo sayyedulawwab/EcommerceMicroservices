@@ -48,7 +48,7 @@ public sealed class DomainEventsDispatcher(IServiceProvider serviceProvider) : I
                 domainEventType,
                 et => typeof(HandlerWrapper<>).MakeGenericType(et));
 
-            return (HandlerWrapper)Activator.CreateInstance(wrapperType, handler);
+            return (HandlerWrapper)Activator.CreateInstance(wrapperType, handler)!;
         }
     }
 

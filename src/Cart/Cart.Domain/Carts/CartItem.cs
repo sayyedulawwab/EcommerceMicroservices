@@ -16,9 +16,11 @@ public sealed class CartItem : Entity<Guid>
         CreatedOnUtc = createdOnUtc;
     }
 
+    #pragma warning disable CS8618 // Used by Newtonsoft.Json to deserialize the cart from Redis
     private CartItem()
     {
     }
+    #pragma warning restore CS8618
 
     public Guid CartId { get; private set; }
     public long ProductId { get; private set; }

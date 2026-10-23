@@ -5,8 +5,8 @@ namespace Identity.Infrastructure.Auth;
 public class PasswordHashData
 {
     public int Iterations { get; set; }
-    public string Salt { get; set; }
-    public string Hash { get; set; }
+    public required string Salt { get; set; }
+    public required string Hash { get; set; }
 
     public override string ToString()
     {

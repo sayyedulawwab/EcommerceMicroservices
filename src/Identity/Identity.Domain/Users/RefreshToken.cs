@@ -17,17 +17,14 @@ public sealed class RefreshToken : Entity<long>
         CreatedOnUtc = createdOnUtc;
     }
 
-    private RefreshToken()
-    {
-    }
-
     public string TokenHash { get; private set; }
     public long UserId { get; private set; }
     public Guid FamilyId { get; private set; }
     public DateTime ExpiresOnUtc { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
     public DateTime? RevokedOnUtc { get; private set; }
-    public User User { get; }
+    // Required navigation, loaded with Include. EF Core sets it; it is never null after a query.
+    public User User { get; } = null!;
 
     public bool IsRevoked => RevokedOnUtc.HasValue;
 

@@ -9,9 +9,6 @@ public class PagedList<T>
         PageSize = pageSize;
         TotalCount = totalCount;
     }
-    private PagedList()
-    {
-    }
 
     public IEnumerable<T> Items { get; }
     public int Page { get; }
