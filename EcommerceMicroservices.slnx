@@ -42,7 +42,6 @@
     <Project Path="tests/ArchitectureTests/EcommerceMicroservices.ArchitectureTests/EcommerceMicroservices.ArchitectureTests.csproj" />
   </Folder>
   <Folder Name="/tests/Cart/">
-    <Project Path="tests/Cart/Cart.Application.UnitTests/Cart.Application.UnitTests.csproj" />
     <Project Path="tests/Cart/Cart.Domain.UnitTests/Cart.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Catalog/">
