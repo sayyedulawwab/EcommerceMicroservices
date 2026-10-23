@@ -16,7 +16,7 @@ docker compose -f docker-compose.yml -f docker-compose.override.yml up --build
 # Build
 dotnet build EcommerceMicroservices.slnx
 
-# Tests (xUnit v3 + Moq, plain Assert). global.json opts dotnet test into Microsoft.Testing.Platform,
+# Tests (xUnit v3, plain Assert). global.json opts dotnet test into Microsoft.Testing.Platform,
 # so --project/--solution are required.
 dotnet test --solution EcommerceMicroservices.slnx
 dotnet test --project tests/Ordering/Ordering.Domain.UnitTests --filter-method "*ConfirmStock*"
@@ -68,7 +68,8 @@ Five services plus a gateway. Each service has its own database or store. They s
 - Each `*.Application/DependencyInjection.cs` registers handlers by Scrutor assembly scan, then wraps them with decorators: `ValidationDecorator` (runs FluentValidation validators and returns `ValidationError`) and `LoggingDecorator`. A new handler is picked up automatically. A new validator only needs to exist in the assembly.
 - Controllers inject the handler directly into the action method, e.g. `ICommandHandler<AddProductCommand, long> handler`, and map failures with `result.Error.ToActionResult()`. `Error.Code` (a `System.Net.HttpStatusCode`) is the HTTP status. Routes are versioned: `[ApiVersion(1)]`, `api/v{v:apiVersion}/...`.
 - Application features are organized as vertical slices: `Application/<Aggregate>/<UseCase>/` holds the Command/Query, Handler, and Validator.
-- Domain entities derive from `Entity<TId>` and raise domain events. `ApplicationDbContext.SaveChangesAsync` dispatches them through `DomainEventsDispatcher` after the save succeeds, each handler in its own DI scope. Identity uses this to mail token links (`UserTokenIssuedDomainEvent`). The DbContext also implements `IUnitOfWork`, including `ExecuteInTransactionAsync`, and turns `DbUpdateConcurrencyException` into `ConcurrencyException`, which the API maps to 409. `Product` and `Order` have `RowVersion` concurrency tokens.
+- **Data access:** handlers use `IApplicationDbContext` (`<Service>.Application/Abstractions/Data`), implemented by the service's `ApplicationDbContext`: DbSets plus `SaveChangesAsync`, written as LINQ in the handler, with `AsNoTracking` for reads. There are no repositories and no `IUnitOfWork`, except Cart's `CartRepository`, which stores carts in Redis. Identity and Ordering also declare `ExecuteInTransactionAsync`, which joins a transaction that is already open (the consumer outbox's). Use it only when `ExecuteUpdate`/`ExecuteDelete` or a second save must commit together with tracked changes; one `SaveChangesAsync` is already a transaction.
+- Domain entities derive from `Entity<TId>` and raise domain events. `ApplicationDbContext.SaveChangesAsync` dispatches them through `DomainEventsDispatcher` after the save succeeds, each handler in its own DI scope. Identity uses this to mail token links (`UserTokenIssuedDomainEvent`). The DbContext also turns `DbUpdateConcurrencyException` into `ConcurrencyException`, which the API maps to 409. `Product` and `Order` have `RowVersion` concurrency tokens.
 
 ### Integration events (MassTransit + RabbitMQ)
 
@@ -100,7 +101,8 @@ Every cancellation publishes `OrderCancelled`, and releasing stock is idempotent
 
 ### Tests
 
-- `tests/<Service>/<Service>.Domain.UnitTests` and `.Application.UnitTests`: Application projects expose internals to their test project via `InternalsVisibleTo`.
+- `tests/<Service>/<Service>.Domain.UnitTests`: domain rules, no mocks. `Identity.Infrastructure.UnitTests` covers the password hasher and token service. `Payment.Processor.UnitTests` mocks `IPaymentService`.
+- Handlers are tested through the API or the bus in `tests/IntegrationTests` (`<Service>/` folders), against the real containers. Don't mock the DbContext or DbSets, and don't use SQLite or the InMemory provider.
 - `tests/ArchitectureTests`: ArchUnitNET rules, checked for each service: Domain depends on no other layer, Application not on Infrastructure or API, Infrastructure not on API, controllers not on Infrastructure. No service depends on another service's assemblies, and SharedKernel depends on no service.
 - CI (`.github/workflows/ci.yml`) runs the unit, architecture and integration tests on pull requests to `main`, with `ContinuousIntegrationBuild=true`.
 - `tests/IntegrationTests`: `SystemFixture` starts the containers and hosts every service in-process with `WebApplicationFactory` (one shared collection, so the classes run one after another). The API projects are referenced with `extern alias`es because each has a global `Program`. `TestJwt` signs bearer tokens with the shared `Jwt` settings.
