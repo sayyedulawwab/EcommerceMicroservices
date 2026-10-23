@@ -1,22 +1,22 @@
-using Catalog.Application.Abstractions.Clock;
+﻿using Catalog.Application.Abstractions.Clock;
+using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Products;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.ReleaseStock;
 
 internal sealed class ReleaseStockCommandHandler(
-    IProductRepository productRepository,
-    IStockReservationRepository stockReservationRepository,
-    IUnitOfWork unitOfWork,
+    IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<ReleaseStockCommand>
 {
     public async Task<Result> Handle(ReleaseStockCommand request, CancellationToken cancellationToken)
     {
-        var activeReservations = (await stockReservationRepository.GetByOrderIdAsync(request.OrderId, cancellationToken))
-            .Where(reservation => reservation.IsActive)
-            .ToList();
+        List<StockReservation> activeReservations = await dbContext.StockReservations
+            .Where(reservation => reservation.OrderId == request.OrderId && reservation.Status == StockReservationStatus.Reserved)
+            .ToListAsync(cancellationToken);
 
         // Nothing reserved (stock was rejected, or already released or committed): releasing again is a no-op.
         if (activeReservations.Count == 0)
@@ -24,10 +24,11 @@ internal sealed class ReleaseStockCommandHandler(
             return Result.Success();
         }
 
-        IReadOnlyList<Product> products = await productRepository.GetByIdsAsync(
-            activeReservations.Select(reservation => reservation.ProductId).ToList(),
-            cancellationToken);
-        var productsById = products.ToDictionary(product => product.Id);
+        var productIds = activeReservations.Select(reservation => reservation.ProductId).ToList();
+
+        Dictionary<long, Product> productsById = await dbContext.Products
+            .Where(product => productIds.Contains(product.Id))
+            .ToDictionaryAsync(product => product.Id, cancellationToken);
 
         DateTime utcNow = dateTimeProvider.UtcNow;
 
@@ -41,7 +42,7 @@ internal sealed class ReleaseStockCommandHandler(
             reservation.Release(utcNow);
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

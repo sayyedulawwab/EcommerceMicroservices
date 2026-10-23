@@ -1,13 +1,14 @@
 ﻿using Catalog.Application.Abstractions.Clock;
+using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Categories;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Categories.EditCategory;
 
 internal sealed class EditCategoryCommandHandler(
-    ICategoryRepository categoryRepository,
-    IUnitOfWork unitOfWork,
+    IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<EditCategoryCommand, long>
 {
@@ -15,7 +16,7 @@ internal sealed class EditCategoryCommandHandler(
 
     public async Task<Result<long>> Handle(EditCategoryCommand request, CancellationToken cancellationToken)
     {
-        Category? category = await categoryRepository.GetByIdAsync(request.Id, cancellationToken);
+        Category? category = await dbContext.Categories.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
         if (category is null)
         {
@@ -32,11 +33,9 @@ internal sealed class EditCategoryCommandHandler(
             }
         }
 
-        category = Category.Update(category, request.Name, request.Description, request.ParentCategoryId, dateTimeProvider.UtcNow);
+        Category.Update(category, request.Name, request.Description, request.ParentCategoryId, dateTimeProvider.UtcNow);
 
-        categoryRepository.Update(category);
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return category.Id;
 
@@ -54,7 +53,11 @@ internal sealed class EditCategoryCommandHandler(
                 return Result.Failure(CategoryErrors.CircularParent(categoryId));
             }
 
-            Category? current = await categoryRepository.GetByIdAsync(id, cancellationToken);
+            var current = await dbContext.Categories
+                .AsNoTracking()
+                .Where(c => c.Id == id)
+                .Select(c => new { c.ParentCategoryId })
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (current is null)
             {

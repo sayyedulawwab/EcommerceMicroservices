@@ -19,7 +19,7 @@ public static class CatalogApi
         return await ReadIdAsync(response);
     }
 
-    public static async Task<long> CreateProductAsync(HttpClient adminClient, decimal price, int quantity, string? name = null, long? categoryId = null)
+    public static async Task<long> CreateProductAsync(HttpClient adminClient, decimal price, int quantity, string? name = null, long? categoryId = null, string currency = "BDT")
     {
         long category = categoryId ?? await CreateCategoryAsync(adminClient);
 
@@ -29,7 +29,7 @@ public static class CatalogApi
             {
                 name = name ?? $"Product {Guid.NewGuid():N}",
                 description = "Created by an integration test",
-                priceCurrency = "BDT",
+                priceCurrency = currency,
                 priceAmount = price,
                 quantity,
                 categoryId = category

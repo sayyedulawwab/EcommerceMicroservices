@@ -45,7 +45,6 @@
     <Project Path="tests/Cart/Cart.Domain.UnitTests/Cart.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Catalog/">
-    <Project Path="tests/Catalog/Catalog.Application.UnitTests/Catalog.Application.UnitTests.csproj" />
     <Project Path="tests/Catalog/Catalog.Domain.UnitTests/Catalog.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Identity/">

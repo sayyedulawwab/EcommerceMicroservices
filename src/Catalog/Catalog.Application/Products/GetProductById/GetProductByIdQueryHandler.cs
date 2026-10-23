@@ -1,15 +1,17 @@
-﻿using Catalog.Domain.Products;
+﻿using Catalog.Application.Abstractions.Data;
+using Catalog.Domain.Products;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.GetProductById;
 
-internal sealed class GetProductByIdQueryHandler(IProductRepository productRepository)
+internal sealed class GetProductByIdQueryHandler(IApplicationDbContext dbContext)
     : IQueryHandler<GetProductByIdQuery, ProductResponse>
 {
     public async Task<Result<ProductResponse>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
-        Product? product = await productRepository.GetByIdAsync(request.Id, cancellationToken);
+        Product? product = await dbContext.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
         if (product is null)
         {

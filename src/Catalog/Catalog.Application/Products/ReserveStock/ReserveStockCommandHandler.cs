@@ -1,5 +1,7 @@
-using Catalog.Application.Abstractions.Clock;
+﻿using Catalog.Application.Abstractions.Clock;
+using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Products;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Events;
 using SharedKernel.Messaging;
@@ -7,9 +9,7 @@ using SharedKernel.Messaging;
 namespace Catalog.Application.Products.ReserveStock;
 
 internal sealed class ReserveStockCommandHandler(
-    IProductRepository productRepository,
-    IStockReservationRepository stockReservationRepository,
-    IUnitOfWork unitOfWork,
+    IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<ReserveStockCommand, ReserveStockResult>
 {
@@ -20,12 +20,16 @@ internal sealed class ReserveStockCommandHandler(
             .GroupBy(item => item.ProductId)
             .ToDictionary(group => group.Key, group => group.Sum(item => item.Quantity));
 
-        IReadOnlyList<Product> products = await productRepository.GetByIdsAsync(requestedQuantities.Keys, cancellationToken);
-        var productsById = products.ToDictionary(product => product.Id);
+        var requestedProductIds = requestedQuantities.Keys.ToList();
 
-        IReadOnlyList<StockReservation> existingReservations = await stockReservationRepository.GetByOrderIdAsync(request.OrderId, cancellationToken);
+        Dictionary<long, Product> productsById = await dbContext.Products
+            .Where(product => requestedProductIds.Contains(product.Id))
+            .ToDictionaryAsync(product => product.Id, cancellationToken);
 
-        if (existingReservations.Count > 0)
+        bool alreadyReserved = await dbContext.StockReservations
+            .AnyAsync(reservation => reservation.OrderId == request.OrderId, cancellationToken);
+
+        if (alreadyReserved)
         {
             // The order was already handled by an earlier delivery (and may since be released or committed): never reserve twice.
             return ReserveStockResult.Reserved(ToPricedItems(requestedQuantities, productsById));
@@ -41,7 +45,7 @@ internal sealed class ReserveStockCommandHandler(
             return ReserveStockResult.Rejected("One or more products are unknown or out of stock", rejectedProductIds);
         }
 
-        if (products.Select(product => product.Price.Currency).Distinct().Count() > 1)
+        if (productsById.Values.Select(product => product.Price.Currency).Distinct().Count() > 1)
         {
             return ReserveStockResult.Rejected("The products in the order are priced in different currencies", []);
         }
@@ -55,10 +59,10 @@ internal sealed class ReserveStockCommandHandler(
                 return Result.Failure<ReserveStockResult>(reserveResult.Error);
             }
 
-            stockReservationRepository.Add(StockReservation.Create(request.OrderId, productId, quantity, dateTimeProvider.UtcNow));
+            dbContext.StockReservations.Add(StockReservation.Create(request.OrderId, productId, quantity, dateTimeProvider.UtcNow));
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return ReserveStockResult.Reserved(ToPricedItems(requestedQuantities, productsById));
     }
