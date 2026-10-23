@@ -1,18 +1,16 @@
 ﻿using Identity.Application.Abstractions.Auth;
 using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Email;
-using Identity.Domain.Users;
+using Identity.Application.Abstractions.Data;
 using Identity.Infrastructure.Auth;
 using Identity.Infrastructure.BackgroundJobs;
 using Identity.Infrastructure.Clock;
 using Identity.Infrastructure.Data;
 using Identity.Infrastructure.Email;
-using Identity.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.Domain;
 using SharedKernel.DomainEvents;
 
 namespace Identity.Infrastructure;
@@ -44,11 +42,7 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
-
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>();

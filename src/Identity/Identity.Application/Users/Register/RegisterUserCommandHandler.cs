@@ -1,6 +1,8 @@
-﻿using Identity.Application.Abstractions.Auth;
+using Identity.Application.Abstractions.Auth;
 using Identity.Application.Abstractions.Clock;
+using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
@@ -8,17 +10,16 @@ namespace Identity.Application.Users.Register;
 
 internal sealed class RegisterUserCommandHandler(
     IPasswordHasher passwordHasher,
-    IUserRepository userRepository,
+    IApplicationDbContext dbContext,
     UserTokenIssuer userTokenIssuer,
-    IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<RegisterUserCommand, long>
 {
     public async Task<Result<long>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        User? existingUserByEmail = await userRepository.GetByEmail(request.Email, cancellationToken);
+        string email = User.NormalizeEmail(request.Email);
 
-        if (existingUserByEmail is not null)
+        if (await dbContext.Users.AnyAsync(u => u.Email == email, cancellationToken))
         {
             return Result.Failure<long>(UserErrors.AlreadyExists);
         }
@@ -34,11 +35,11 @@ internal sealed class RegisterUserCommandHandler(
             false,
             dateTimeProvider.UtcNow);
 
-        userRepository.Add(user);
+        dbContext.Users.Add(user);
 
         userTokenIssuer.Issue(user, UserTokenPurpose.EmailConfirmation);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return user.Id;
     }

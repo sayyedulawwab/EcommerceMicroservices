@@ -1,4 +1,5 @@
-using Identity.Domain.Users;
+using Identity.Application.Abstractions.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -48,19 +49,20 @@ internal sealed class TokenCleanupService(
     {
         await using AsyncServiceScope scope = serviceScopeFactory.CreateAsyncScope();
 
-        IRefreshTokenRepository refreshTokenRepository = scope.ServiceProvider.GetRequiredService<IRefreshTokenRepository>();
-        IUserTokenRepository userTokenRepository = scope.ServiceProvider.GetRequiredService<IUserTokenRepository>();
+        IApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
 
         DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
-        int refreshTokens = await refreshTokenRepository.DeleteStaleAsync(
-            utcNow,
-            utcNow.AddDays(-options.Value.RevokedRefreshTokenRetentionDays),
-            cancellationToken);
+        DateTime revokedBeforeUtc = utcNow.AddDays(-options.Value.RevokedRefreshTokenRetentionDays);
+        DateTime userTokensOlderThanUtc = utcNow.AddDays(-options.Value.UsedOrExpiredUserTokenRetentionDays);
 
-        int userTokens = await userTokenRepository.DeleteStaleAsync(
-            utcNow.AddDays(-options.Value.UsedOrExpiredUserTokenRetentionDays),
-            cancellationToken);
+        int refreshTokens = await dbContext.RefreshTokens
+            .Where(r => r.ExpiresOnUtc < utcNow || r.RevokedOnUtc < revokedBeforeUtc)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        int userTokens = await dbContext.UserTokens
+            .Where(t => t.ExpiresOnUtc < userTokensOlderThanUtc || t.ConsumedOnUtc < userTokensOlderThanUtc)
+            .ExecuteDeleteAsync(cancellationToken);
 
         logger.LogInformation("Token cleanup deleted {RefreshTokens} refresh tokens and {UserTokens} email tokens", refreshTokens, userTokens);
     }

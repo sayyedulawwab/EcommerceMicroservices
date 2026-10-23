@@ -1,6 +1,6 @@
 using Identity.Infrastructure.Auth;
 
-namespace Identity.Application.UnitTests.Infrastructure;
+namespace Identity.Infrastructure.UnitTests;
 
 public sealed class SecureTokenServiceTests
 {

@@ -1,5 +1,6 @@
 using Identity.Application.Abstractions.Auth;
 using Identity.Application.Abstractions.Clock;
+using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.Extensions.Options;
 
@@ -7,7 +8,7 @@ namespace Identity.Application.Users;
 
 internal sealed class UserTokenIssuer(
     ISecureTokenService secureTokenService,
-    IUserTokenRepository userTokenRepository,
+    IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider,
     IOptions<AccountOptions> accountOptions)
 {
@@ -24,6 +25,6 @@ internal sealed class UserTokenIssuer(
 
         string rawToken = secureTokenService.Generate();
 
-        userTokenRepository.Add(UserToken.Issue(user, purpose, rawToken, secureTokenService.Hash(rawToken), expiresOnUtc, utcNow));
+        dbContext.UserTokens.Add(UserToken.Issue(user, purpose, rawToken, secureTokenService.Hash(rawToken), expiresOnUtc, utcNow));
     }
 }

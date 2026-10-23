@@ -48,8 +48,8 @@
     <Project Path="tests/Catalog/Catalog.Domain.UnitTests/Catalog.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Identity/">
-    <Project Path="tests/Identity/Identity.Application.UnitTests/Identity.Application.UnitTests.csproj" />
     <Project Path="tests/Identity/Identity.Domain.UnitTests/Identity.Domain.UnitTests.csproj" />
+    <Project Path="tests/Identity/Identity.Infrastructure.UnitTests/Identity.Infrastructure.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/IntegrationTests/">
     <Project Path="tests/IntegrationTests/EcommerceMicroservices.IntegrationTests/EcommerceMicroservices.IntegrationTests.csproj" />
