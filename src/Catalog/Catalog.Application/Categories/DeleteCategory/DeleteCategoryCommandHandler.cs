@@ -1,34 +1,32 @@
-﻿using Catalog.Domain.Categories;
-using Catalog.Domain.Products;
+﻿using Catalog.Application.Abstractions.Data;
+using Catalog.Domain.Categories;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Categories.DeleteCategory;
 
-internal sealed class DeleteCategoryCommandHandler(
-    ICategoryRepository categoryRepository,
-    IProductRepository productRepository,
-    IUnitOfWork unitOfWork)
+internal sealed class DeleteCategoryCommandHandler(IApplicationDbContext dbContext)
     : ICommandHandler<DeleteCategoryCommand, long>
 {
     public async Task<Result<long>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
     {
-        Category? category = await categoryRepository.GetByIdAsync(request.Id, cancellationToken);
+        Category? category = await dbContext.Categories.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
         if (category is null)
         {
             return Result.Failure<long>(CategoryErrors.NotFound(request.Id));
         }
 
-        if (await categoryRepository.HasChildrenAsync(request.Id, cancellationToken) ||
-            await productRepository.AnyInCategoryAsync(request.Id, cancellationToken))
+        if (await dbContext.Categories.AnyAsync(c => c.ParentCategoryId == request.Id, cancellationToken) ||
+            await dbContext.Products.AnyAsync(p => p.CategoryId == request.Id, cancellationToken))
         {
             return Result.Failure<long>(CategoryErrors.InUse(request.Id));
         }
 
-        categoryRepository.Remove(category);
+        dbContext.Categories.Remove(category);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return category.Id;
 

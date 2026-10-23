@@ -1,11 +1,13 @@
-﻿using Catalog.Domain.Products;
+﻿using Catalog.Application.Abstractions.Data;
+using Catalog.Domain.Products;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 using System.Linq.Expressions;
 
 namespace Catalog.Application.Products.SearchProduct;
 
-internal sealed class SearchlProductsQueryHandler(IProductRepository productRepository)
+internal sealed class SearchlProductsQueryHandler(IApplicationDbContext dbContext)
     : IQueryHandler<SearchProductsQuery, PagedList<ProductResponse>>
 {
     private const int MaxPageSize = 100;
@@ -16,40 +18,42 @@ internal sealed class SearchlProductsQueryHandler(IProductRepository productRepo
         int pageSize = Math.Clamp(request.PageSize, 1, MaxPageSize);
         string? keyword = string.IsNullOrWhiteSpace(request.Keyword) ? null : request.Keyword.Trim();
 
-        Expression<Func<Product, bool>>? filter = product =>
+        IQueryable<Product> query = dbContext.Products.AsNoTracking().Where(product =>
             (!request.CategoryId.HasValue || product.CategoryId == request.CategoryId) &&
             (!request.MinPrice.HasValue || product.Price.Amount >= request.MinPrice) &&
             (!request.MaxPrice.HasValue || product.Price.Amount <= request.MaxPrice) &&
-            (keyword == null || product.Name.Contains(keyword) || product.Description.Contains(keyword));
+            (keyword == null || product.Name.Contains(keyword) || product.Description.Contains(keyword)));
+
+        int totalRecords = await query.CountAsync(cancellationToken);
 
 
-        Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = request.SortOrder?.ToUpperInvariant() switch
+        IOrderedQueryable<Product> orderedQuery = request.SortOrder?.ToUpperInvariant() switch
         {
             "DESC" when !string.IsNullOrEmpty(request.SortColumn) =>
-                query => query.OrderByDescending(GetSortExpression(request.SortColumn)),
+                query.OrderByDescending(GetSortExpression(request.SortColumn)),
 
             _ when !string.IsNullOrEmpty(request.SortColumn) =>
-                query => query.OrderBy(GetSortExpression(request.SortColumn)),
+                query.OrderBy(GetSortExpression(request.SortColumn)),
 
-            _ => query => query.OrderBy(p => p.CreatedOnUtc)
+            _ => query.OrderBy(p => p.CreatedOnUtc)
         };
 
-
-        (IReadOnlyList<Product> products, int totalRecords) = await productRepository.FindAsync(
-            filter, orderBy, page, pageSize, cancellationToken);
-
-        var productResponse = products.Select(product => new ProductResponse()
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
-            PriceAmount = product.Price.Amount,
-            PriceCurrency = product.Price.Currency.Code,
-            Quantity = product.Quantity,
-            CategoryId = product.CategoryId,
-            CreatedOnUtc = product.CreatedOnUtc,
-            UpdatedOnUtc = product.UpdatedOnUtc,
-        }).ToList();
+        List<ProductResponse> productResponse = await orderedQuery
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(product => new ProductResponse()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                PriceAmount = product.Price.Amount,
+                PriceCurrency = product.Price.Currency.Code,
+                Quantity = product.Quantity,
+                CategoryId = product.CategoryId,
+                CreatedOnUtc = product.CreatedOnUtc,
+                UpdatedOnUtc = product.UpdatedOnUtc,
+            })
+            .ToListAsync(cancellationToken);
 
         var pagedProducts = PagedList<ProductResponse>.Create(productResponse, page, pageSize, totalRecords);
 

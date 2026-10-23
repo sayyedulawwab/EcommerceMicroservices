@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.Abstractions.Clock;
-using Ordering.Domain.Orders;
+using Ordering.Application.Abstractions.Data;
 using Ordering.Infrastructure.Auth;
 using Ordering.Infrastructure.Clock;
-using Ordering.Infrastructure.Repositories;
-using SharedKernel.Domain;
 using SharedKernel.DomainEvents;
 
 namespace Ordering.Infrastructure;
@@ -31,9 +29,8 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
-        services.AddScoped<IOrderRepository, OrderRepository>();
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>();

@@ -1,6 +1,8 @@
-﻿using MassTransit;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Ordering.Application.Abstractions.Data;
+using Ordering.Domain.Orders;
 using SharedKernel.Domain;
 using SharedKernel.DomainEvents;
 using ConcurrencyException = SharedKernel.Exceptions.ConcurrencyException;
@@ -8,8 +10,10 @@ using System.Data;
 
 namespace Ordering.Infrastructure;
 
-public sealed class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatcher domainEventsDispatcher) : DbContext(options), IUnitOfWork
+public sealed class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatcher domainEventsDispatcher) : DbContext(options), IApplicationDbContext
 {
+    public DbSet<Order> Orders => Set<Order>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DependencyInjection).Assembly);

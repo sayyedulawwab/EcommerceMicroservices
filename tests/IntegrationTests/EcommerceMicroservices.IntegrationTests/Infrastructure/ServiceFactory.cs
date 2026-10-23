@@ -1,3 +1,4 @@
+using Identity.Application.Abstractions.Email;
 using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -24,6 +25,15 @@ public sealed class ServiceFactory<TProgram>(IReadOnlyDictionary<string, string?
         }
 
         builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(settings));
+
+        // Identity mails links through IEmailSender; tests read them from memory instead of the log.
+        builder.ConfigureTestServices(services =>
+        {
+            if (services.Any(descriptor => descriptor.ServiceType == typeof(IEmailSender)))
+            {
+                services.AddSingleton<IEmailSender, CapturingEmailSender>();
+            }
+        });
 
         builder.ConfigureTestServices(services =>
             // Don't let a test publish before every consumer queue is bound, or the first messages are dropped.

@@ -42,22 +42,19 @@
     <Project Path="tests/ArchitectureTests/EcommerceMicroservices.ArchitectureTests/EcommerceMicroservices.ArchitectureTests.csproj" />
   </Folder>
   <Folder Name="/tests/Cart/">
-    <Project Path="tests/Cart/Cart.Application.UnitTests/Cart.Application.UnitTests.csproj" />
     <Project Path="tests/Cart/Cart.Domain.UnitTests/Cart.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Catalog/">
-    <Project Path="tests/Catalog/Catalog.Application.UnitTests/Catalog.Application.UnitTests.csproj" />
     <Project Path="tests/Catalog/Catalog.Domain.UnitTests/Catalog.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Identity/">
-    <Project Path="tests/Identity/Identity.Application.UnitTests/Identity.Application.UnitTests.csproj" />
     <Project Path="tests/Identity/Identity.Domain.UnitTests/Identity.Domain.UnitTests.csproj" />
+    <Project Path="tests/Identity/Identity.Infrastructure.UnitTests/Identity.Infrastructure.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/IntegrationTests/">
     <Project Path="tests/IntegrationTests/EcommerceMicroservices.IntegrationTests/EcommerceMicroservices.IntegrationTests.csproj" />
   </Folder>
   <Folder Name="/tests/Ordering/">
-    <Project Path="tests/Ordering/Ordering.Application.UnitTests/Ordering.Application.UnitTests.csproj" />
     <Project Path="tests/Ordering/Ordering.Domain.UnitTests/Ordering.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Payment/">

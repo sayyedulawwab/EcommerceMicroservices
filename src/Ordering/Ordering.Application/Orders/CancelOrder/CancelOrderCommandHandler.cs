@@ -1,5 +1,7 @@
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Ordering.Application.Abstractions.Clock;
+using Ordering.Application.Abstractions.Data;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
 using SharedKernel.Events;
@@ -8,15 +10,15 @@ using SharedKernel.Messaging;
 namespace Ordering.Application.Orders.CancelOrder;
 
 internal sealed class CancelOrderCommandHandler(
-    IOrderRepository orderRepository,
-    IUnitOfWork unitOfWork,
+    IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider,
     IPublishEndpoint publishEndpoint)
     : ICommandHandler<CancelOrderCommand>
 {
     public async Task<Result> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
     {
-        Order? order = await orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
+        Order? order = await dbContext.Orders
+            .FirstOrDefaultAsync(order => order.Id == request.OrderId, cancellationToken);
 
         if (order is null || (request.RequestedByUserId is long userId && order.UserId != userId))
         {
@@ -38,7 +40,7 @@ internal sealed class CancelOrderCommandHandler(
         // Catalog releases whatever stock it reserved for the order (nothing, if it never reserved any).
         await publishEndpoint.Publish(new OrderCancelledIntegrationEvent(order.Id, order.CancellationReason ?? request.Reason), cancellationToken);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

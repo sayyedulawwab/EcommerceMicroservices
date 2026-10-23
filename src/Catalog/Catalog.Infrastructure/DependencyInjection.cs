@@ -1,14 +1,11 @@
 ﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Domain.Categories;
-using Catalog.Domain.Products;
+using Catalog.Application.Abstractions.Data;
 using Catalog.Infrastructure.Auth;
 using Catalog.Infrastructure.Clock;
-using Catalog.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.Domain;
 using SharedKernel.DomainEvents;
 
 namespace Catalog.Infrastructure;
@@ -32,11 +29,7 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
-
-        services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<IProductRepository, ProductRepository>();
-        services.AddScoped<IStockReservationRepository, StockReservationRepository>();
+        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>();

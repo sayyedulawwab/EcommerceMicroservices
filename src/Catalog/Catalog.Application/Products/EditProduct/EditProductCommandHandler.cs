@@ -1,21 +1,20 @@
 ﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Domain.Categories;
+using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Products;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.EditProduct;
 
 internal sealed class EditProductCommandHandler(
-    IProductRepository productRepository,
-    ICategoryRepository categoryRepository,
-    IUnitOfWork unitOfWork,
+    IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<EditProductCommand, long>
 {
     public async Task<Result<long>> Handle(EditProductCommand request, CancellationToken cancellationToken)
     {
-        Product? product = await productRepository.GetByIdAsync(request.Id, cancellationToken);
+        Product? product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
         if (product is null)
         {
@@ -23,12 +22,12 @@ internal sealed class EditProductCommandHandler(
         }
 
         if (product.CategoryId != request.CategoryId &&
-            !await categoryRepository.ExistsAsync(request.CategoryId, cancellationToken))
+            !await dbContext.Categories.AnyAsync(c => c.Id == request.CategoryId, cancellationToken))
         {
             return Result.Failure<long>(ProductErrors.CategoryNotFound(request.CategoryId));
         }
 
-        product = Product.Update(
+        Product.Update(
             product,
             request.Name,
             request.Description,
@@ -37,9 +36,7 @@ internal sealed class EditProductCommandHandler(
             request.CategoryId,
             dateTimeProvider.UtcNow);
 
-        productRepository.Update(product);
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return product.Id;
 

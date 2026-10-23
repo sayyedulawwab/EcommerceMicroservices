@@ -1,22 +1,24 @@
 using Identity.Application.Abstractions.Auth;
 using Identity.Application.Abstractions.Clock;
+using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
 namespace Identity.Application.Users.ConfirmEmail;
 
 internal sealed class ConfirmEmailCommandHandler(
-    IUserRepository userRepository,
-    IUserTokenRepository userTokenRepository,
+    IApplicationDbContext dbContext,
     ISecureTokenService secureTokenService,
-    IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<ConfirmEmailCommand>
 {
     public async Task<Result> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
     {
-        User? user = await userRepository.GetByEmail(request.Email, cancellationToken);
+        string email = User.NormalizeEmail(request.Email);
+
+        User? user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
         if (user is null)
         {
@@ -25,10 +27,10 @@ internal sealed class ConfirmEmailCommandHandler(
 
         DateTime utcNow = dateTimeProvider.UtcNow;
 
-        UserToken? token = await userTokenRepository.GetAsync(
-            user.Id,
-            UserTokenPurpose.EmailConfirmation,
-            secureTokenService.Hash(request.Token),
+        string tokenHash = secureTokenService.Hash(request.Token);
+
+        UserToken? token = await dbContext.UserTokens.FirstOrDefaultAsync(
+            t => t.UserId == user.Id && t.Purpose == UserTokenPurpose.EmailConfirmation && t.TokenHash == tokenHash,
             cancellationToken);
 
         // Check the token before anything else, so the answer never reveals whether an address has an account.
@@ -51,7 +53,7 @@ internal sealed class ConfirmEmailCommandHandler(
         token.Consume(utcNow);
         user.ConfirmEmail(utcNow);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

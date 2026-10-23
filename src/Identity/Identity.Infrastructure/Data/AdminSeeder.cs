@@ -1,10 +1,11 @@
 using Identity.Application.Abstractions.Auth;
 using Identity.Application.Abstractions.Clock;
+using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SharedKernel.Domain;
 
 namespace Identity.Infrastructure.Data;
 
@@ -38,12 +39,13 @@ public static class AdminSeeder
             return;
         }
 
-        IUserRepository userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         IPasswordHasher passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
-        IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        IApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
         DateTime utcNow = scope.ServiceProvider.GetRequiredService<IDateTimeProvider>().UtcNow;
 
-        User? user = await userRepository.GetByEmail(options.Email, cancellationToken);
+        string email = User.NormalizeEmail(options.Email);
+
+        User? user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
         if (user is null)
         {
@@ -57,7 +59,7 @@ public static class AdminSeeder
 
             user.ConfirmEmail(utcNow);
 
-            userRepository.Add(user);
+            dbContext.Users.Add(user);
 
             logger.LogInformation("Created admin user {Email}", user.Email);
         }
@@ -68,6 +70,6 @@ public static class AdminSeeder
             logger.LogInformation("Promoted {Email} to admin", user.Email);
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -1,5 +1,7 @@
-using Catalog.Application.Abstractions.Clock;
+﻿using Catalog.Application.Abstractions.Clock;
+using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Products;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
 
@@ -9,16 +11,15 @@ namespace Catalog.Application.Products.CommitStock;
 /// The order is paid, so its reserved stock is sold for good: commit the reservations so they can no longer be released.
 /// </summary>
 internal sealed class CommitStockCommandHandler(
-    IStockReservationRepository stockReservationRepository,
-    IUnitOfWork unitOfWork,
+    IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<CommitStockCommand>
 {
     public async Task<Result> Handle(CommitStockCommand request, CancellationToken cancellationToken)
     {
-        var activeReservations = (await stockReservationRepository.GetByOrderIdAsync(request.OrderId, cancellationToken))
-            .Where(reservation => reservation.IsActive)
-            .ToList();
+        List<StockReservation> activeReservations = await dbContext.StockReservations
+            .Where(reservation => reservation.OrderId == request.OrderId && reservation.Status == StockReservationStatus.Reserved)
+            .ToListAsync(cancellationToken);
 
         if (activeReservations.Count == 0)
         {
@@ -32,7 +33,7 @@ internal sealed class CommitStockCommandHandler(
             reservation.Commit(utcNow);
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

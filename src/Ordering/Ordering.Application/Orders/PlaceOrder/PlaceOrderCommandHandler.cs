@@ -1,5 +1,6 @@
-﻿using MassTransit;
+using MassTransit;
 using Ordering.Application.Abstractions.Clock;
+using Ordering.Application.Abstractions.Data;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
 using SharedKernel.Events;
@@ -8,8 +9,7 @@ using SharedKernel.Messaging;
 namespace Ordering.Application.Orders.PlaceOrder;
 
 internal sealed class PlaceOrderCommandHandler(
-    IOrderRepository orderRepository,
-    IUnitOfWork unitOfWork,
+    IApplicationDbContext dbContext,
     IDateTimeProvider dateTimeProvider,
     IPublishEndpoint publishEndpoint)
     : ICommandHandler<PlaceOrderCommand, long>
@@ -31,11 +31,11 @@ internal sealed class PlaceOrderCommandHandler(
 
         // The event needs the database-generated order id, so the order is saved first. The second save stores the
         // event in the outbox; the transaction makes the order and its event commit together.
-        await unitOfWork.ExecuteInTransactionAsync(async ct =>
+        await dbContext.ExecuteInTransactionAsync(async ct =>
         {
-            orderRepository.Add(order);
+            dbContext.Orders.Add(order);
 
-            await unitOfWork.SaveChangesAsync(ct);
+            await dbContext.SaveChangesAsync(ct);
 
             var orderStockItems = order.OrderItems
                 .Select(item => new OrderStockItem(item.ProductId, item.Quantity))
@@ -43,7 +43,7 @@ internal sealed class PlaceOrderCommandHandler(
 
             await publishEndpoint.Publish(new OrderPlacedIntegrationEvent(order.Id, order.UserId, orderStockItems), ct);
 
-            await unitOfWork.SaveChangesAsync(ct);
+            await dbContext.SaveChangesAsync(ct);
         }, cancellationToken);
 
         return order.Id;
