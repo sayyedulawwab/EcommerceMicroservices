@@ -12,14 +12,31 @@ public static class StockReservationService
         IReadOnlyDictionary<ProductId, Product> productsById,
         DateTime utcNow)
     {
-        var reservations = new List<StockReservation>();
-
+        // Check every line before changing any product. The consumer's outbox saves the DbContext even when this fails,
+        // so a product changed before a later line failed would lose stock.
         foreach ((ProductId productId, int quantity) in requestedQuantities)
         {
             if (!productsById.TryGetValue(productId, out Product? product))
             {
                 return Result.Failure<List<StockReservation>>(ProductErrors.NotFound());
             }
+
+            if (quantity <= 0)
+            {
+                return Result.Failure<List<StockReservation>>(ProductErrors.InvalidQuantity(productId.Value));
+            }
+
+            if (!product.HasStock(quantity))
+            {
+                return Result.Failure<List<StockReservation>>(ProductErrors.InsufficientStock(productId.Value));
+            }
+        }
+
+        var reservations = new List<StockReservation>();
+
+        foreach ((ProductId productId, int quantity) in requestedQuantities)
+        {
+            Product product = productsById[productId];
 
             Result reserveResult = product.ReserveStock(quantity);
 

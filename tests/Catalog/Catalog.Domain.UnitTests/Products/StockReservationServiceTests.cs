@@ -49,6 +49,23 @@ public sealed class StockReservationServiceTests
     }
 
     [Fact]
+    public void Reserve_LaterLineFails_LeavesEarlierProductsUnchanged()
+    {
+        Product keyboard = CreateProduct(10);
+        Product mouse = CreateProduct(1);
+
+        Result<List<StockReservation>> result = StockReservationService.Reserve(
+            Guid.CreateVersion7(),
+            new Dictionary<ProductId, int> { [keyboard.Id] = 4, [mouse.Id] = 2 },
+            new Dictionary<ProductId, Product> { [keyboard.Id] = keyboard, [mouse.Id] = mouse },
+            UtcNow);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(10, keyboard.Quantity);
+        Assert.Equal(1, mouse.Quantity);
+    }
+
+    [Fact]
     public void Release_ActiveReservation_ReturnsStockAndClosesReservation()
     {
         Product product = CreateProduct(10);
