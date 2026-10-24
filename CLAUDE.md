@@ -35,7 +35,9 @@ dotnet ef migrations add <Name> -p src/Catalog/Catalog.Infrastructure -s src/Cat
 
 - **Keep MassTransit on 8.x.** MassTransit 9 is commercially licensed. Without `MT_LICENSE`, every service crashes at startup ("License must be specified"). `SharedKernel.csproj` pins `MassTransit.RabbitMQ` 8.5.11, and Catalog/Ordering pin `MassTransit.EntityFrameworkCore` 8.5.11 for the outbox.
 - **Don't add FluentAssertions.** Version 8+ is commercially licensed; tests use xUnit's `Assert`.
-- **Vulnerable packages fail the build only in CI.** NU1901–NU1904 are errors when `ContinuousIntegrationBuild=true` and warnings locally, so a newly published advisory doesn't block local work. Bump the flagged package (its `PackageVersion`, which also pins it when it only comes in transitively).
+- **Vulnerable packages fail every build**: locally, in CI and in the Docker builds. NU1901–NU1904 are errors; only NU1900 (vulnerability data couldn't be downloaded) stays a warning. Dependabot opens weekly NuGet upgrade PRs so most advisories are fixed before they break a build. When one does:
+  1. Upgrade the package: change its `PackageVersion` in `Directory.Packages.props`. For a transitive package, add a `PackageVersion` for it; transitive pinning moves every project to that version. Or remove the package that pulls it in.
+  2. Only when no fixed version exists yet, suppress that one advisory in `Directory.Packages.props` with `<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-..." />` and a comment saying why it's safe for now and when to remove it. Never turn the audit off or add NU1901–NU1904 to `WarningsNotAsErrors`.
 - Each service Dockerfile must `COPY` `Directory.Build.props`, `Directory.Packages.props` and every referenced `.csproj`, including `src/SharedKernel/SharedKernel.csproj`, before `dotnet restore`.
 - `dotnet ef` scaffolds code that Sonar flags (e.g. S4581); `.editorconfig` turns such rules off under `**/Migrations/**`.
 
@@ -108,5 +110,5 @@ Every cancellation publishes `OrderCancelled`, and releasing stock is idempotent
 - `tests/<Service>/<Service>.Domain.UnitTests`: domain rules, no mocks. `Identity.Infrastructure.UnitTests` covers the password hasher and token service. `Payment.Processor.UnitTests` mocks `IPaymentService`.
 - Handlers are tested through the API or the bus in `tests/IntegrationTests` (`<Service>/` folders), against the real containers. Don't mock the DbContext or DbSets, and don't use SQLite or the InMemory provider.
 - `tests/ArchitectureTests`: ArchUnitNET rules, checked for each service: Domain depends on no other layer, Application not on Infrastructure or API, Infrastructure not on API, controllers not on Infrastructure. No service depends on another service's assemblies, and SharedKernel depends on no service.
-- CI (`.github/workflows/ci.yml`) runs the unit, architecture and integration tests on pull requests to `main`, with `ContinuousIntegrationBuild=true`.
+- CI (`.github/workflows/ci.yml`) restores, builds (Release) and tests `EcommerceMicroservices.slnx` on every push and on pull requests to `main`.
 - `tests/IntegrationTests`: `SystemFixture` starts the containers and hosts every service in-process with `WebApplicationFactory` (one shared collection, so the classes run one after another). The API projects are referenced with `extern alias`es because each has a global `Program`. `TestJwt` signs bearer tokens with the shared `Jwt` settings.
