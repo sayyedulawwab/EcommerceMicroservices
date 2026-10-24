@@ -78,7 +78,8 @@ public sealed class Product : Entity<ProductId>
 
     public bool HasStock(int quantity) => quantity > 0 && Quantity >= quantity;
 
-    public Result ReserveStock(int quantity)
+    // Internal so stock only changes through StockReservationService, which records a reservation for every change.
+    internal Result ReserveStock(int quantity)
     {
         if (quantity <= 0)
         {
@@ -95,7 +96,7 @@ public sealed class Product : Entity<ProductId>
         return Result.Success();
     }
 
-    public void ReleaseStock(int quantity)
+    internal void ReleaseStock(int quantity)
     {
         if (quantity <= 0)
         {
