@@ -1,4 +1,4 @@
-using Catalog.Domain.Categories;
+﻿using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using SharedKernel.Domain;
 
@@ -9,7 +9,7 @@ public sealed class ProductTests
     private static readonly DateTime CreatedOn = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private static Product CreateProduct(int quantity) =>
-        Product.Create("Keyboard", "Mechanical keyboard", new Money(50m, Currency.Usd), quantity, CategoryId.New(), CreatedOn);
+        Product.Create("Keyboard", "Mechanical keyboard", new Money(50m, Currency.Usd), quantity, CategoryId.New(), CreatedOn).Value;
 
     [Fact]
     public void ReserveStock_EnoughStock_DecrementsQuantity()
@@ -108,5 +108,66 @@ public sealed class ProductTests
         bool hasStock = product.HasStock(requested);
 
         Assert.Equal(expected, hasStock);
+    }
+
+    [Fact]
+    public void Create_ValidValues_ReturnsProduct()
+    {
+        Result<Product> result = Product.Create("Keyboard", "Mechanical keyboard", new Money(50m, Currency.Usd), 0, CategoryId.New(), CreatedOn);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(0, result.Value.Quantity);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Create_NonPositivePrice_ReturnsInvalidPrice(int amount)
+    {
+        Result<Product> result = Product.Create("Keyboard", "Mechanical keyboard", new Money(amount, Currency.Usd), 1, CategoryId.New(), CreatedOn);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ProductErrors.InvalidPrice(), result.Error);
+    }
+
+    [Fact]
+    public void Create_NegativeQuantity_ReturnsInvalidStockQuantity()
+    {
+        Result<Product> result = Product.Create("Keyboard", "Mechanical keyboard", new Money(50m, Currency.Usd), -1, CategoryId.New(), CreatedOn);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ProductErrors.InvalidStockQuantity(), result.Error);
+    }
+
+    [Fact]
+    public void Update_ValidValues_ChangesProduct()
+    {
+        Product product = CreateProduct(5);
+        DateTime updatedOn = CreatedOn.AddDays(1);
+
+        Result result = Product.Update(product, "Mouse", "Wireless mouse", new Money(20m, Currency.Usd), 8, product.CategoryId, updatedOn);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Mouse", product.Name);
+        Assert.Equal(20m, product.Price.Amount);
+        Assert.Equal(8, product.Quantity);
+        Assert.Equal(updatedOn, product.UpdatedOnUtc);
+    }
+
+    [Theory]
+    [InlineData(0, 5)]
+    [InlineData(-5, 5)]
+    [InlineData(20, -1)]
+    public void Update_InvalidValues_FailsAndLeavesProductUnchanged(int amount, int quantity)
+    {
+        Product product = CreateProduct(5);
+
+        Result result = Product.Update(product, "Mouse", "Wireless mouse", new Money(amount, Currency.Usd), quantity, product.CategoryId, CreatedOn.AddDays(1));
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("Keyboard", product.Name);
+        Assert.Equal(50m, product.Price.Amount);
+        Assert.Equal(5, product.Quantity);
+        Assert.Null(product.UpdatedOnUtc);
     }
 }
