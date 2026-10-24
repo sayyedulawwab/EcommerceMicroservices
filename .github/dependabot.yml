@@ -1,15 +1,6 @@
 version: 2
 updates:
-  # Upgrade PRs arrive before a vulnerable package fails the build (NuGet audit warnings are errors).
-  - package-ecosystem: nuget
-    directory: /
-    schedule:
-      interval: weekly
-    groups:
-      nuget:
-        patterns:
-          - "*"
-
+  # NuGet packages are not here: the NuGet audit fails the build when a package is vulnerable (see CLAUDE.md).
   - package-ecosystem: github-actions
     directory: /
     schedule:
