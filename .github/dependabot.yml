@@ -9,6 +9,10 @@ updates:
       nuget:
         patterns:
           - "*"
+    ignore:
+      # MassTransit 9 is commercially licensed; without MT_LICENSE every service fails at startup. Stay on 8.x.
+      - dependency-name: MassTransit*
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
