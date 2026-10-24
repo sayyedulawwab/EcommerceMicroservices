@@ -10,6 +10,8 @@ public sealed class Order : Entity<OrderId>
 {
     public const int MaxCancellationReasonLength = 500;
 
+    private readonly List<OrderItem> _orderItems = [];
+
     private Order(OrderId id, Guid userId, DateTime createdOnUtc)
         : base(id)
     {
@@ -25,7 +27,7 @@ public sealed class Order : Entity<OrderId>
     public string? CancellationReason { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
     public DateTime? UpdatedOnUtc { get; private set; }
-    public List<OrderItem> OrderItems { get; private set; } = [];
+    public IReadOnlyList<OrderItem> OrderItems => _orderItems;
 
     public bool CanBeCancelled => Status is OrderStatus.Placed or OrderStatus.StockConfirmed;
 
@@ -48,7 +50,7 @@ public sealed class Order : Entity<OrderId>
         // The same product listed twice becomes one item with the combined quantity.
         foreach (IGrouping<Guid, OrderLine> productLines in lines.GroupBy(line => line.ProductId))
         {
-            order.OrderItems.Add(OrderItem.Create(order.Id, productLines.Key, productLines.Sum(line => line.Quantity), createdOnUtc));
+            order._orderItems.Add(OrderItem.Create(order.Id, productLines.Key, productLines.Sum(line => line.Quantity), createdOnUtc));
         }
 
         return order;
@@ -77,6 +79,23 @@ public sealed class Order : Entity<OrderId>
             return Result.Failure(OrderErrors.MixedCurrencies);
         }
 
+        // Sum on a copy first so a failure leaves the order untouched.
+        var total = Money.Zero(pricesByProduct[OrderItems[0].ProductId].Price.Currency);
+
+        foreach (OrderItem item in OrderItems)
+        {
+            PricedOrderLine pricedLine = pricesByProduct[item.ProductId];
+
+            Result<Money> sum = total.Add(new Money(pricedLine.Price.Amount * item.Quantity, pricedLine.Price.Currency));
+
+            if (sum.IsFailure)
+            {
+                return Result.Failure(OrderErrors.MixedCurrencies);
+            }
+
+            total = sum.Value;
+        }
+
         foreach (OrderItem item in OrderItems)
         {
             PricedOrderLine pricedLine = pricesByProduct[item.ProductId];
@@ -84,9 +103,7 @@ public sealed class Order : Entity<OrderId>
             item.SetPrice(pricedLine.ProductName, pricedLine.Price);
         }
 
-        TotalPrice = OrderItems
-            .Select(item => item.LineTotal)
-            .Aggregate(Money.Zero(OrderItems[0].Price.Currency), (total, lineTotal) => total + lineTotal);
+        TotalPrice = total;
 
         return MoveTo(OrderStatus.StockConfirmed, utcNow);
     }

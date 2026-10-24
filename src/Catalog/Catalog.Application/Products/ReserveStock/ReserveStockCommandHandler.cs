@@ -50,17 +50,18 @@ internal sealed class ReserveStockCommandHandler(
             return ReserveStockResult.Rejected("The products in the order are priced in different currencies", []);
         }
 
-        foreach ((ProductId productId, int quantity) in requestedQuantities)
+        Result<List<StockReservation>> reserveResult = StockReservationService.Reserve(
+            request.OrderId,
+            requestedQuantities,
+            productsById,
+            dateTimeProvider.UtcNow);
+
+        if (reserveResult.IsFailure)
         {
-            Result reserveResult = productsById[productId].ReserveStock(quantity);
-
-            if (reserveResult.IsFailure)
-            {
-                return Result.Failure<ReserveStockResult>(reserveResult.Error);
-            }
-
-            dbContext.StockReservations.Add(StockReservation.Create(request.OrderId, productId, quantity, dateTimeProvider.UtcNow));
+            return Result.Failure<ReserveStockResult>(reserveResult.Error);
         }
+
+        dbContext.StockReservations.AddRange(reserveResult.Value);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

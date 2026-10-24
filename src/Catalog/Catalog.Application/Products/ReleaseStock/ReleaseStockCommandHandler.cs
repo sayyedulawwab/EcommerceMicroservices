@@ -30,17 +30,7 @@ internal sealed class ReleaseStockCommandHandler(
             .Where(product => productIds.Contains(product.Id))
             .ToDictionaryAsync(product => product.Id, cancellationToken);
 
-        DateTime utcNow = dateTimeProvider.UtcNow;
-
-        foreach (StockReservation reservation in activeReservations)
-        {
-            if (productsById.TryGetValue(reservation.ProductId, out Product? product))
-            {
-                product.ReleaseStock(reservation.Quantity);
-            }
-
-            reservation.Release(utcNow);
-        }
+        StockReservationService.Release(activeReservations, productsById, dateTimeProvider.UtcNow);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

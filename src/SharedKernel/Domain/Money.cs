@@ -2,14 +2,18 @@
 
 public record Money(decimal Amount, Currency Currency)
 {
-    public static Money operator +(Money first, Money second)
+    public static readonly Error CurrencyMismatch = Error.BadRequest(
+        "Money.CurrencyMismatch",
+        "Amounts in different currencies can't be added");
+
+    public Result<Money> Add(Money other)
     {
-        if (first.Currency != second.Currency)
+        if (Currency != other.Currency)
         {
-            throw new InvalidOperationException("Currencies have to be equal");
+            return Result.Failure<Money>(CurrencyMismatch);
         }
 
-        return new Money(first.Amount + second.Amount, first.Currency);
+        return new Money(Amount + other.Amount, Currency);
     }
 
     public static Money Zero() => new(0, Currency.None);
