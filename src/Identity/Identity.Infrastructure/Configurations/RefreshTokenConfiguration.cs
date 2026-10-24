@@ -32,6 +32,9 @@ internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refre
         builder.Property(r => r.CreatedOnUtc);
         builder.Property(r => r.RevokedOnUtc);
 
+        builder.Property<byte[]>("RowVersion")
+               .IsRowVersion();
+
         builder.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId);
     }
 }

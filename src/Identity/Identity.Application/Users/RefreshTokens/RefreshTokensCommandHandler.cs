@@ -4,6 +4,7 @@ using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
+using SharedKernel.Exceptions;
 using SharedKernel.Messaging;
 
 namespace Identity.Application.Users.RefreshTokens;
@@ -63,7 +64,16 @@ internal sealed class RefreshTokensCommandHandler(
 
         AuthTokens tokens = authTokenIssuer.Issue(refreshToken.User, refreshToken.FamilyId);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (ConcurrencyException)
+        {
+            // Another request rotated this same token between our read and our save (RowVersion mismatch). The token
+            // we presented is no longer valid, so this is an invalid refresh token (401), not a 409 or 500.
+            return Result.Failure<AuthTokens>(RefreshTokenErrors.Invalid);
+        }
 
         return tokens;
     }

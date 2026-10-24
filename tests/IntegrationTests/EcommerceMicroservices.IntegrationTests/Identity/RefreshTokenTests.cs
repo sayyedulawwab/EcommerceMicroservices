@@ -1,5 +1,9 @@
 using EcommerceMicroservices.IntegrationTests.Infrastructure;
+using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.Exceptions;
 using System.Net;
 
 namespace EcommerceMicroservices.IntegrationTests.Identity;
@@ -156,6 +160,52 @@ public sealed class RefreshTokenTests(SystemFixture system)
             Assert.Equal(HttpStatusCode.Unauthorized, replay.StatusCode);
             Assert.Contains("RefreshToken.ReuseDetected", await replay.Content.ReadAsStringAsync(IdentityApi.Ct), StringComparison.Ordinal);
             Assert.NotEmpty(await _api.RefreshTokensAsync((await _api.GetUserAsync(email)).Id));
+        }
+    }
+
+    [Fact]
+    public async Task Refresh_SameTokenRotatedInTwoScopes_SecondSaveLosesWithConcurrencyException()
+    {
+        (BrowserSession browser, _) = await LoggedInAsync();
+        using (browser)
+        {
+            string hash = _api.Hash(browser.GetCookie("refresh_token")!);
+
+            await using AsyncServiceScope first = system.Identity.Services.CreateAsyncScope();
+            await using AsyncServiceScope second = system.Identity.Services.CreateAsyncScope();
+            IApplicationDbContext firstDb = first.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+            IApplicationDbContext secondDb = second.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+
+            RefreshToken firstCopy = await firstDb.RefreshTokens.FirstAsync(r => r.TokenHash == hash, IdentityApi.Ct);
+            RefreshToken secondCopy = await secondDb.RefreshTokens.FirstAsync(r => r.TokenHash == hash, IdentityApi.Ct);
+
+            firstCopy.Revoke(DateTime.UtcNow);
+            secondCopy.Revoke(DateTime.UtcNow);
+
+            await firstDb.SaveChangesAsync(IdentityApi.Ct);
+
+            await Assert.ThrowsAsync<ConcurrencyException>(() => secondDb.SaveChangesAsync(IdentityApi.Ct));
+        }
+    }
+
+    [Fact]
+    public async Task Refresh_ManyConcurrentRequestsWithTheSameToken_OnlyOneSucceedsAndTheRestAre401()
+    {
+        (BrowserSession browser, string email) = await LoggedInAsync();
+        using (browser)
+        {
+            string raw = browser.GetCookie("refresh_token")!;
+
+            HttpResponseMessage[] responses = await Task.WhenAll(
+                Enumerable.Range(0, 8).Select(_ => _api.RefreshAsync(raw)));
+
+            Assert.Single(responses, r => r.StatusCode == HttpStatusCode.NoContent);
+            Assert.All(
+                responses.Where(r => r.StatusCode != HttpStatusCode.NoContent),
+                r => Assert.Equal(HttpStatusCode.Unauthorized, r.StatusCode));
+
+            User user = await _api.GetUserAsync(email);
+            Assert.Equal(2, (await _api.RefreshTokensAsync(user.Id)).Count);
         }
     }
 

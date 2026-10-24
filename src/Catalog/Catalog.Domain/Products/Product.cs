@@ -30,15 +30,26 @@ public sealed class Product : Entity<ProductId>
     public DateTime CreatedOnUtc { get; private set; }
     public DateTime? UpdatedOnUtc { get; private set; }
 
-    public static Product Create(string name, string description, Money price, int quantity, CategoryId categoryId, DateTime createdOnUtc)
+    public static Result<Product> Create(string name, string description, Money price, int quantity, CategoryId categoryId, DateTime createdOnUtc)
     {
-        var product = new Product(ProductId.New(), name, description, price, quantity, categoryId, createdOnUtc);
+        Result invariants = CheckInvariants(price, quantity);
 
-        return product;
+        if (invariants.IsFailure)
+        {
+            return Result.Failure<Product>(invariants.Error);
+        }
+
+        return new Product(ProductId.New(), name, description, price, quantity, categoryId, createdOnUtc);
     }
 
-    public static Product Update(Product product, string name, string description, Money price, int quantity, CategoryId categoryId, DateTime updatedOnUtc)
+    public static Result Update(Product product, string name, string description, Money price, int quantity, CategoryId categoryId, DateTime updatedOnUtc)
     {
+        Result invariants = CheckInvariants(price, quantity);
+
+        if (invariants.IsFailure)
+        {
+            return invariants;
+        }
 
         product.Name = name;
         product.Description = description;
@@ -47,7 +58,22 @@ public sealed class Product : Entity<ProductId>
         product.CategoryId = categoryId;
         product.UpdatedOnUtc = updatedOnUtc;
 
-        return product;
+        return Result.Success();
+    }
+
+    private static Result CheckInvariants(Money price, int quantity)
+    {
+        if (price.Amount <= 0)
+        {
+            return Result.Failure(ProductErrors.InvalidPrice());
+        }
+
+        if (quantity < 0)
+        {
+            return Result.Failure(ProductErrors.InvalidStockQuantity());
+        }
+
+        return Result.Success();
     }
 
     public bool HasStock(int quantity) => quantity > 0 && Quantity >= quantity;

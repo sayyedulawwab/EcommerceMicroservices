@@ -30,13 +30,20 @@ internal sealed class AddProductCommandHandler(
             return Result.Failure<Guid>(ValidationError.FromResults([currency]));
         }
 
-        var product = Product.Create(
+        Result<Product> created = Product.Create(
             request.Name,
             request.Description,
             new Money(request.PriceAmount, currency.Value),
             request.Quantity,
             categoryId,
             dateTimeProvider.UtcNow);
+
+        if (created.IsFailure)
+        {
+            return Result.Failure<Guid>(created.Error);
+        }
+
+        Product product = created.Value;
 
         dbContext.Products.Add(product);
 

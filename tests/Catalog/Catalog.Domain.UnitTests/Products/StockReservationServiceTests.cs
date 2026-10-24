@@ -1,4 +1,4 @@
-using Catalog.Domain.Categories;
+﻿using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using SharedKernel.Domain;
 
@@ -9,7 +9,7 @@ public sealed class StockReservationServiceTests
     private static readonly DateTime UtcNow = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private static Product CreateProduct(int quantity) =>
-        Product.Create("Keyboard", "Mechanical keyboard", new Money(50m, Currency.Usd), quantity, CategoryId.New(), UtcNow);
+        Product.Create("Keyboard", "Mechanical keyboard", new Money(50m, Currency.Usd), quantity, CategoryId.New(), UtcNow).Value;
 
     [Fact]
     public void Reserve_EnoughStock_RemovesStockAndCreatesReservations()
