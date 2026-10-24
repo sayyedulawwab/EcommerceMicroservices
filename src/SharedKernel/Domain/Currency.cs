@@ -2,34 +2,21 @@
 
 public record Currency
 {
+    public static readonly Error Unsupported = Error.BadRequest(
+        "Currency.Unsupported",
+        "The currency code is not supported");
+
+    // The currency of an amount that has none yet (Money.Zero()). It is not a supported currency.
     public static readonly Currency None = new("");
     public static readonly Currency Usd = new("USD");
     public static readonly Currency Bdt = new("BDT");
-
-    // Lets Cart rebuild a cached Currency with Newtonsoft.Json, which needs a default constructor.
-    private Currency()
-    {
-        Code = string.Empty;
-    }
 
     private Currency(string code)
     {
         Code = code;
     }
 
-    public string Code { get; init; }
-
-    public static Currency FromCode(string code)
-    {
-        if (code == None.Code)
-        {
-            return None;
-        }
-
-        return All.FirstOrDefault(c => c.Code == code) ?? throw new ApplicationException("The currency code is invalid");
-    }
-
-    public static bool IsSupported(string? code) => All.Any(c => c.Code == code);
+    public string Code { get; }
 
     public static readonly IReadOnlyCollection<Currency> All =
     [
@@ -37,10 +24,24 @@ public record Currency
         Bdt
     ];
 
-    public static Currency Create(string code)
+    public static bool IsSupported(string? code) => All.Any(c => c.Code == code);
+
+    public static Result<Currency> FromCode(string? code)
     {
-        var currency = new Currency(code);
+        Currency? currency = All.FirstOrDefault(c => c.Code == code);
+
+        if (currency is null)
+        {
+            return Result.Failure<Currency>(Unsupported);
+        }
 
         return currency;
     }
+
+    /// <summary>
+    /// Rebuilds a currency that was stored earlier: a supported code, or the empty code of <see cref="None"/>.
+    /// A stored code that is neither means the data is corrupt, so this throws instead of returning a Result.
+    /// </summary>
+    public static Currency FromStoredCode(string code) =>
+        code == None.Code ? None : FromCode(code).Value;
 }

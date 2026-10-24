@@ -7,6 +7,8 @@ namespace Cart.Domain.Carts;
 /// </summary>
 public sealed class Cart : Entity<CartId>
 {
+    private readonly List<CartItem> _cartItems = [];
+
     public Cart(CartId id, Guid userId, Money totalPrice, DateTime createdOnUtc) : base(id)
     {
         UserId = userId;
@@ -25,7 +27,7 @@ public sealed class Cart : Entity<CartId>
     public Money TotalPrice { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
     public DateTime? UpdatedOnUtc { get; private set; }
-    public List<CartItem> CartItems { get; private set; } = [];
+    public IReadOnlyList<CartItem> CartItems => _cartItems;
 
     public static Cart Create(Guid userId, DateTime createdOnUtc)
     {
@@ -37,7 +39,7 @@ public sealed class Cart : Entity<CartId>
     /// <summary>Adds the product, or increases its quantity if it is already in the cart.</summary>
     public Result AddItem(Guid productId, string productName, Money price, int quantity, DateTime utcNow)
     {
-        CartItem? existingItem = CartItems.Find(item => item.ProductId == productId);
+        CartItem? existingItem = _cartItems.Find(item => item.ProductId == productId);
         int newQuantity = (existingItem?.Quantity ?? 0) + quantity;
 
         if (quantity <= 0 || newQuantity > CartItem.MaxQuantity)
@@ -52,7 +54,7 @@ public sealed class Cart : Entity<CartId>
 
         if (existingItem is null)
         {
-            CartItems.Add(CartItem.Create(Id, productId, productName, price, quantity, utcNow));
+            _cartItems.Add(CartItem.Create(Id, productId, productName, price, quantity, utcNow));
         }
         else
         {
@@ -70,7 +72,7 @@ public sealed class Cart : Entity<CartId>
             return Result.Failure(CartErrors.InvalidQuantity(productId));
         }
 
-        CartItem? item = CartItems.Find(cartItem => cartItem.ProductId == productId);
+        CartItem? item = _cartItems.Find(cartItem => cartItem.ProductId == productId);
 
         if (item is null)
         {
@@ -79,7 +81,7 @@ public sealed class Cart : Entity<CartId>
 
         if (quantity == 0)
         {
-            CartItems.Remove(item);
+            _cartItems.Remove(item);
         }
         else
         {
@@ -91,7 +93,7 @@ public sealed class Cart : Entity<CartId>
 
     public Result RemoveItem(Guid productId, DateTime utcNow)
     {
-        int removed = CartItems.RemoveAll(item => item.ProductId == productId);
+        int removed = _cartItems.RemoveAll(item => item.ProductId == productId);
 
         return removed == 0
             ? Result.Failure(CartErrors.ItemNotFound(productId))
@@ -100,12 +102,21 @@ public sealed class Cart : Entity<CartId>
 
     private Result Changed(DateTime utcNow)
     {
-        TotalPrice = CartItems.Count == 0
-            ? Money.Zero()
-            : CartItems
-                .Select(item => item.LineTotal)
-                .Aggregate(Money.Zero(CartItems[0].Price.Currency), (total, lineTotal) => total + lineTotal);
+        Money total = CartItems.Count == 0 ? Money.Zero() : Money.Zero(CartItems[0].Price.Currency);
 
+        foreach (CartItem item in CartItems)
+        {
+            Result<Money> sum = total.Add(item.LineTotal);
+
+            if (sum.IsFailure)
+            {
+                return Result.Failure(CartErrors.MixedCurrencies);
+            }
+
+            total = sum.Value;
+        }
+
+        TotalPrice = total;
         UpdatedOnUtc = utcNow;
 
         return Result.Success();

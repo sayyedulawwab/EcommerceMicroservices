@@ -4,6 +4,7 @@ using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
+using SharedKernel.Exceptions;
 using SharedKernel.Messaging;
 
 namespace Catalog.Application.Products.AddProduct;
@@ -22,10 +23,17 @@ internal sealed class AddProductCommandHandler(
             return Result.Failure<Guid>(ProductErrors.CategoryNotFound(request.CategoryId));
         }
 
+        Result<Currency> currency = Currency.FromCode(request.PriceCurrency);
+
+        if (currency.IsFailure)
+        {
+            return Result.Failure<Guid>(ValidationError.FromResults([currency]));
+        }
+
         var product = Product.Create(
             request.Name,
             request.Description,
-            new Money(request.PriceAmount, Currency.FromCode(request.PriceCurrency)),
+            new Money(request.PriceAmount, currency.Value),
             request.Quantity,
             categoryId,
             dateTimeProvider.UtcNow);

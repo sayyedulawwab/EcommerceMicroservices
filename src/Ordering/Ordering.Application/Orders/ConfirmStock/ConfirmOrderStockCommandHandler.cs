@@ -75,19 +75,19 @@ internal sealed class ConfirmOrderStockCommandHandler(
 
     private Result ConfirmStock(Order order, List<PricedOrderItem> orderItems)
     {
-        PricedOrderItem? unsupported = orderItems.Find(item => !Currency.IsSupported(item.PriceCurrency));
+        var pricedLines = new List<PricedOrderLine>();
 
-        if (unsupported is not null)
+        foreach (PricedOrderItem item in orderItems)
         {
-            return Result.Failure(OrderErrors.UnsupportedCurrency(unsupported.PriceCurrency));
-        }
+            Result<Currency> currency = Currency.FromCode(item.PriceCurrency);
 
-        var pricedLines = orderItems
-            .Select(item => new PricedOrderLine(
-                item.ProductId,
-                item.ProductName,
-                new Money(item.PriceAmount, Currency.FromCode(item.PriceCurrency))))
-            .ToList();
+            if (currency.IsFailure)
+            {
+                return Result.Failure(OrderErrors.UnsupportedCurrency(item.PriceCurrency));
+            }
+
+            pricedLines.Add(new PricedOrderLine(item.ProductId, item.ProductName, new Money(item.PriceAmount, currency.Value)));
+        }
 
         return order.ConfirmStock(pricedLines, dateTimeProvider.UtcNow);
     }
