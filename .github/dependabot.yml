@@ -1,7 +1,0 @@
-version: 2
-updates:
-  # NuGet packages are not here: the NuGet audit fails the build when a package is vulnerable (see CLAUDE.md).
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
