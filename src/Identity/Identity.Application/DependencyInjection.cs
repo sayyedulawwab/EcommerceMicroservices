@@ -1,36 +1,40 @@
-﻿using FluentValidation;
-using Identity.Application.Abstractions.Decorators;
+﻿using Identity.Application.Abstractions.Behaviors;
+using SharedKernel.Messaging;
+using SharedKernel.Domain;
+using FluentValidation;
 using Identity.Application.Users;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.Domain;
-using SharedKernel.Messaging;
 
 namespace Identity.Application;
-
 public static class DependencyInjection
 {
+    // Every class in this assembly that implements one of these is registered, so a new use case needs no registration.
+    private static readonly Type[] HandlerInterfaces =
+    [
+        typeof(ICommandHandler<>),
+        typeof(ICommandHandler<,>),
+        typeof(IQueryHandler<,>),
+        typeof(IDomainEventHandler<>),
+    ];
+
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.Scan(scan => scan.FromAssembliesOf(typeof(DependencyInjection))
-            .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), publicOnly: false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), publicOnly: false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
+        // publicOnly: false because the handlers are internal sealed. Scoped: they use the request's DbContext.
+        services.Scan(scan => scan
+            .FromAssemblies(typeof(DependencyInjection).Assembly)
+            .AddClasses(classes => classes.AssignableToAny(HandlerInterfaces), publicOnly: false)
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
 
-        services.TryDecorate(typeof(ICommandHandler<>), typeof(ValidationDecorator.CommandBaseHandler<>));
-        services.TryDecorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
+        // Each TryDecorate wraps what is registered so far, so the last one is the outermost:
+        // logging -> validation -> handler.
+        services.TryDecorate(typeof(ICommandHandler<>), typeof(ValidatingCommandHandler<>));
+        services.TryDecorate(typeof(ICommandHandler<,>), typeof(ValidatingCommandHandler<,>));
+        services.TryDecorate(typeof(IQueryHandler<,>), typeof(ValidatingQueryHandler<,>));
 
-        services.TryDecorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandBaseHandler<>));
-        services.TryDecorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
-        services.TryDecorate(typeof(IQueryHandler<,>), typeof(LoggingDecorator.QueryHandler<,>));
+        services.TryDecorate(typeof(ICommandHandler<>), typeof(LoggingCommandHandler<>));
+        services.TryDecorate(typeof(ICommandHandler<,>), typeof(LoggingCommandHandler<,>));
+        services.TryDecorate(typeof(IQueryHandler<,>), typeof(LoggingQueryHandler<,>));
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 

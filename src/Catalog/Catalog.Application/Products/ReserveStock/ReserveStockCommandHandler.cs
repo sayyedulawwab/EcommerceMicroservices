@@ -1,5 +1,4 @@
-﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Application.Abstractions.Data;
+﻿using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -10,10 +9,10 @@ namespace Catalog.Application.Products.ReserveStock;
 
 internal sealed class ReserveStockCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<ReserveStockCommand, ReserveStockResult>
 {
-    public async Task<Result<ReserveStockResult>> Handle(ReserveStockCommand request, CancellationToken cancellationToken)
+    public async Task<Result<ReserveStockResult>> HandleAsync(ReserveStockCommand request, CancellationToken cancellationToken)
     {
         // The same product may appear more than once in an order; reserve the combined quantity.
         var requestedQuantities = request.Items
@@ -54,7 +53,7 @@ internal sealed class ReserveStockCommandHandler(
             request.OrderId,
             requestedQuantities,
             productsById,
-            dateTimeProvider.UtcNow);
+            timeProvider.GetUtcNow().UtcDateTime);
 
         if (reserveResult.IsFailure)
         {

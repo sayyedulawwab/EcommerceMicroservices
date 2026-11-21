@@ -1,5 +1,4 @@
-﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Application.Abstractions.Data;
+﻿using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Categories;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -9,12 +8,12 @@ namespace Catalog.Application.Categories.EditCategory;
 
 internal sealed class EditCategoryCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<EditCategoryCommand, Guid>
 {
     private const int MaxCategoryDepth = 100;
 
-    public async Task<Result<Guid>> Handle(EditCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> HandleAsync(EditCategoryCommand request, CancellationToken cancellationToken)
     {
         var categoryId = new CategoryId(request.Id);
 
@@ -37,7 +36,7 @@ internal sealed class EditCategoryCommandHandler(
             }
         }
 
-        Category.Update(category, request.Name, request.Description, parentCategoryId, dateTimeProvider.UtcNow);
+        Category.Update(category, request.Name, request.Description, parentCategoryId, timeProvider.GetUtcNow().UtcDateTime);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

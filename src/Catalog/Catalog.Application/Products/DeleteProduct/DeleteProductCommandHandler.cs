@@ -9,7 +9,7 @@ namespace Catalog.Application.Products.DeleteProduct;
 internal sealed class DeleteProductCommandHandler(IApplicationDbContext dbContext)
     : ICommandHandler<DeleteProductCommand, Guid>
 {
-    public async Task<Result<Guid>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> HandleAsync(DeleteProductCommand request, CancellationToken cancellationToken)
     {
         var productId = new ProductId(request.Id);
 

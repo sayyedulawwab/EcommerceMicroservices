@@ -1,5 +1,4 @@
-﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Application.Abstractions.Data;
+﻿using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +10,10 @@ namespace Catalog.Application.Products.AddProduct;
 
 internal sealed class AddProductCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<AddProductCommand, Guid>
 {
-    public async Task<Result<Guid>> Handle(AddProductCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> HandleAsync(AddProductCommand request, CancellationToken cancellationToken)
     {
         var categoryId = new CategoryId(request.CategoryId);
 
@@ -27,7 +26,7 @@ internal sealed class AddProductCommandHandler(
 
         if (currency.IsFailure)
         {
-            return Result.Failure<Guid>(ValidationError.FromResults([currency]));
+            return Result.Failure<Guid>(ValidationError.Collect(currency));
         }
 
         Result<Product> created = Product.Create(
@@ -36,7 +35,7 @@ internal sealed class AddProductCommandHandler(
             new Money(request.PriceAmount, currency.Value),
             request.Quantity,
             categoryId,
-            dateTimeProvider.UtcNow);
+            timeProvider.GetUtcNow().UtcDateTime);
 
         if (created.IsFailure)
         {

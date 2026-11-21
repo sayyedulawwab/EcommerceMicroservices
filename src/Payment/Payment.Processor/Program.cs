@@ -5,9 +5,9 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Payment.Processor.Application.Abstractions;
 using Payment.Processor.Application.Events;
-using Payment.Processor.Extensions;
 using Payment.Processor.Infrastructure;
 using Payment.Processor.Logging;
+using Payment.Processor.Middleware;
 using Serilog;
 using System.Diagnostics;
 
@@ -93,7 +93,7 @@ builder.Services.AddMassTransit(busConfigurator =>
 
 WebApplication app = builder.Build();
 
-app.UseRequestContextLogging();
+app.UseMiddleware<CorrelationIdMiddleware>();
 
 app.UseSerilogRequestLogging();
 

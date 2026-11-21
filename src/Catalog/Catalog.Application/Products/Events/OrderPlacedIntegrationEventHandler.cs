@@ -18,7 +18,7 @@ public sealed class OrderPlacedIntegrationEventHandler(
 
         var command = new ReserveStockCommand(context.Message.OrderId, context.Message.OrderStockItems);
 
-        Result<ReserveStockResult> result = await handler.Handle(command, context.CancellationToken);
+        Result<ReserveStockResult> result = await handler.HandleAsync(command, context.CancellationToken);
 
         if (result.IsFailure)
         {

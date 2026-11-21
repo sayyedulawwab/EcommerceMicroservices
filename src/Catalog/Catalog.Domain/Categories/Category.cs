@@ -2,7 +2,7 @@
 
 namespace Catalog.Domain.Categories;
 
-public sealed class Category : Entity<CategoryId>
+public sealed class Category : AggregateRoot<CategoryId>
 {
     private Category(CategoryId id, string name, string description, CategoryId? parentCategoryId, DateTime createdOnUtc)
         : base(id)

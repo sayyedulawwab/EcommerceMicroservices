@@ -8,7 +8,7 @@ namespace Catalog.Application.Categories.GetAllCategories;
 internal sealed class GetAllCategoriesQueryHandler(IApplicationDbContext dbContext)
     : IQueryHandler<GetAllCategoriesQuery, IReadOnlyList<CategoryResponse>>
 {
-    public async Task<Result<IReadOnlyList<CategoryResponse>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<CategoryResponse>>> HandleAsync(GetAllCategoriesQuery request, CancellationToken cancellationToken)
     {
         List<CategoryResponse> categoriesResponse = await dbContext.Categories
             .AsNoTracking()

@@ -3,19 +3,13 @@ using System.Net;
 
 namespace SharedKernel.Exceptions;
 
-public sealed record ValidationError : Error
+/// <summary>
+/// One error that groups several field errors, so a client gets all of them in one response.
+/// </summary>
+public sealed record ValidationError(IReadOnlyList<Error> Errors)
+    : Error("Validation.General", "One or more validation errors occurred", HttpStatusCode.BadRequest)
 {
-    public ValidationError(Error[] errors)
-        : base(
-            "Validation.General",
-            "One or more validation errors occurred",
-            HttpStatusCode.BadRequest)
-    {
-        Errors = errors;
-    }
-
-    public Error[] Errors { get; }
-
-    public static ValidationError FromResults(IEnumerable<Result> results) =>
-        new(results.Where(r => r.IsFailure).Select(r => r.Error).ToArray());
+    /// <summary>Collects the errors of the failed results, for example of several value objects created together.</summary>
+    public static ValidationError Collect(params IEnumerable<Result> results) =>
+        new([.. results.Where(result => result.IsFailure).Select(result => result.Error)]);
 }

@@ -10,7 +10,7 @@ namespace Identity.Application.Users.GetProfile;
 internal sealed class GetUserProfileQueryHandler(IApplicationDbContext dbContext)
     : IQueryHandler<GetUserProfileQuery, UserProfileResponse>
 {
-    public async Task<Result<UserProfileResponse>> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
+    public async Task<Result<UserProfileResponse>> HandleAsync(GetUserProfileQuery request, CancellationToken cancellationToken)
     {
         User? user = await dbContext.Users
             .AsNoTracking()

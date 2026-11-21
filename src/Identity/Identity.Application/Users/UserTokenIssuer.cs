@@ -1,5 +1,4 @@
 using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.Extensions.Options;
@@ -9,7 +8,7 @@ namespace Identity.Application.Users;
 internal sealed class UserTokenIssuer(
     ISecureTokenService secureTokenService,
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider,
+    TimeProvider timeProvider,
     IOptions<AccountOptions> accountOptions)
 {
     /// <summary>
@@ -17,7 +16,7 @@ internal sealed class UserTokenIssuer(
     /// </summary>
     public void Issue(User user, UserTokenPurpose purpose)
     {
-        DateTime utcNow = dateTimeProvider.UtcNow;
+        DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
         DateTime expiresOnUtc = purpose == UserTokenPurpose.PasswordReset
             ? utcNow.AddMinutes(accountOptions.Value.PasswordResetTokenLifetimeMinutes)

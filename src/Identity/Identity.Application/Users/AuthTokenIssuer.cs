@@ -1,5 +1,4 @@
 using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.Extensions.Options;
@@ -10,7 +9,7 @@ internal sealed class AuthTokenIssuer(
     IJwtService jwtService,
     ISecureTokenService secureTokenService,
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider,
+    TimeProvider timeProvider,
     IOptions<AccountOptions> accountOptions)
 {
     /// <summary>
@@ -19,7 +18,7 @@ internal sealed class AuthTokenIssuer(
     /// </summary>
     public AuthTokens Issue(User user, Guid familyId)
     {
-        DateTime utcNow = dateTimeProvider.UtcNow;
+        DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
         AccessToken accessToken = jwtService.CreateAccessToken(user);
 

@@ -13,7 +13,7 @@ internal sealed class SearchlProductsQueryHandler(IApplicationDbContext dbContex
 {
     private const int MaxPageSize = 100;
 
-    public async Task<Result<PagedList<ProductResponse>>> Handle(SearchProductsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedList<ProductResponse>>> HandleAsync(SearchProductsQuery request, CancellationToken cancellationToken)
     {
         int page = Math.Max(1, request.Page);
         int pageSize = Math.Clamp(request.PageSize, 1, MaxPageSize);

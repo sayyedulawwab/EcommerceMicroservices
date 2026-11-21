@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Cart.API;
 using Cart.API.Extensions;
 using Cart.API.Logging;
+using Cart.API.Middleware;
 using Cart.Application;
 using Cart.Application.Carts.RemoveCart;
 using Cart.Infrastructure;
@@ -112,13 +113,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerWithUi();
 }
 
-app.UseRequestContextLogging();
+app.UseMiddleware<CorrelationIdMiddleware>();
 
 app.UseSerilogRequestLogging();
 
-app.UseCustomExceptionHandler();
+app.UseExceptionHandler();
 
-app.UseCsrfProtection();
+app.UseMiddleware<CsrfProtectionMiddleware>();
 
 //app.UseHttpsRedirection();
 

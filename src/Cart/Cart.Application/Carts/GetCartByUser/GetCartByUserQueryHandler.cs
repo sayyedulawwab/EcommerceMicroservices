@@ -6,7 +6,7 @@ namespace Cart.Application.Carts.GetCartByUser;
 
 internal sealed class GetCartByUserQueryHandler(ICartRepository cartRepository) : IQueryHandler<GetCartByUserQuery, CartResponse>
 {
-    public async Task<Result<CartResponse>> Handle(GetCartByUserQuery request, CancellationToken cancellationToken)
+    public async Task<Result<CartResponse>> HandleAsync(GetCartByUserQuery request, CancellationToken cancellationToken)
     {
         Domain.Carts.Cart? cart = await cartRepository.GetByUserId(request.UserId, cancellationToken);
 

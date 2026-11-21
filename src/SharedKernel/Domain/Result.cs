@@ -1,57 +1,64 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace SharedKernel.Domain;
 
-namespace SharedKernel.Domain;
-
+/// <summary>
+/// The outcome of an operation that can be rejected by a business rule.
+/// A result is a success exactly when its error is <see cref="Error.None"/>.
+/// </summary>
 public class Result
 {
-    protected internal Result(bool isSuccess, Error error)
+    private protected Result(Error error)
     {
-        if (isSuccess && error != Error.None)
-        {
-            throw new InvalidOperationException();
-        }
-
-        if (!isSuccess && error == Error.None)
-        {
-            throw new InvalidOperationException();
-        }
-
-        IsSuccess = isSuccess;
         Error = error;
     }
 
-    public bool IsSuccess { get; }
+    public Error Error { get; }
+
+    public bool IsSuccess => Error == Error.None;
 
     public bool IsFailure => !IsSuccess;
 
-    public Error Error { get; }
+    public static Result Success() => new(Error.None);
 
-    public static Result Success() => new(true, Error.None);
+    public static Result Failure(Error error) => new(RequireFailure(error));
 
-    public static Result Failure(Error error) => new(false, error);
+    public static Result<TValue> Success<TValue>(TValue value) => new(value);
 
-    public static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
+    public static Result<TValue> Failure<TValue>(Error error) => new(RequireFailure(error));
 
-    public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
+    private protected static Error RequireFailure(Error error)
+    {
+        ArgumentNullException.ThrowIfNull(error);
 
-    public static Result<TValue> Create<TValue>(TValue? value) =>
-        value is not null ? Success(value) : Failure<TValue>(Error.NullValue);
+        return error == Error.None
+            ? throw new ArgumentException("A failed result needs an error other than Error.None.", nameof(error))
+            : error;
+    }
 }
 
-public class Result<TValue> : Result
+/// <summary>
+/// A result that carries a value when it succeeds.
+/// </summary>
+public sealed class Result<TValue> : Result
 {
     private readonly TValue? _value;
 
-    protected internal Result(TValue? value, bool isSuccess, Error error)
-        : base(isSuccess, error)
+    internal Result(TValue value)
+        : base(Error.None)
     {
         _value = value;
     }
 
-    [NotNull]
+    internal Result(Error error)
+        : base(error)
+    {
+    }
+
+    // Reading the value of a failure is a bug in the caller, not a business outcome.
     public TValue Value => IsSuccess
         ? _value!
-        : throw new InvalidOperationException("The value of a failure result can not be accessed.");
+        : throw new InvalidOperationException($"A failed result has no value. Error: {Error.Name}.");
 
-    public static implicit operator Result<TValue>(TValue? value) => Create(value);
+    // A handler can return its response directly; a null response becomes Error.NullValue.
+    public static implicit operator Result<TValue>(TValue? value) =>
+        value is null ? new Result<TValue>(Error.NullValue) : new Result<TValue>(value);
 }

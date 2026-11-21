@@ -1,4 +1,3 @@
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +10,10 @@ namespace Identity.Application.Users.ForgotPassword;
 internal sealed class ForgotPasswordCommandHandler(
     IApplicationDbContext dbContext,
     UserTokenIssuer userTokenIssuer,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<ForgotPasswordCommand>
 {
-    public async Task<Result> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
         string email = User.NormalizeEmail(request.Email);
 
@@ -28,7 +27,7 @@ internal sealed class ForgotPasswordCommandHandler(
         // Old links die only if the new one is saved too.
         await dbContext.ExecuteInTransactionAsync(async ct =>
         {
-            DateTime utcNow = dateTimeProvider.UtcNow;
+            DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
             await dbContext.UserTokens
                 .Where(t => t.UserId == user.Id && t.Purpose == UserTokenPurpose.PasswordReset && t.ConsumedOnUtc == null)

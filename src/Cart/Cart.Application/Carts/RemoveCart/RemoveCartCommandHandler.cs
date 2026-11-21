@@ -6,7 +6,7 @@ namespace Cart.Application.Carts.RemoveCart;
 
 internal sealed class RemoveCartCommandHandler(ICartRepository cartRepository) : ICommandHandler<RemoveCartCommand>
 {
-    public async Task<Result> Handle(RemoveCartCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(RemoveCartCommand request, CancellationToken cancellationToken)
     {
         await cartRepository.RemoveAsync(request.UserId, cancellationToken);
 

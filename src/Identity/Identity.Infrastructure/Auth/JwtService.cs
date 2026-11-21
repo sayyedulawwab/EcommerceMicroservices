@@ -1,5 +1,4 @@
 ﻿using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Domain.Users;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -11,7 +10,7 @@ using System.Text;
 
 namespace Identity.Infrastructure.Auth;
 
-internal sealed class JwtService(IOptions<JwtOptions> jwtOptions, IDateTimeProvider dateTimeProvider) : IJwtService
+internal sealed class JwtService(IOptions<JwtOptions> jwtOptions, TimeProvider timeProvider) : IJwtService
 {
     public AccessToken CreateAccessToken(User user)
     {
@@ -29,7 +28,7 @@ internal sealed class JwtService(IOptions<JwtOptions> jwtOptions, IDateTimeProvi
             claims.Add(new Claim(ClaimTypes.Role, Roles.Admin));
         }
 
-        DateTime expiresOnUtc = dateTimeProvider.UtcNow.AddMinutes(jwtOptions.Value.ExpiresInMinutes);
+        DateTime expiresOnUtc = timeProvider.GetUtcNow().UtcDateTime.AddMinutes(jwtOptions.Value.ExpiresInMinutes);
 
         var jwt = new JwtSecurityToken(
                     jwtOptions.Value.Issuer,

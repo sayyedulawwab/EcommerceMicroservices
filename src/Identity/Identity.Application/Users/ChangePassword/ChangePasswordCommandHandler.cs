@@ -1,5 +1,4 @@
 using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +14,10 @@ internal sealed class ChangePasswordCommandHandler(
     IApplicationDbContext dbContext,
     IPasswordHasher passwordHasher,
     AuthTokenIssuer authTokenIssuer,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<ChangePasswordCommand, AuthTokens>
 {
-    public async Task<Result<AuthTokens>> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AuthTokens>> HandleAsync(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
         User? user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == new UserId(request.UserId), cancellationToken);
 
@@ -32,7 +31,7 @@ internal sealed class ChangePasswordCommandHandler(
             return Result.Failure<AuthTokens>(UserErrors.InvalidCurrentPassword);
         }
 
-        DateTime utcNow = dateTimeProvider.UtcNow;
+        DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
         user.ChangePasswordHash(passwordHasher.Hash(request.NewPassword, passwordHasher.GenerateSalt()), utcNow);
 

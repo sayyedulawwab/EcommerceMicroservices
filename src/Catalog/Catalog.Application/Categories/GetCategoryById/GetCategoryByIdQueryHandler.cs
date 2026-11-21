@@ -9,7 +9,7 @@ namespace Catalog.Application.Categories.GetCategoryById;
 internal sealed class GetCategoryByIdQueryHandler(IApplicationDbContext dbContext)
     : IQueryHandler<GetCategoryByIdQuery, CategoryResponse>
 {
-    public async Task<Result<CategoryResponse>> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<CategoryResponse>> HandleAsync(GetCategoryByIdQuery request, CancellationToken cancellationToken)
     {
         var categoryId = new CategoryId(request.Id);
 

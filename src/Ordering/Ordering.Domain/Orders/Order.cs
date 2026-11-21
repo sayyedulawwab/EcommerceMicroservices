@@ -6,7 +6,7 @@ namespace Ordering.Domain.Orders;
 /// Placed → StockConfirmed → Paid → Shipped → Delivered.
 /// Placed and StockConfirmed orders can be Cancelled (by the customer, a stock rejection or a failed payment).
 /// </summary>
-public sealed class Order : Entity<OrderId>
+public sealed class Order : AggregateRoot<OrderId>
 {
     public const int MaxCancellationReasonLength = 500;
 

@@ -1,6 +1,5 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Data;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
@@ -11,11 +10,11 @@ namespace Ordering.Application.Orders.ConfirmStock;
 
 internal sealed class ConfirmOrderStockCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider,
+    TimeProvider timeProvider,
     IPublishEndpoint publishEndpoint)
     : ICommandHandler<ConfirmOrderStockCommand>
 {
-    public async Task<Result> Handle(ConfirmOrderStockCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(ConfirmOrderStockCommand request, CancellationToken cancellationToken)
     {
         Order? order = await dbContext.Orders
             .Include(order => order.OrderItems)
@@ -49,7 +48,7 @@ internal sealed class ConfirmOrderStockCommandHandler(
         if (confirmResult.IsFailure)
         {
             // Bad data from Catalog would otherwise leave the order Placed with its stock reserved forever.
-            order.Cancel($"Stock confirmation was invalid: {confirmResult.Error.Description}", dateTimeProvider.UtcNow);
+            order.Cancel($"Stock confirmation was invalid: {confirmResult.Error.Description}", timeProvider.GetUtcNow().UtcDateTime);
 
             await publishEndpoint.Publish(
                 new OrderCancelledIntegrationEvent(order.Id.Value, order.CancellationReason ?? confirmResult.Error.Description),
@@ -89,6 +88,6 @@ internal sealed class ConfirmOrderStockCommandHandler(
             pricedLines.Add(new PricedOrderLine(item.ProductId, item.ProductName, new Money(item.PriceAmount, currency.Value)));
         }
 
-        return order.ConfirmStock(pricedLines, dateTimeProvider.UtcNow);
+        return order.ConfirmStock(pricedLines, timeProvider.GetUtcNow().UtcDateTime);
     }
 }

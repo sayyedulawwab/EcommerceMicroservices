@@ -5,7 +5,7 @@ namespace Cart.Domain.Carts;
 /// <summary>
 /// A shopping cart. Names and prices here are what the client showed the user; the order uses Catalog's prices.
 /// </summary>
-public sealed class Cart : Entity<CartId>
+public sealed class Cart : AggregateRoot<CartId>
 {
     private readonly List<CartItem> _cartItems = [];
 

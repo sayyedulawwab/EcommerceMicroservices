@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Identity.API;
 using Identity.API.Extensions;
 using Identity.API.Logging;
+using Identity.API.Middleware;
 using Identity.Application;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Data;
@@ -104,18 +105,18 @@ WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerWithUi();
-    app.ApplyMigrations();
+    await app.PrepareDevelopmentDatabaseAsync();
 }
 
 await AdminSeeder.SeedAdminUserAsync(app.Services);
 
-app.UseRequestContextLogging();
+app.UseMiddleware<CorrelationIdMiddleware>();
 
 app.UseSerilogRequestLogging();
 
-app.UseCustomExceptionHandler();
+app.UseExceptionHandler();
 
-app.UseCsrfProtection();
+app.UseMiddleware<CsrfProtectionMiddleware>();
 
 //app.UseHttpsRedirection();
 

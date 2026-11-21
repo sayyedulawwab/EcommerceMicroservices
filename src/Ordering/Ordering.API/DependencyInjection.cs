@@ -1,4 +1,5 @@
 ﻿using Microsoft.OpenApi;
+using Ordering.API.Infrastructure;
 
 namespace Ordering.API;
 
@@ -29,6 +30,9 @@ public static class DependencyInjection
 
         services.AddControllers();
         services.AddEndpointsApiExplorer();
+
+        services.AddExceptionHandler<ExceptionHandler>();
+        services.AddProblemDetails();
 
         return services;
     }

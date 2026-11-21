@@ -2,10 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Data;
 using Ordering.Infrastructure.Auth;
-using Ordering.Infrastructure.Clock;
 using SharedKernel.DomainEvents;
 
 namespace Ordering.Infrastructure;
@@ -14,7 +12,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+        // .NET's own clock abstraction; tests replace it with a fake time provider.
+        services.AddSingleton(TimeProvider.System);
         services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
 
         AddAuthentication(services);

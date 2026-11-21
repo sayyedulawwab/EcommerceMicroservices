@@ -15,7 +15,7 @@ internal sealed class LoginCommandHandler(
     IOptions<AccountOptions> accountOptions)
     : ICommandHandler<LoginCommand, AuthTokens>
 {
-    public async Task<Result<AuthTokens>> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AuthTokens>> HandleAsync(LoginCommand request, CancellationToken cancellationToken)
     {
         string email = User.NormalizeEmail(request.Email);
 

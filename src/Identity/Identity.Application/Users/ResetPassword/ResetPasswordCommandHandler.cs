@@ -1,5 +1,4 @@
 using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +11,10 @@ internal sealed class ResetPasswordCommandHandler(
     IApplicationDbContext dbContext,
     ISecureTokenService secureTokenService,
     IPasswordHasher passwordHasher,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<ResetPasswordCommand>
 {
-    public async Task<Result> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
         string email = User.NormalizeEmail(request.Email);
 
@@ -26,7 +25,7 @@ internal sealed class ResetPasswordCommandHandler(
             return Result.Failure(UserTokenErrors.InvalidOrExpired);
         }
 
-        DateTime utcNow = dateTimeProvider.UtcNow;
+        DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
         string tokenHash = secureTokenService.Hash(request.Token);
 

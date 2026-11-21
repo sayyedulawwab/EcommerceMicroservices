@@ -7,6 +7,7 @@ using OpenTelemetry.Trace;
 using Ordering.API;
 using Ordering.API.Extensions;
 using Ordering.API.Logging;
+using Ordering.API.Middleware;
 using Ordering.Application;
 using Ordering.Application.Orders.Events;
 using Ordering.Infrastructure;
@@ -123,16 +124,16 @@ WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerWithUi();
-    app.ApplyMigrations();
+    await app.PrepareDevelopmentDatabaseAsync();
 }
 
-app.UseRequestContextLogging();
+app.UseMiddleware<CorrelationIdMiddleware>();
 
 app.UseSerilogRequestLogging();
 
-app.UseCustomExceptionHandler();
+app.UseExceptionHandler();
 
-app.UseCsrfProtection();
+app.UseMiddleware<CsrfProtectionMiddleware>();
 
 //app.UseHttpsRedirection();
 

@@ -1,5 +1,4 @@
 using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -13,14 +12,14 @@ internal sealed class RefreshTokensCommandHandler(
     IApplicationDbContext dbContext,
     ISecureTokenService secureTokenService,
     AuthTokenIssuer authTokenIssuer,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<RefreshTokensCommand, AuthTokens>
 {
     // Two browser tabs refreshing at the same moment both present the same token; the slower one must not be
     // mistaken for a stolen token being replayed.
     private static readonly TimeSpan ConcurrentRefreshGracePeriod = TimeSpan.FromSeconds(30);
 
-    public async Task<Result<AuthTokens>> Handle(RefreshTokensCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AuthTokens>> HandleAsync(RefreshTokensCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
         {
@@ -38,7 +37,7 @@ internal sealed class RefreshTokensCommandHandler(
             return Result.Failure<AuthTokens>(RefreshTokenErrors.Invalid);
         }
 
-        DateTime utcNow = dateTimeProvider.UtcNow;
+        DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
         if (refreshToken.IsRevoked)
         {

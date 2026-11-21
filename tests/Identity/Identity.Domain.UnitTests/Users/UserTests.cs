@@ -93,7 +93,7 @@ public sealed class UserTests
     {
         User user = CreateUser();
 
-        Assert.Empty(user.GetDomainEvents());
+        Assert.Empty(user.PullDomainEvents());
     }
 
     private static User CreateUser() =>

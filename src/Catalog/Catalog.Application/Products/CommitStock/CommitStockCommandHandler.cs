@@ -1,5 +1,4 @@
-﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Application.Abstractions.Data;
+﻿using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -12,10 +11,10 @@ namespace Catalog.Application.Products.CommitStock;
 /// </summary>
 internal sealed class CommitStockCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<CommitStockCommand>
 {
-    public async Task<Result> Handle(CommitStockCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(CommitStockCommand request, CancellationToken cancellationToken)
     {
         List<StockReservation> activeReservations = await dbContext.StockReservations
             .Where(reservation => reservation.OrderId == request.OrderId && reservation.Status == StockReservationStatus.Reserved)
@@ -26,7 +25,7 @@ internal sealed class CommitStockCommandHandler(
             return Result.Success();
         }
 
-        DateTime utcNow = dateTimeProvider.UtcNow;
+        DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
         foreach (StockReservation reservation in activeReservations)
         {

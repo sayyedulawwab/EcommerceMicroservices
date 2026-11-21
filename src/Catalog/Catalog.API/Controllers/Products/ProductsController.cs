@@ -30,7 +30,7 @@ public class ProductsController : BaseController
             request.Quantity,
             request.CategoryId);
 
-        Result<Guid> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -46,7 +46,7 @@ public class ProductsController : BaseController
     {
         var query = new GetProductByIdQuery(id);
 
-        Result<ProductResponse> result = await handler.Handle(query, cancellationToken);
+        Result<ProductResponse> result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -63,7 +63,7 @@ public class ProductsController : BaseController
         var command = new EditProductCommand(id, request.Name, request.Description, request.PriceCurrency, request.PriceAmount,
             request.Quantity, request.CategoryId);
 
-        Result<Guid> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -79,7 +79,7 @@ public class ProductsController : BaseController
     {
         var command = new DeleteProductCommand(id);
 
-        Result<Guid> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -97,7 +97,7 @@ public class ProductsController : BaseController
             request.MaxPrice, request.Keyword, request.Page, request.PageSize, request.SortColumn,
             request.SortOrder);
 
-        Result<PagedList<ProductResponse>> result = await handler.Handle(query, cancellationToken);
+        Result<PagedList<ProductResponse>> result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
         {
