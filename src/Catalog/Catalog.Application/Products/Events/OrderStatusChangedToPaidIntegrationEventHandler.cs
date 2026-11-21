@@ -16,7 +16,7 @@ public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
     {
         logger.LogInformation("Handling integration event: ({@IntegrationEvent}) with Order Id: {@OrderId}", context.Message, context.Message.OrderId);
 
-        Result result = await handler.Handle(new CommitStockCommand(context.Message.OrderId), context.CancellationToken);
+        Result result = await handler.HandleAsync(new CommitStockCommand(context.Message.OrderId), context.CancellationToken);
 
         if (result.IsFailure)
         {

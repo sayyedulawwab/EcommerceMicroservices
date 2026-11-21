@@ -37,7 +37,7 @@ public sealed class UserTokenTests
 
         var token = UserToken.Issue(user, purpose, RawToken, TokenHash, ExpiresOnUtc, NowUtc);
 
-        IDomainEvent domainEvent = Assert.Single(token.GetDomainEvents());
+        IDomainEvent domainEvent = Assert.Single(token.PullDomainEvents());
         UserTokenIssuedDomainEvent issued = Assert.IsType<UserTokenIssuedDomainEvent>(domainEvent);
         Assert.Equal("jane@example.com", issued.Email);
         Assert.Equal("Jane", issued.FirstName);
@@ -50,7 +50,7 @@ public sealed class UserTokenTests
     {
         var token = UserToken.Issue(CreateUser(), UserTokenPurpose.EmailConfirmation, RawToken, TokenHash, ExpiresOnUtc, NowUtc);
 
-        UserTokenIssuedDomainEvent issued = Assert.IsType<UserTokenIssuedDomainEvent>(Assert.Single(token.GetDomainEvents()));
+        UserTokenIssuedDomainEvent issued = Assert.IsType<UserTokenIssuedDomainEvent>(Assert.Single(token.PullDomainEvents()));
         Assert.NotEqual(TokenHash, issued.RawToken);
     }
 

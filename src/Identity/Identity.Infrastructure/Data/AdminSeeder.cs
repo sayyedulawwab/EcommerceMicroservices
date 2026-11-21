@@ -1,5 +1,4 @@
 using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +40,7 @@ public static class AdminSeeder
 
         IPasswordHasher passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
         IApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
-        DateTime utcNow = scope.ServiceProvider.GetRequiredService<IDateTimeProvider>().UtcNow;
+        DateTime utcNow = scope.ServiceProvider.GetRequiredService<TimeProvider>().GetUtcNow().UtcDateTime;
 
         string email = User.NormalizeEmail(options.Email);
 

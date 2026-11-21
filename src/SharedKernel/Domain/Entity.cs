@@ -1,33 +1,20 @@
 ﻿namespace SharedKernel.Domain;
 
-public abstract class Entity<TEntityId> : IEntity
+/// <summary>
+/// Anything with an identity of its own. Child entities such as order lines derive from this directly.
+/// </summary>
+public abstract class Entity<TId>
 {
-    private readonly List<IDomainEvent> _domainEvents = [];
-    protected Entity(TEntityId id)
+    protected Entity(TId id)
     {
         Id = id;
     }
 
-    #pragma warning disable CS8618 // Used by EF Core to materialize the entity
+#pragma warning disable CS8618 // EF Core sets Id after calling this constructor.
     protected Entity()
     {
     }
-    #pragma warning restore CS8618
+#pragma warning restore CS8618
 
-    public TEntityId Id { get; init; }
-
-    public IReadOnlyList<IDomainEvent> GetDomainEvents()
-    {
-        return [.. _domainEvents];
-    }
-
-    public void ClearDomainEvents()
-    {
-        _domainEvents.Clear();
-    }
-
-    protected void RaiseDomainEvent(IDomainEvent domainEvent)
-    {
-        _domainEvents.Add(domainEvent);
-    }
+    public TId Id { get; init; }
 }

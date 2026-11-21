@@ -1,4 +1,5 @@
 ﻿using Identity.API.Auth;
+using Identity.API.Infrastructure;
 using Microsoft.OpenApi;
 
 namespace Identity.API;
@@ -33,6 +34,9 @@ public static class DependencyInjection
 
         services.AddControllers();
         services.AddEndpointsApiExplorer();
+
+        services.AddExceptionHandler<ExceptionHandler>();
+        services.AddProblemDetails();
 
         return services;
     }

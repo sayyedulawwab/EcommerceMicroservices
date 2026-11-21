@@ -9,7 +9,7 @@ namespace Catalog.Application.Products.GetProductById;
 internal sealed class GetProductByIdQueryHandler(IApplicationDbContext dbContext)
     : IQueryHandler<GetProductByIdQuery, ProductResponse>
 {
-    public async Task<Result<ProductResponse>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<ProductResponse>> HandleAsync(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
         var productId = new ProductId(request.Id);
 

@@ -1,5 +1,4 @@
-﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Application.Abstractions.Data;
+﻿using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -9,10 +8,10 @@ namespace Catalog.Application.Products.ReleaseStock;
 
 internal sealed class ReleaseStockCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<ReleaseStockCommand>
 {
-    public async Task<Result> Handle(ReleaseStockCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(ReleaseStockCommand request, CancellationToken cancellationToken)
     {
         List<StockReservation> activeReservations = await dbContext.StockReservations
             .Where(reservation => reservation.OrderId == request.OrderId && reservation.Status == StockReservationStatus.Reserved)
@@ -30,7 +29,7 @@ internal sealed class ReleaseStockCommandHandler(
             .Where(product => productIds.Contains(product.Id))
             .ToDictionaryAsync(product => product.Id, cancellationToken);
 
-        StockReservationService.Release(activeReservations, productsById, dateTimeProvider.UtcNow);
+        StockReservationService.Release(activeReservations, productsById, timeProvider.GetUtcNow().UtcDateTime);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

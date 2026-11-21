@@ -9,7 +9,7 @@ namespace Catalog.Application.Categories.DeleteCategory;
 internal sealed class DeleteCategoryCommandHandler(IApplicationDbContext dbContext)
     : ICommandHandler<DeleteCategoryCommand, Guid>
 {
-    public async Task<Result<Guid>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> HandleAsync(DeleteCategoryCommand request, CancellationToken cancellationToken)
     {
         var categoryId = new CategoryId(request.Id);
 

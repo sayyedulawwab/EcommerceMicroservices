@@ -1,10 +1,8 @@
 ﻿using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Email;
 using Identity.Application.Abstractions.Data;
 using Identity.Infrastructure.Auth;
 using Identity.Infrastructure.BackgroundJobs;
-using Identity.Infrastructure.Clock;
 using Identity.Infrastructure.Data;
 using Identity.Infrastructure.Email;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,9 +17,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddTransient<IDateTimeProvider, DateTimeProvider>();
-        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
+        // .NET's own clock abstraction; tests replace it with a fake time provider.
         services.AddSingleton(TimeProvider.System);
+        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
 
         services.Configure<AccountOptions>(configuration.GetSection(AccountOptions.SectionName));
         services.Configure<AdminUserOptions>(configuration.GetSection(AdminUserOptions.SectionName));

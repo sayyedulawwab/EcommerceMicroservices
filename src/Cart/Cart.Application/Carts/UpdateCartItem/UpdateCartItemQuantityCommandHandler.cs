@@ -1,4 +1,3 @@
-using Cart.Application.Abstractions.Clock;
 using Cart.Domain.Carts;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
@@ -7,10 +6,10 @@ namespace Cart.Application.Carts.UpdateCartItem;
 
 internal sealed class UpdateCartItemQuantityCommandHandler(
     ICartRepository cartRepository,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<UpdateCartItemQuantityCommand, CartResponse>
 {
-    public async Task<Result<CartResponse>> Handle(UpdateCartItemQuantityCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CartResponse>> HandleAsync(UpdateCartItemQuantityCommand request, CancellationToken cancellationToken)
     {
         Domain.Carts.Cart? cart = await cartRepository.GetByUserId(request.UserId, cancellationToken);
 
@@ -19,7 +18,7 @@ internal sealed class UpdateCartItemQuantityCommandHandler(
             return Result.Failure<CartResponse>(CartErrors.ItemNotFound(request.ProductId));
         }
 
-        Result result = cart.SetItemQuantity(request.ProductId, request.Quantity, dateTimeProvider.UtcNow);
+        Result result = cart.SetItemQuantity(request.ProductId, request.Quantity, timeProvider.GetUtcNow().UtcDateTime);
 
         if (result.IsFailure)
         {

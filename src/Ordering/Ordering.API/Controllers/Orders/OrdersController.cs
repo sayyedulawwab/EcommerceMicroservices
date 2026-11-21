@@ -42,7 +42,7 @@ public class OrdersController : ControllerBase
 
         var command = new PlaceOrderCommand(userId, orderItems);
 
-        Result<Guid> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -60,7 +60,7 @@ public class OrdersController : ControllerBase
             return Unauthorized();
         }
 
-        Result<IReadOnlyList<OrderResponse>> result = await handler.Handle(new GetMyOrdersQuery(userId), cancellationToken);
+        Result<IReadOnlyList<OrderResponse>> result = await handler.HandleAsync(new GetMyOrdersQuery(userId), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -76,7 +76,7 @@ public class OrdersController : ControllerBase
     {
         var query = new GetAllOrdersQuery();
 
-        Result<IReadOnlyList<OrderResponse>> result = await handler.Handle(query, cancellationToken);
+        Result<IReadOnlyList<OrderResponse>> result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -96,7 +96,7 @@ public class OrdersController : ControllerBase
 
         var query = new GetOrderByIdQuery(id, userId, User.IsInRole(Roles.Admin));
 
-        Result<OrderResponse> result = await handler.Handle(query, cancellationToken);
+        Result<OrderResponse> result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -115,7 +115,7 @@ public class OrdersController : ControllerBase
             return Unauthorized();
         }
 
-        Result result = await handler.Handle(new CancelOrderCommand(id, CancelledByCustomerReason, userId), cancellationToken);
+        Result result = await handler.HandleAsync(new CancelOrderCommand(id, CancelledByCustomerReason, userId), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -129,7 +129,7 @@ public class OrdersController : ControllerBase
     [HttpPost("{id:guid}/ship")]
     public async Task<IActionResult> ShipOrder(Guid id, ICommandHandler<ShipOrderCommand> handler, CancellationToken cancellationToken)
     {
-        Result result = await handler.Handle(new ShipOrderCommand(id), cancellationToken);
+        Result result = await handler.HandleAsync(new ShipOrderCommand(id), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -143,7 +143,7 @@ public class OrdersController : ControllerBase
     [HttpPost("{id:guid}/deliver")]
     public async Task<IActionResult> DeliverOrder(Guid id, ICommandHandler<DeliverOrderCommand> handler, CancellationToken cancellationToken)
     {
-        Result result = await handler.Handle(new DeliverOrderCommand(id), cancellationToken);
+        Result result = await handler.HandleAsync(new DeliverOrderCommand(id), cancellationToken);
 
         if (result.IsFailure)
         {

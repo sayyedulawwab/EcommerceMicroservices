@@ -1,5 +1,4 @@
-﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Application.Abstractions.Data;
+﻿using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Categories;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +10,10 @@ namespace Catalog.Application.Products.EditProduct;
 
 internal sealed class EditProductCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<EditProductCommand, Guid>
 {
-    public async Task<Result<Guid>> Handle(EditProductCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> HandleAsync(EditProductCommand request, CancellationToken cancellationToken)
     {
         var productId = new ProductId(request.Id);
         var categoryId = new CategoryId(request.CategoryId);
@@ -36,7 +35,7 @@ internal sealed class EditProductCommandHandler(
 
         if (currency.IsFailure)
         {
-            return Result.Failure<Guid>(ValidationError.FromResults([currency]));
+            return Result.Failure<Guid>(ValidationError.Collect(currency));
         }
 
         Result updated = Product.Update(
@@ -46,7 +45,7 @@ internal sealed class EditProductCommandHandler(
             new Money(request.PriceAmount, currency.Value),
             request.Quantity,
             categoryId,
-            dateTimeProvider.UtcNow);
+            timeProvider.GetUtcNow().UtcDateTime);
 
         if (updated.IsFailure)
         {

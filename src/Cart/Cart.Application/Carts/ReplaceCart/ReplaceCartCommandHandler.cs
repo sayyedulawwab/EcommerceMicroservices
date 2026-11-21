@@ -1,4 +1,3 @@
-using Cart.Application.Abstractions.Clock;
 using Cart.Domain.Carts;
 using SharedKernel.Domain;
 using SharedKernel.Exceptions;
@@ -8,10 +7,10 @@ namespace Cart.Application.Carts.ReplaceCart;
 
 internal sealed class ReplaceCartCommandHandler(
     ICartRepository cartRepository,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<ReplaceCartCommand, CartResponse>
 {
-    public async Task<Result<CartResponse>> Handle(ReplaceCartCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CartResponse>> HandleAsync(ReplaceCartCommand request, CancellationToken cancellationToken)
     {
         if (request.CartItems.Count == 0)
         {
@@ -20,7 +19,7 @@ internal sealed class ReplaceCartCommandHandler(
             return CartResponse.Empty(request.UserId);
         }
 
-        var cart = Domain.Carts.Cart.Create(request.UserId, dateTimeProvider.UtcNow);
+        var cart = Domain.Carts.Cart.Create(request.UserId, timeProvider.GetUtcNow().UtcDateTime);
 
         foreach (CartItemCommand item in request.CartItems)
         {
@@ -28,7 +27,7 @@ internal sealed class ReplaceCartCommandHandler(
 
             if (currency.IsFailure)
             {
-                return Result.Failure<CartResponse>(ValidationError.FromResults([currency]));
+                return Result.Failure<CartResponse>(ValidationError.Collect(currency));
             }
 
             Result addResult = cart.AddItem(
@@ -36,7 +35,7 @@ internal sealed class ReplaceCartCommandHandler(
                 item.ProductName,
                 new Money(item.PriceAmount, currency.Value),
                 item.Quantity,
-                dateTimeProvider.UtcNow);
+                timeProvider.GetUtcNow().UtcDateTime);
 
             if (addResult.IsFailure)
             {

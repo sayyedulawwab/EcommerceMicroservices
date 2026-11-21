@@ -39,7 +39,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
             request.Email,
             request.Password);
 
-        Result<Guid> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -55,7 +55,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
         ICommandHandler<LoginCommand, AuthTokens> handler,
         CancellationToken cancellationToken)
     {
-        Result<AuthTokens> result = await handler.Handle(new LoginCommand(request.Email, request.Password), cancellationToken);
+        Result<AuthTokens> result = await handler.HandleAsync(new LoginCommand(request.Email, request.Password), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -75,7 +75,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
     {
         Request.Cookies.TryGetValue(AuthCookies.RefreshToken, out string? refreshToken);
 
-        Result<AuthTokens> result = await handler.Handle(new RefreshTokensCommand(refreshToken), cancellationToken);
+        Result<AuthTokens> result = await handler.HandleAsync(new RefreshTokensCommand(refreshToken), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -96,7 +96,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
     {
         Request.Cookies.TryGetValue(AuthCookies.RefreshToken, out string? refreshToken);
 
-        Result result = await handler.Handle(new LogoutCommand(refreshToken), cancellationToken);
+        Result result = await handler.HandleAsync(new LogoutCommand(refreshToken), cancellationToken);
 
         authCookieWriter.Clear(Response);
 
@@ -114,7 +114,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
         ICommandHandler<ConfirmEmailCommand> handler,
         CancellationToken cancellationToken)
     {
-        Result result = await handler.Handle(new ConfirmEmailCommand(request.Email, request.Token), cancellationToken);
+        Result result = await handler.HandleAsync(new ConfirmEmailCommand(request.Email, request.Token), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -131,7 +131,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
         ICommandHandler<ResendEmailConfirmationCommand> handler,
         CancellationToken cancellationToken)
     {
-        Result result = await handler.Handle(new ResendEmailConfirmationCommand(request.Email), cancellationToken);
+        Result result = await handler.HandleAsync(new ResendEmailConfirmationCommand(request.Email), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -148,7 +148,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
         ICommandHandler<ForgotPasswordCommand> handler,
         CancellationToken cancellationToken)
     {
-        Result result = await handler.Handle(new ForgotPasswordCommand(request.Email), cancellationToken);
+        Result result = await handler.HandleAsync(new ForgotPasswordCommand(request.Email), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -165,7 +165,7 @@ public class AuthController(AuthCookieWriter authCookieWriter) : ControllerBase
         ICommandHandler<ResetPasswordCommand> handler,
         CancellationToken cancellationToken)
     {
-        Result result = await handler.Handle(
+        Result result = await handler.HandleAsync(
             new ResetPasswordCommand(request.Email, request.Token, request.NewPassword),
             cancellationToken);
 

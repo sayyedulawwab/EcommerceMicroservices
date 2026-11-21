@@ -3,7 +3,7 @@ using SharedKernel.Domain;
 
 namespace Catalog.Domain.Products;
 
-public sealed class Product : Entity<ProductId>
+public sealed class Product : AggregateRoot<ProductId>
 {
     private Product(ProductId id, string name, string description, Money price, int quantity, CategoryId categoryId, DateTime createdOnUtc)
         : base(id)

@@ -1,4 +1,3 @@
-using Cart.Application.Abstractions.Clock;
 using Cart.Domain.Carts;
 using SharedKernel.Domain;
 using SharedKernel.Messaging;
@@ -7,10 +6,10 @@ namespace Cart.Application.Carts.RemoveCartItem;
 
 internal sealed class RemoveCartItemCommandHandler(
     ICartRepository cartRepository,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<RemoveCartItemCommand, CartResponse>
 {
-    public async Task<Result<CartResponse>> Handle(RemoveCartItemCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CartResponse>> HandleAsync(RemoveCartItemCommand request, CancellationToken cancellationToken)
     {
         Domain.Carts.Cart? cart = await cartRepository.GetByUserId(request.UserId, cancellationToken);
 
@@ -19,7 +18,7 @@ internal sealed class RemoveCartItemCommandHandler(
             return Result.Failure<CartResponse>(CartErrors.ItemNotFound(request.ProductId));
         }
 
-        Result result = cart.RemoveItem(request.ProductId, dateTimeProvider.UtcNow);
+        Result result = cart.RemoveItem(request.ProductId, timeProvider.GetUtcNow().UtcDateTime);
 
         if (result.IsFailure)
         {

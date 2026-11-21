@@ -18,7 +18,7 @@ public sealed class OrderPaymentSucceededIntegrationEventHandler(
 
         var command = new MarkOrderPaidCommand(context.Message.OrderId);
 
-        Result result = await handler.Handle(command, context.CancellationToken);
+        Result result = await handler.HandleAsync(command, context.CancellationToken);
 
         if (result.IsFailure)
         {

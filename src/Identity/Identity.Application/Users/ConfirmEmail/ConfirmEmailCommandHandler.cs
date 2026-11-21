@@ -1,5 +1,4 @@
 using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +10,10 @@ namespace Identity.Application.Users.ConfirmEmail;
 internal sealed class ConfirmEmailCommandHandler(
     IApplicationDbContext dbContext,
     ISecureTokenService secureTokenService,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<ConfirmEmailCommand>
 {
-    public async Task<Result> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(ConfirmEmailCommand request, CancellationToken cancellationToken)
     {
         string email = User.NormalizeEmail(request.Email);
 
@@ -25,7 +24,7 @@ internal sealed class ConfirmEmailCommandHandler(
             return Result.Failure(UserTokenErrors.InvalidOrExpired);
         }
 
-        DateTime utcNow = dateTimeProvider.UtcNow;
+        DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
         string tokenHash = secureTokenService.Hash(request.Token);
 

@@ -6,7 +6,7 @@ namespace Identity.Domain.Users;
 /// One link in a rotation chain. Every refresh revokes the presented token and issues a new one in the same
 /// <see cref="FamilyId"/> (one family per login session). Only the SHA-256 hash of the token is stored.
 /// </summary>
-public sealed class RefreshToken : Entity<RefreshTokenId>
+public sealed class RefreshToken : AggregateRoot<RefreshTokenId>
 {
     private RefreshToken(RefreshTokenId id, string tokenHash, UserId userId, Guid familyId, DateTime expiresOnUtc, DateTime createdOnUtc)
         : base(id)

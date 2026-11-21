@@ -1,5 +1,4 @@
 using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +11,10 @@ namespace Identity.Application.Users.Logout;
 internal sealed class LogoutCommandHandler(
     IApplicationDbContext dbContext,
     ISecureTokenService secureTokenService,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<LogoutCommand>
 {
-    public async Task<Result> Handle(LogoutCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(LogoutCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
         {
@@ -30,7 +29,7 @@ internal sealed class LogoutCommandHandler(
 
         if (refreshToken is not null)
         {
-            DateTime utcNow = dateTimeProvider.UtcNow;
+            DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
             await dbContext.RefreshTokens
                 .Where(r => r.FamilyId == refreshToken.FamilyId && r.RevokedOnUtc == null)

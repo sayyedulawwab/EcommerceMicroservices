@@ -6,7 +6,7 @@ namespace Identity.Domain.Users;
 /// A single-use token mailed to the user (email confirmation, password reset). Only its hash is stored; the raw
 /// value travels in <see cref="UserTokenIssuedDomainEvent"/> to the handler that sends the email, after the save.
 /// </summary>
-public sealed class UserToken : Entity<UserTokenId>
+public sealed class UserToken : AggregateRoot<UserTokenId>
 {
     private UserToken(UserTokenId id, User user, UserTokenPurpose purpose, string tokenHash, DateTime expiresOnUtc, DateTime createdOnUtc)
         : base(id)
@@ -44,7 +44,7 @@ public sealed class UserToken : Entity<UserTokenId>
     {
         var token = new UserToken(UserTokenId.New(), user, purpose, tokenHash, expiresOnUtc, createdOnUtc);
 
-        token.RaiseDomainEvent(new UserTokenIssuedDomainEvent(user.Email, user.FirstName, purpose, rawToken));
+        token.RecordDomainEvent(new UserTokenIssuedDomainEvent(user.Email, user.FirstName, purpose, rawToken));
 
         return token;
     }

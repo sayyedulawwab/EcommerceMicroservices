@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Catalog.API;
 using Catalog.API.Extensions;
 using Catalog.API.Logging;
+using Catalog.API.Middleware;
 using Catalog.Application;
 using Catalog.Application.Products.Events;
 using Catalog.Infrastructure;
@@ -121,16 +122,16 @@ WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerWithUi();
-    app.ApplyMigrations();
+    await app.PrepareDevelopmentDatabaseAsync();
 }
 
-app.UseRequestContextLogging();
+app.UseMiddleware<CorrelationIdMiddleware>();
 
 app.UseSerilogRequestLogging();
 
-app.UseCustomExceptionHandler();
+app.UseExceptionHandler();
 
-app.UseCsrfProtection();
+app.UseMiddleware<CsrfProtectionMiddleware>();
 
 //app.UseHttpsRedirection();
 

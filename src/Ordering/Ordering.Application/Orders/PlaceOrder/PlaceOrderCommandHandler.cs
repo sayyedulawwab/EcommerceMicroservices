@@ -1,5 +1,4 @@
 using MassTransit;
-using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Data;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
@@ -10,17 +9,17 @@ namespace Ordering.Application.Orders.PlaceOrder;
 
 internal sealed class PlaceOrderCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider,
+    TimeProvider timeProvider,
     IPublishEndpoint publishEndpoint)
     : ICommandHandler<PlaceOrderCommand, Guid>
 {
-    public async Task<Result<Guid>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> HandleAsync(PlaceOrderCommand request, CancellationToken cancellationToken)
     {
         var lines = request.OrderItems
             .Select(item => new OrderLine(item.ProductId, item.Quantity))
             .ToList();
 
-        Result<Order> orderResult = Order.Place(request.UserId, lines, dateTimeProvider.UtcNow);
+        Result<Order> orderResult = Order.Place(request.UserId, lines, timeProvider.GetUtcNow().UtcDateTime);
 
         if (orderResult.IsFailure)
         {

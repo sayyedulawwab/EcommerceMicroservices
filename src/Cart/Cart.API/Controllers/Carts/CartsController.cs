@@ -28,7 +28,7 @@ public class CartsController : ControllerBase
             return Unauthorized();
         }
 
-        Result<CartResponse> result = await handler.Handle(new GetCartByUserQuery(userId), cancellationToken);
+        Result<CartResponse> result = await handler.HandleAsync(new GetCartByUserQuery(userId), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -51,7 +51,7 @@ public class CartsController : ControllerBase
             new CartItemCommand(item.ProductId, item.ProductName, item.PriceAmount, item.PriceCurrency, item.Quantity))
             .ToList();
 
-        Result<CartResponse> result = await handler.Handle(new ReplaceCartCommand(userId, cartItems), cancellationToken);
+        Result<CartResponse> result = await handler.HandleAsync(new ReplaceCartCommand(userId, cartItems), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -69,7 +69,7 @@ public class CartsController : ControllerBase
             return Unauthorized();
         }
 
-        Result result = await handler.Handle(new RemoveCartCommand(userId), cancellationToken);
+        Result result = await handler.HandleAsync(new RemoveCartCommand(userId), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -96,7 +96,7 @@ public class CartsController : ControllerBase
             request.PriceCurrency,
             request.Quantity);
 
-        Result<CartResponse> result = await handler.Handle(command, cancellationToken);
+        Result<CartResponse> result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -115,7 +115,7 @@ public class CartsController : ControllerBase
             return Unauthorized();
         }
 
-        Result<CartResponse> result = await handler.Handle(new UpdateCartItemQuantityCommand(userId, productId, request.Quantity), cancellationToken);
+        Result<CartResponse> result = await handler.HandleAsync(new UpdateCartItemQuantityCommand(userId, productId, request.Quantity), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -133,7 +133,7 @@ public class CartsController : ControllerBase
             return Unauthorized();
         }
 
-        Result<CartResponse> result = await handler.Handle(new RemoveCartItemCommand(userId, productId), cancellationToken);
+        Result<CartResponse> result = await handler.HandleAsync(new RemoveCartItemCommand(userId, productId), cancellationToken);
 
         if (result.IsFailure)
         {

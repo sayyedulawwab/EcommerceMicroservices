@@ -24,7 +24,7 @@ public class CategoriesController : BaseController
     {
         var command = new AddCategoryCommand(request.Name, request.Description, request.ParentCategoryId);
 
-        Result<Guid> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -40,7 +40,7 @@ public class CategoriesController : BaseController
     {
         var query = new GetAllCategoriesQuery();
 
-        Result<IReadOnlyList<CategoryResponse>> result = await handler.Handle(query, cancellationToken);
+        Result<IReadOnlyList<CategoryResponse>> result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -56,7 +56,7 @@ public class CategoriesController : BaseController
     {
         var query = new GetCategoryByIdQuery(id);
 
-        Result<CategoryResponse> result = await handler.Handle(query, cancellationToken);
+        Result<CategoryResponse> result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -72,7 +72,7 @@ public class CategoriesController : BaseController
     {
         var command = new EditCategoryCommand(id, request.Name, request.Description, request.ParentCategoryId);
 
-        Result<Guid> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -88,7 +88,7 @@ public class CategoriesController : BaseController
     {
         var command = new DeleteCategoryCommand(id);
 
-        Result<Guid> result = await handler.Handle(command, cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {

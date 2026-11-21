@@ -1,5 +1,4 @@
-﻿using Catalog.Application.Abstractions.Clock;
-using Catalog.Application.Abstractions.Data;
+﻿using Catalog.Application.Abstractions.Data;
 using Catalog.Domain.Categories;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -9,10 +8,10 @@ namespace Catalog.Application.Categories.AddCategory;
 
 internal sealed class AddCategoryCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<AddCategoryCommand, Guid>
 {
-    public async Task<Result<Guid>> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> HandleAsync(AddCategoryCommand request, CancellationToken cancellationToken)
     {
         CategoryId? parentCategoryId = request.ParentCategoryId is Guid parentId ? new CategoryId(parentId) : null;
 
@@ -22,7 +21,7 @@ internal sealed class AddCategoryCommandHandler(
             return Result.Failure<Guid>(CategoryErrors.ParentNotFound(parentCategoryId.Value));
         }
 
-        var category = Category.Create(request.Name, request.Description, parentCategoryId, dateTimeProvider.UtcNow);
+        var category = Category.Create(request.Name, request.Description, parentCategoryId, timeProvider.GetUtcNow().UtcDateTime);
 
         dbContext.Categories.Add(category);
 

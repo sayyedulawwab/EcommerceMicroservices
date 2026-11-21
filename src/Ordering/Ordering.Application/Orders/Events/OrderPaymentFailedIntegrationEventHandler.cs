@@ -18,7 +18,7 @@ public sealed class OrderPaymentFailedIntegrationEventHandler(
 
         var command = new CancelOrderCommand(context.Message.OrderId, $"Payment failed: {context.Message.Reason}");
 
-        Result result = await handler.Handle(command, context.CancellationToken);
+        Result result = await handler.HandleAsync(command, context.CancellationToken);
 
         if (result.IsFailure)
         {

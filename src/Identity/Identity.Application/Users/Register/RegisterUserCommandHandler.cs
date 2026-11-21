@@ -1,5 +1,4 @@
 using Identity.Application.Abstractions.Auth;
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +11,10 @@ internal sealed class RegisterUserCommandHandler(
     IPasswordHasher passwordHasher,
     IApplicationDbContext dbContext,
     UserTokenIssuer userTokenIssuer,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<RegisterUserCommand, Guid>
 {
-    public async Task<Result<Guid>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> HandleAsync(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         string email = User.NormalizeEmail(request.Email);
 
@@ -33,7 +32,7 @@ internal sealed class RegisterUserCommandHandler(
             request.Email,
             hashedPassword,
             false,
-            dateTimeProvider.UtcNow);
+            timeProvider.GetUtcNow().UtcDateTime);
 
         dbContext.Users.Add(user);
 

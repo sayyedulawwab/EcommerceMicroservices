@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Data;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
@@ -9,10 +8,10 @@ namespace Ordering.Application.Orders.ShipOrder;
 
 internal sealed class ShipOrderCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<ShipOrderCommand>
 {
-    public async Task<Result> Handle(ShipOrderCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(ShipOrderCommand request, CancellationToken cancellationToken)
     {
         Order? order = await dbContext.Orders
             .FirstOrDefaultAsync(order => order.Id == new OrderId(request.OrderId), cancellationToken);
@@ -22,7 +21,7 @@ internal sealed class ShipOrderCommandHandler(
             return Result.Failure(OrderErrors.NotFound());
         }
 
-        Result result = order.Ship(dateTimeProvider.UtcNow);
+        Result result = order.Ship(timeProvider.GetUtcNow().UtcDateTime);
 
         if (result.IsFailure)
         {

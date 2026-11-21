@@ -29,7 +29,7 @@ public class UsersController(AuthCookieWriter authCookieWriter) : ControllerBase
             return Unauthorized();
         }
 
-        Result<UserProfileResponse> result = await handler.Handle(new GetUserProfileQuery(userId), cancellationToken);
+        Result<UserProfileResponse> result = await handler.HandleAsync(new GetUserProfileQuery(userId), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -50,7 +50,7 @@ public class UsersController(AuthCookieWriter authCookieWriter) : ControllerBase
             return Unauthorized();
         }
 
-        Result result = await handler.Handle(
+        Result result = await handler.HandleAsync(
             new UpdateUserProfileCommand(userId, request.FirstName, request.LastName),
             cancellationToken);
 
@@ -74,7 +74,7 @@ public class UsersController(AuthCookieWriter authCookieWriter) : ControllerBase
             return Unauthorized();
         }
 
-        Result<AuthTokens> result = await handler.Handle(
+        Result<AuthTokens> result = await handler.HandleAsync(
             new ChangePasswordCommand(userId, request.CurrentPassword, request.NewPassword),
             cancellationToken);
 

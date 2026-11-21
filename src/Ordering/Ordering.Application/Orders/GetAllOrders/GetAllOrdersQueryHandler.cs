@@ -9,7 +9,7 @@ namespace Ordering.Application.Orders.GetAllOrders;
 internal sealed class GetAllOrdersQueryHandler(IApplicationDbContext dbContext)
     : IQueryHandler<GetAllOrdersQuery, IReadOnlyList<OrderResponse>>
 {
-    public async Task<Result<IReadOnlyList<OrderResponse>>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<OrderResponse>>> HandleAsync(GetAllOrdersQuery request, CancellationToken cancellationToken)
     {
         List<Order> orders = await dbContext.Orders
             .AsNoTracking()

@@ -1,4 +1,3 @@
-using Cart.Application.Abstractions.Clock;
 using Cart.Domain.Carts;
 using SharedKernel.Domain;
 using SharedKernel.Exceptions;
@@ -8,27 +7,27 @@ namespace Cart.Application.Carts.AddCartItem;
 
 internal sealed class AddCartItemCommandHandler(
     ICartRepository cartRepository,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<AddCartItemCommand, CartResponse>
 {
-    public async Task<Result<CartResponse>> Handle(AddCartItemCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CartResponse>> HandleAsync(AddCartItemCommand request, CancellationToken cancellationToken)
     {
         Result<Currency> currency = Currency.FromCode(request.PriceCurrency);
 
         if (currency.IsFailure)
         {
-            return Result.Failure<CartResponse>(ValidationError.FromResults([currency]));
+            return Result.Failure<CartResponse>(ValidationError.Collect(currency));
         }
 
         Domain.Carts.Cart cart = await cartRepository.GetByUserId(request.UserId, cancellationToken)
-            ?? Domain.Carts.Cart.Create(request.UserId, dateTimeProvider.UtcNow);
+            ?? Domain.Carts.Cart.Create(request.UserId, timeProvider.GetUtcNow().UtcDateTime);
 
         Result addResult = cart.AddItem(
             request.ProductId,
             request.ProductName,
             new Money(request.PriceAmount, currency.Value),
             request.Quantity,
-            dateTimeProvider.UtcNow);
+            timeProvider.GetUtcNow().UtcDateTime);
 
         if (addResult.IsFailure)
         {

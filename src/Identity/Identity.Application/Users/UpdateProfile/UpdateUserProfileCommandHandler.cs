@@ -1,4 +1,3 @@
-using Identity.Application.Abstractions.Clock;
 using Identity.Application.Abstractions.Data;
 using Identity.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +8,10 @@ namespace Identity.Application.Users.UpdateProfile;
 
 internal sealed class UpdateUserProfileCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider)
+    TimeProvider timeProvider)
     : ICommandHandler<UpdateUserProfileCommand>
 {
-    public async Task<Result> Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(UpdateUserProfileCommand request, CancellationToken cancellationToken)
     {
         User? user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == new UserId(request.UserId), cancellationToken);
 
@@ -21,7 +20,7 @@ internal sealed class UpdateUserProfileCommandHandler(
             return Result.Failure(UserErrors.NotFound);
         }
 
-        user.UpdateProfile(request.FirstName, request.LastName, dateTimeProvider.UtcNow);
+        user.UpdateProfile(request.FirstName, request.LastName, timeProvider.GetUtcNow().UtcDateTime);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

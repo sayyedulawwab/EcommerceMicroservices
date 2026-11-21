@@ -17,7 +17,7 @@ public sealed class OrderStatusChangedToPaidIntegrationEventHandler(
 
         var command = new RemoveCartCommand(context.Message.UserId);
 
-        Result result = await handler.Handle(command, context.CancellationToken);
+        Result result = await handler.HandleAsync(command, context.CancellationToken);
 
         if (result.IsFailure)
         {

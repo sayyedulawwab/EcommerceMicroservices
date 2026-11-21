@@ -2,7 +2,7 @@
 
 namespace Identity.Domain.Users;
 
-public sealed class User : Entity<UserId>
+public sealed class User : AggregateRoot<UserId>
 {
     private User(UserId id, string firstName, string lastName, string email, string passwordHash, bool isAdmin, DateTime createdOnUtc)
         : base(id)

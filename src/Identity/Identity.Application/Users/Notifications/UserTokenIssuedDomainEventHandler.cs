@@ -12,7 +12,7 @@ internal sealed class UserTokenIssuedDomainEventHandler(
     IOptions<AccountOptions> accountOptions)
     : IDomainEventHandler<UserTokenIssuedDomainEvent>
 {
-    public async Task Handle(UserTokenIssuedDomainEvent domainEvent, CancellationToken cancellationToken)
+    public async Task HandleAsync(UserTokenIssuedDomainEvent domainEvent, CancellationToken cancellationToken)
     {
         string frontendBaseUrl = accountOptions.Value.FrontendBaseUrl.TrimEnd('/');
         string query = $"email={Uri.EscapeDataString(domainEvent.Email)}&token={Uri.EscapeDataString(domainEvent.RawToken)}";

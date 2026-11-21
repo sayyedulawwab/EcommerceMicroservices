@@ -43,18 +43,13 @@ public sealed class ApplicationDbContext(DbContextOptions options, IDomainEvents
 
     private async Task PublishDomainEventsAsync()
     {
-        var domainEvents = ChangeTracker
-            .Entries<IEntity>()
-            .Select(entry => entry.Entity)
-            .SelectMany(entity =>
-            {
-                IReadOnlyList<IDomainEvent> domainEvents = entity.GetDomainEvents();
-
-                entity.ClearDomainEvents();
-
-                return domainEvents;
-            })
-            .ToList();
+        // Pulling empties each aggregate's list, so a second SaveChangesAsync can't publish the same event twice.
+        List<IDomainEvent> domainEvents =
+        [
+            .. ChangeTracker
+                .Entries<IHasDomainEvents>()
+                .SelectMany(entry => entry.Entity.PullDomainEvents()),
+        ];
 
         await domainEventsDispatcher.DispatchAsync(domainEvents);
     }

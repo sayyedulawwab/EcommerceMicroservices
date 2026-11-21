@@ -18,7 +18,7 @@ public sealed class OrderItemsStockConfirmedIntegrationEventHandler(
 
         var command = new ConfirmOrderStockCommand(context.Message.OrderId, context.Message.OrderItems);
 
-        Result result = await handler.Handle(command, context.CancellationToken);
+        Result result = await handler.HandleAsync(command, context.CancellationToken);
 
         if (result.IsFailure)
         {

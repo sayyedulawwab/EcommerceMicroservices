@@ -1,6 +1,5 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Ordering.Application.Abstractions.Clock;
 using Ordering.Application.Abstractions.Data;
 using Ordering.Domain.Orders;
 using SharedKernel.Domain;
@@ -11,11 +10,11 @@ namespace Ordering.Application.Orders.CancelOrder;
 
 internal sealed class CancelOrderCommandHandler(
     IApplicationDbContext dbContext,
-    IDateTimeProvider dateTimeProvider,
+    TimeProvider timeProvider,
     IPublishEndpoint publishEndpoint)
     : ICommandHandler<CancelOrderCommand>
 {
-    public async Task<Result> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(CancelOrderCommand request, CancellationToken cancellationToken)
     {
         Order? order = await dbContext.Orders
             .FirstOrDefaultAsync(order => order.Id == new OrderId(request.OrderId), cancellationToken);
@@ -30,7 +29,7 @@ internal sealed class CancelOrderCommandHandler(
             return Result.Success();
         }
 
-        Result cancelResult = order.Cancel(request.Reason, dateTimeProvider.UtcNow);
+        Result cancelResult = order.Cancel(request.Reason, timeProvider.GetUtcNow().UtcDateTime);
 
         if (cancelResult.IsFailure)
         {
